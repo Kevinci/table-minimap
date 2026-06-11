@@ -8,16 +8,16 @@ A framework-agnostic minimap component for navigating large HTML tables. Inspire
 
 ## Features
 
-- 🎯 **Framework Agnostic** - Works with vanilla JS, React, Vue, Angular, or any framework
-- 📦 **Zero Dependencies** - No external runtime dependencies
-- 🌳 **Tree Shakable** - ESM + CommonJS outputs
-- 🎨 **Two Render Modes** - Simple columns or VS Code-like canvas preview
-- 📱 **Touch Support** - Mouse, touch, and pointer events
-- 🔄 **Auto Updates** - Responds to resize, scroll, and DOM mutations
-- ♿ **Accessible** - ARIA attributes and keyboard navigation support
-- 🎭 **Themeable** - CSS custom properties for easy customization
-- 🎨 **shadcn/ui Ready** - Dedicated theme using shadcn CSS variables
-- 📏 **TypeScript** - Fully typed with declaration files
+- **Framework Agnostic** - Works with vanilla JS, React, Vue, Angular, or any framework
+- **Zero Dependencies** - No external runtime dependencies
+- **Tree Shakable** - ESM + CommonJS outputs
+- **Two Render Modes** - Simple columns or VS Code-like canvas preview
+- **Touch Support** - Mouse, touch, and pointer events
+- **Auto Updates** - Responds to resize, scroll, and DOM mutations
+- **Accessible** - ARIA attributes and keyboard navigation support
+- **Themeable** - CSS custom properties for easy customization
+- **shadcn/ui Ready** - Dedicated theme using shadcn CSS variables
+- **TypeScript** - Fully typed with declaration files
 
 ## Installation
 
