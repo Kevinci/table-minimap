@@ -15,6 +15,7 @@ const DEFAULT_OPTIONS: RequiredOptions = {
   height: 40,
   position: 'bottom',
   fixedWidth: 300,
+  compact: false,
   draggable: true,
   showViewport: true,
   zoomable: false,
@@ -22,6 +23,15 @@ const DEFAULT_OPTIONS: RequiredOptions = {
   maxZoom: 10,
   zoomSpeed: 0.1,
 };
+
+/** Compact floating minimap handle size in pixels */
+const COMPACT_HANDLE_SIZE = 24;
+
+/** Visible dot size inside the compact handle in pixels */
+const COMPACT_DOT_SIZE = 5;
+
+/** Delay before compact mode collapses after pointer leave */
+const COMPACT_COLLAPSE_DELAY = 180;
 
 /**
  * TableMinimap - A framework-agnostic minimap component for large HTML tables
@@ -50,6 +60,15 @@ export class TableMinimap {
 
   /** Configuration options */
   private readonly options: RequiredOptions;
+
+  /** Whether compact fixed-overlay behavior is enabled */
+  private readonly isCompactMode: boolean;
+
+  /** Whether the compact minimap is currently collapsed */
+  private isCompactCollapsed = false;
+
+  /** Timeout used to collapse compact mode after pointer leave */
+  private compactCollapseTimer: number | null = null;
 
   /** The scrollable container (parent of table) */
   private scrollContainer: HTMLElement | null = null;
@@ -132,6 +151,10 @@ export class TableMinimap {
     onCanvasPointerDown: (e: PointerEvent) => void;
     onCanvasMouseMove: (e: MouseEvent) => void;
     onCanvasMouseLeave: () => void;
+    onCompactFocusIn: () => void;
+    onCompactFocusOut: () => void;
+    onCompactKeyDown: (e: KeyboardEvent) => void;
+    onDocumentClick: (e: MouseEvent) => void;
   };
 
   /** Animation frame ID for throttling */
@@ -150,6 +173,7 @@ export class TableMinimap {
   constructor(selector: TableSelector, options: TableMinimapOptions = {}) {
     this.table = this.resolveTable(selector);
     this.options = { ...DEFAULT_OPTIONS, ...options };
+    this.isCompactMode = this.options.compact && this.options.position === 'fixed';
 
     // Bind event handlers
     this.boundHandlers = {
@@ -162,6 +186,10 @@ export class TableMinimap {
       onCanvasPointerDown: this.onCanvasPointerDown.bind(this),
       onCanvasMouseMove: this.onCanvasMouseMove.bind(this),
       onCanvasMouseLeave: this.onCanvasMouseLeave.bind(this),
+      onCompactFocusIn: this.onCompactFocusIn.bind(this),
+      onCompactFocusOut: this.onCompactFocusOut.bind(this),
+      onCompactKeyDown: this.onCompactKeyDown.bind(this),
+      onDocumentClick: this.onDocumentClick.bind(this),
     };
 
     this.init();
@@ -307,11 +335,21 @@ export class TableMinimap {
     // Create main container
     this.minimapEl = document.createElement('div');
     this.minimapEl.className = `tm-minimap tm-minimap--${this.options.position}`;
-    this.minimapEl.style.height = `${this.options.height}px`;
-    
+    this.minimapEl.style.setProperty('--tm-minimap-height', `${this.options.height}px`);
+
     // Set width for fixed position
     if (this.options.position === 'fixed') {
-      this.minimapEl.style.width = `${this.options.fixedWidth}px`;
+      this.minimapEl.style.setProperty('--tm-minimap-width', `${this.options.fixedWidth}px`);
+    }
+
+    if (this.isCompactMode) {
+      this.minimapEl.classList.add('tm-minimap--compact', 'tm-minimap--compact-collapsed');
+      this.minimapEl.style.setProperty('--tm-compact-dot-size', `${COMPACT_DOT_SIZE}px`);
+      this.isCompactCollapsed = true;
+      this.applyCompactDimensions(true);
+      this.minimapEl.setAttribute('aria-expanded', 'false');
+    } else {
+      this.minimapEl.setAttribute('aria-expanded', 'true');
     }
     
     this.minimapEl.setAttribute('role', 'slider');
@@ -412,8 +450,9 @@ export class TableMinimap {
 
         // Apply fixed positioning styles
         this.minimapEl.style.position = 'absolute';
-        this.minimapEl.style.bottom = '12px';
-        this.minimapEl.style.right = '12px';
+        const offset = this.isCompactMode ? 8 : 12;
+        this.minimapEl.style.bottom = `${offset}px`;
+        this.minimapEl.style.right = `${offset}px`;
         this.minimapEl.style.marginTop = '0';
       }
     } else if (this.options.position === 'top') {
@@ -473,6 +512,8 @@ export class TableMinimap {
    */
   private render(): void {
     if (this.isDestroyed) return;
+
+    if (this.isCompactMode && this.isCompactCollapsed) return;
 
     this.updateViewport();
 
@@ -720,6 +761,13 @@ export class TableMinimap {
     // Click on minimap to jump
     this.minimapEl.addEventListener('click', this.boundHandlers.onMinimapClick);
 
+    if (this.isCompactMode) {
+      this.minimapEl.addEventListener('focusin', this.boundHandlers.onCompactFocusIn);
+      this.minimapEl.addEventListener('focusout', this.boundHandlers.onCompactFocusOut);
+      this.minimapEl.addEventListener('keydown', this.boundHandlers.onCompactKeyDown);
+      document.addEventListener('click', this.boundHandlers.onDocumentClick);
+    }
+
     // Drag events on viewport
     if (this.options.draggable && this.viewportEl) {
       this.viewportEl.addEventListener('pointerdown', this.boundHandlers.onPointerDown);
@@ -777,6 +825,12 @@ export class TableMinimap {
    */
   private onMinimapClick(e: MouseEvent): void {
     if (!this.minimapEl || !this.scrollContainer) return;
+
+    if (this.isCompactMode && this.isCompactCollapsed) {
+      e.preventDefault();
+      this.expandCompact();
+      return;
+    }
 
     // Ignore clicks during dragging, panning, or right after panning
     if (this.isDragging || this.isPanning || this.wasPanning) return;
@@ -1069,6 +1123,125 @@ export class TableMinimap {
   }
 
   /**
+   * Expands the compact minimap and clears any pending collapse.
+   */
+  private expandCompact(): void {
+    if (!this.isCompactMode || !this.minimapEl) return;
+
+    this.clearCompactCollapseTimer();
+    this.applyCompactDimensions(false);
+    this.render();
+  }
+
+  /**
+   * Collapses the compact minimap to the small dot handle.
+   */
+  private collapseCompact(): void {
+    if (!this.isCompactMode || !this.minimapEl) return;
+
+    this.applyCompactDimensions(true);
+  }
+
+  /**
+   * Applies compact sizing/state to the minimap.
+   */
+  private applyCompactDimensions(collapsed: boolean): void {
+    if (!this.minimapEl || !this.isCompactMode) return;
+
+    this.isCompactCollapsed = collapsed;
+
+    if (collapsed) {
+      this.minimapEl.classList.add('tm-minimap--compact-collapsed');
+      this.minimapEl.classList.remove('tm-minimap--compact-expanded');
+      this.minimapEl.style.setProperty('--tm-minimap-width', `${COMPACT_HANDLE_SIZE}px`);
+      this.minimapEl.style.setProperty('--tm-minimap-height', `${COMPACT_HANDLE_SIZE}px`);
+      this.minimapEl.setAttribute('aria-expanded', 'false');
+      return;
+    }
+
+    this.minimapEl.classList.remove('tm-minimap--compact-collapsed');
+    this.minimapEl.classList.add('tm-minimap--compact-expanded');
+    this.minimapEl.style.setProperty('--tm-minimap-width', `${this.options.fixedWidth}px`);
+    this.minimapEl.style.setProperty('--tm-minimap-height', `${this.options.height}px`);
+    this.minimapEl.setAttribute('aria-expanded', 'true');
+  }
+
+  /**
+   * Clears a pending compact collapse timer.
+   */
+  private clearCompactCollapseTimer(): void {
+    if (this.compactCollapseTimer === null) return;
+
+    clearTimeout(this.compactCollapseTimer);
+    this.compactCollapseTimer = null;
+  }
+
+  /**
+   * Schedules the compact minimap to collapse.
+   */
+  private scheduleCompactCollapse(delay = COMPACT_COLLAPSE_DELAY): void {
+    if (!this.isCompactMode) return;
+
+    this.clearCompactCollapseTimer();
+    this.compactCollapseTimer = window.setTimeout(() => {
+      this.collapseCompact();
+      this.compactCollapseTimer = null;
+    }, delay);
+  }
+
+  /**
+   * Handles document click for closing compact mode when clicking outside.
+   */
+  private onDocumentClick(e: MouseEvent): void {
+    if (!this.isCompactMode || !this.minimapEl || this.isCompactCollapsed) return;
+
+    // Check if click is outside the minimap
+    if (!this.minimapEl.contains(e.target as Node)) {
+      this.collapseCompact();
+    }
+  }
+
+  /**
+   * Handles focus entering compact mode.
+   */
+  private onCompactFocusIn(): void {
+    if (!this.isCompactMode) return;
+
+    this.expandCompact();
+  }
+
+  /**
+   * Handles focus leaving compact mode.
+   */
+  private onCompactFocusOut(): void {
+    if (!this.isCompactMode) return;
+
+    this.scheduleCompactCollapse(0);
+  }
+
+  /**
+   * Keyboard interactions for compact mode.
+   */
+  private onCompactKeyDown(e: KeyboardEvent): void {
+    if (!this.isCompactMode) return;
+
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      this.collapseCompact();
+      return;
+    }
+
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (this.isCompactCollapsed) {
+        this.expandCompact();
+      } else {
+        this.collapseCompact();
+      }
+    }
+  }
+
+  /**
    * Sets up ResizeObserver and MutationObserver
    */
   private setupObservers(): void {
@@ -1293,6 +1466,8 @@ export class TableMinimap {
     if (this.isDestroyed) return;
     this.isDestroyed = true;
 
+    this.clearCompactCollapseTimer();
+
     // Cancel any pending animation frame
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
@@ -1306,7 +1481,12 @@ export class TableMinimap {
 
     if (this.minimapEl) {
       this.minimapEl.removeEventListener('click', this.boundHandlers.onMinimapClick);
+      this.minimapEl.removeEventListener('focusin', this.boundHandlers.onCompactFocusIn);
+      this.minimapEl.removeEventListener('focusout', this.boundHandlers.onCompactFocusOut);
+      this.minimapEl.removeEventListener('keydown', this.boundHandlers.onCompactKeyDown);
     }
+
+    document.removeEventListener('click', this.boundHandlers.onDocumentClick);
 
     if (this.viewportEl) {
       this.viewportEl.removeEventListener('pointerdown', this.boundHandlers.onPointerDown);

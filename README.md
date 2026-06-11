@@ -87,11 +87,29 @@ const minimap = new TableMinimap('#my-table');
 const minimap = new TableMinimap('#my-table', {
   mode: 'canvas',      // 'columns' | 'canvas'
   height: 50,          // Height in pixels
-  position: 'bottom',  // 'top' | 'bottom'
+  position: 'bottom',  // 'top' | 'bottom' | 'fixed'
   draggable: true,     // Enable drag navigation
   showViewport: true,  // Show viewport indicator
 });
 ```
+
+### Compact Fixed Mode
+
+For a smaller, hideable floating minimap, enable `compact` together with `position: 'fixed'`:
+
+```typescript
+const minimap = new TableMinimap('#my-table', {
+  position: 'fixed',
+  fixedWidth: 260,
+  compact: true,
+  height: 44,
+});
+```
+
+- Collapses into a small translucent dot in the bottom-right corner
+- Expands on hover or keyboard focus
+- Remains clickable when collapsed
+- Uses a short ease-in-out transition for width/height/opacity
 
 ### Canvas Mode (VS Code-like)
 
@@ -170,7 +188,13 @@ interface TableMinimapOptions {
    * Position relative to the table
    * @default "bottom"
    */
-  position?: 'top' | 'bottom';
+  position?: 'top' | 'bottom' | 'fixed';
+
+  /**
+   * Enable compact floating mode for fixed minimaps
+   * @default false
+   */
+  compact?: boolean;
 
   /**
    * Enable drag navigation
@@ -217,6 +241,7 @@ interface TableMinimapOptions {
 | `mode` | `'columns'` |
 | `height` | `40` |
 | `position` | `'bottom'` |
+| `compact` | `false` |
 | `draggable` | `true` |
 | `showViewport` | `true` |
 | `zoomable` | `false` |

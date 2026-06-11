@@ -112,6 +112,43 @@
       </div>
     </section>
 
+    <!-- Demo 2b: Compact Fixed Position -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Compact Fixed Position</h2>
+        <span class="text-xs font-medium bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">Hideable Dot</span>
+      </div>
+      <p class="text-gray-600 mb-6">A smaller floating minimap that collapses into a translucent dot in the bottom-right corner. Hover or click it to expand again.</p>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button id="scroll-start-compact" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">Scroll to Start</button>
+        <button id="scroll-middle-compact" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to Middle</button>
+        <button id="scroll-end-compact" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to End</button>
+      </div>
+      <div id="demo-container-compact" class="relative border border-gray-200 rounded-lg mb-4">
+        <div id="table-wrapper-compact" class="overflow-auto max-h-80">
+          <table id="demo-table-compact" class="demo-table"><thead><tr id="header-row-compact"></tr></thead><tbody id="table-body-compact"></tbody></table>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label for="cols-compact" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Columns</label>
+          <input type="number" id="cols-compact" value="22" min="5" max="200" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label for="rows-compact" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Rows</label>
+          <input type="number" id="rows-compact" value="48" min="5" max="500" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Scroll Position</p>
+          <p id="scroll-pos-compact" class="text-2xl font-semibold text-gray-900">0%</p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Mode</p>
+          <p class="text-2xl font-semibold text-gray-900">Compact</p>
+        </div>
+      </div>
+    </section>
+
     <!-- Demo 3: Canvas Mode -->
     <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
       <div class="flex items-center gap-3 mb-4">

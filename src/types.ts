@@ -31,6 +31,14 @@ export interface TableMinimapOptions {
   fixedWidth?: number;
 
   /**
+   * Enable compact floating mode for fixed minimaps.
+   * When enabled, the minimap collapses into a small dot handle in the
+   * bottom-right corner and expands on hover/focus/click.
+   * @default false
+   */
+  compact?: boolean;
+
+  /**
    * Enable drag navigation on the viewport indicator
    * @default true
    */

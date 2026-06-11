@@ -4,9 +4,11 @@ import '../src/styles.css';
 // State
 let cols1 = 20, rows1 = 50, position1: 'top' | 'bottom' = 'bottom';
 let cols2 = 20, rows2 = 50, width2 = 250;
+let colsCompact = 22, rowsCompact = 48;
 let cols3 = 20, rows3 = 50;
 let minimap1: TableMinimap | null = null;
 let minimap2: TableMinimap | null = null;
+let minimapCompact: TableMinimap | null = null;
 let minimap3: TableMinimap | null = null;
 
 /**
@@ -99,6 +101,21 @@ function recreateDemo2(): void {
 }
 
 /**
+ * Recreates Demo 2b - Compact Fixed Position
+ */
+function recreateDemoCompact(): void {
+  minimapCompact?.destroy();
+  createTable('header-row-compact', 'table-body-compact', colsCompact, rowsCompact, true);
+  minimapCompact = new TableMinimap('#demo-table-compact', {
+    mode: 'columns',
+    height: 44,
+    position: 'fixed',
+    fixedWidth: 260,
+    compact: true,
+  });
+}
+
+/**
  * Recreates Demo 3 - Canvas Mode
  */
 function recreateDemo3(): void {
@@ -125,6 +142,7 @@ function init(): void {
   // Initial table creation
   recreateDemo1();
   recreateDemo2();
+  recreateDemoCompact();
   recreateDemo3();
 
   // === Demo 1: Columns Mode with Position Toggle ===
@@ -179,6 +197,29 @@ function init(): void {
   document.getElementById('width-2')?.addEventListener('change', (e) => {
     width2 = parseInt((e.target as HTMLInputElement).value) || 250;
     recreateDemo2();
+  });
+
+  // === Demo 2b: Compact Fixed Position ===
+  const wrapperCompact = document.getElementById('table-wrapper-compact')!;
+  wrapperCompact.addEventListener('scroll', () => updateScrollInfo(wrapperCompact, 'scroll-pos-compact'));
+
+  document.getElementById('scroll-start-compact')?.addEventListener('click', () => {
+    wrapperCompact.scrollTo({ left: 0, behavior: 'smooth' });
+  });
+  document.getElementById('scroll-middle-compact')?.addEventListener('click', () => {
+    wrapperCompact.scrollTo({ left: (wrapperCompact.scrollWidth - wrapperCompact.clientWidth) / 2, behavior: 'smooth' });
+  });
+  document.getElementById('scroll-end-compact')?.addEventListener('click', () => {
+    wrapperCompact.scrollTo({ left: wrapperCompact.scrollWidth, behavior: 'smooth' });
+  });
+
+  document.getElementById('cols-compact')?.addEventListener('change', (e) => {
+    colsCompact = parseInt((e.target as HTMLInputElement).value) || 22;
+    recreateDemoCompact();
+  });
+  document.getElementById('rows-compact')?.addEventListener('change', (e) => {
+    rowsCompact = parseInt((e.target as HTMLInputElement).value) || 48;
+    recreateDemoCompact();
   });
 
   // === Demo 3: Canvas Mode ===
