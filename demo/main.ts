@@ -12,6 +12,112 @@ let minimapCompact: TableMinimap | null = null;
 let minimap3: TableMinimap | null = null;
 
 /**
+ * Formats code with syntax highlighting classes
+ */
+function formatCode(code: string): string {
+  return code
+    .replace(/\b(import|from|const|new)\b/g, '<span class="keyword">$1</span>')
+    .replace(/'([^']+)'/g, "'<span class=\"string\">$1</span>'")
+    .replace(/\/\/.*/g, '<span class="comment">$&</span>')
+    .replace(/\b(TableMinimap)\b/g, '<span class="function">$1</span>')
+    .replace(/\b(true|false)\b/g, '<span class="keyword">$1</span>');
+}
+
+/**
+ * Generates code string for Demo 1
+ */
+function generateCode1(): string {
+  return formatCode(`import { TableMinimap } from 'table-minimap';
+import 'table-minimap/style.css';
+
+const minimap = new TableMinimap('#my-table', {
+  mode: 'columns',
+  height: 40,
+  position: '${position1}'
+});`);
+}
+
+/**
+ * Generates code string for Demo 2
+ */
+function generateCode2(): string {
+  return formatCode(`import { TableMinimap } from 'table-minimap';
+import 'table-minimap/style.css';
+
+const minimap = new TableMinimap('#my-table', {
+  mode: 'columns',
+  height: 50,
+  position: 'fixed',
+  fixedWidth: ${width2}
+});`);
+}
+
+/**
+ * Generates code string for Compact Demo
+ */
+function generateCodeCompact(): string {
+  return formatCode(`import { TableMinimap } from 'table-minimap';
+import 'table-minimap/style.css';
+
+const minimap = new TableMinimap('#my-table', {
+  mode: 'columns',
+  height: 44,
+  position: 'fixed',
+  fixedWidth: 260,
+  compact: true
+});`);
+}
+
+/**
+ * Generates code string for Demo 3
+ */
+function generateCode3(): string {
+  return formatCode(`import { TableMinimap } from 'table-minimap';
+import 'table-minimap/style.css';
+
+const minimap = new TableMinimap('#my-table', {
+  mode: 'canvas',
+  height: 100,
+  position: 'bottom',
+  zoomable: true,
+  maxZoom: 12
+});`);
+}
+
+/**
+ * Updates code content for all demos
+ */
+function updateCodeBlocks(): void {
+  const code1 = document.getElementById('code-content-1');
+  const code2 = document.getElementById('code-content-2');
+  const codeCompact = document.getElementById('code-content-compact');
+  const code3 = document.getElementById('code-content-3');
+
+  if (code1) code1.innerHTML = generateCode1();
+  if (code2) code2.innerHTML = generateCode2();
+  if (codeCompact) codeCompact.innerHTML = generateCodeCompact();
+  if (code3) code3.innerHTML = generateCode3();
+}
+
+/**
+ * Toggles code block visibility
+ */
+function toggleCodeBlock(buttonId: string, blockId: string): void {
+  const button = document.getElementById(buttonId);
+  const block = document.getElementById(blockId);
+  if (!button || !block) return;
+
+  button.addEventListener('click', () => {
+    const isHidden = block.classList.contains('hidden');
+    block.classList.toggle('hidden');
+    const textSpan = button.childNodes[button.childNodes.length - 1];
+    if (textSpan) {
+      textSpan.textContent = isHidden ? ' Code verbergen' : ' Code anzeigen';
+    }
+  });
+}
+
+/**
  * Generates random cell content
  */
 function generateCellContent(row: number, col: number): string {
@@ -145,6 +251,13 @@ function init(): void {
   recreateDemoCompact();
   recreateDemo3();
 
+  // Initialize code blocks
+  updateCodeBlocks();
+  toggleCodeBlock('show-code-1', 'code-block-1');
+  toggleCodeBlock('show-code-2', 'code-block-2');
+  toggleCodeBlock('show-code-compact', 'code-block-compact');
+  toggleCodeBlock('show-code-3', 'code-block-3');
+
   // === Demo 1: Columns Mode with Position Toggle ===
   wrapper1.addEventListener('scroll', () => updateScrollInfo(wrapper1, 'scroll-pos-1'));
 
@@ -170,6 +283,7 @@ function init(): void {
   document.getElementById('position-1')?.addEventListener('change', (e) => {
     position1 = (e.target as HTMLSelectElement).value as 'top' | 'bottom';
     recreateDemo1();
+    updateCodeBlocks();
   });
 
   // === Demo 2: Fixed Position ===
@@ -197,6 +311,7 @@ function init(): void {
   document.getElementById('width-2')?.addEventListener('change', (e) => {
     width2 = parseInt((e.target as HTMLInputElement).value) || 250;
     recreateDemo2();
+    updateCodeBlocks();
   });
 
   // === Demo 2b: Compact Fixed Position ===
