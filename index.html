@@ -23,7 +23,7 @@
     .code-block .function { color: #dcdcaa; }
     .code-block .type { color: #4ec9b0; }
   </style>
-  <script type="module" crossorigin src="/table-minimap/assets/index-DjSgJi2U.js"></script>
+  <script type="module" crossorigin src="/table-minimap/assets/index-CXekljjn.js"></script>
   <link rel="stylesheet" crossorigin href="/table-minimap/assets/index-nO9ckWZK.css">
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -242,10 +242,14 @@ pnpm add table-minimap</code></pre>
 
     <!-- Vanilla JS Usage -->
     <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-      <div class="flex items-center gap-3 mb-4">
-        <h2 class="text-xl font-semibold text-gray-900">Vanilla JavaScript</h2>
-        <span class="text-xs font-medium bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">No Framework</span>
-      </div>
+      <button id="toggle-vanilla" class="w-full flex items-center justify-between text-left">
+        <div class="flex items-center gap-3">
+          <h2 class="text-xl font-semibold text-gray-900">Vanilla JavaScript</h2>
+          <span class="text-xs font-medium bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">No Framework</span>
+        </div>
+        <svg id="icon-vanilla" class="w-5 h-5 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </button>
+      <div id="content-vanilla" class="hidden mt-4">
       <p class="text-gray-600 mb-4">Works with any HTML table – no framework required.</p>
 
       <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Basic Usage</h3>
@@ -329,14 +333,19 @@ pnpm add table-minimap</code></pre>
   });
 &lt;/<span class="keyword">script</span>&gt;</code></pre>
       </div>
+      </div>
     </section>
 
     <!-- React Usage -->
     <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-      <div class="flex items-center gap-3 mb-4">
-        <h2 class="text-xl font-semibold text-gray-900">React</h2>
-        <span class="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Hook Pattern</span>
-      </div>
+      <button id="toggle-react" class="w-full flex items-center justify-between text-left">
+        <div class="flex items-center gap-3">
+          <h2 class="text-xl font-semibold text-gray-900">React</h2>
+          <span class="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Hook Pattern</span>
+        </div>
+        <svg id="icon-react" class="w-5 h-5 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </button>
+      <div id="content-react" class="hidden mt-4">
       <p class="text-gray-600 mb-4">Use a custom hook for clean integration with React's lifecycle.</p>
 
       <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">useTableMinimap Hook</h3>
@@ -449,14 +458,19 @@ pnpm add table-minimap</code></pre>
   );
 }</code></pre>
       </div>
+      </div>
     </section>
 
     <!-- Vue 3 Usage -->
     <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-      <div class="flex items-center gap-3 mb-4">
-        <h2 class="text-xl font-semibold text-gray-900">Vue 3</h2>
-        <span class="text-xs font-medium bg-green-100 text-green-700 px-3 py-1 rounded-full">Composition API</span>
-      </div>
+      <button id="toggle-vue" class="w-full flex items-center justify-between text-left">
+        <div class="flex items-center gap-3">
+          <h2 class="text-xl font-semibold text-gray-900">Vue 3</h2>
+          <span class="text-xs font-medium bg-green-100 text-green-700 px-3 py-1 rounded-full">Composition API</span>
+        </div>
+        <svg id="icon-vue" class="w-5 h-5 text-gray-500 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+      </button>
+      <div id="content-vue" class="hidden mt-4">
       <p class="text-gray-600 mb-4">Clean integration using Vue 3's Composition API with composables.</p>
 
       <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">useTableMinimap Composable</h3>
@@ -580,6 +594,7 @@ pnpm add table-minimap</code></pre>
     &lt;<span class="keyword">table</span>&gt;<span class="comment">&lt;!-- ... --&gt;</span>&lt;/<span class="keyword">table</span>&gt;
   &lt;/<span class="keyword">div</span>&gt;
 &lt;/<span class="keyword">template</span>&gt;</code></pre>
+      </div>
       </div>
     </section>
 
