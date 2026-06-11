@@ -112,7 +112,7 @@ function toggleCodeBlock(buttonId: string, blockId: string): void {
     block.classList.toggle('hidden');
     const textSpan = button.childNodes[button.childNodes.length - 1];
     if (textSpan) {
-      textSpan.textContent = isHidden ? ' Code verbergen' : ' Code anzeigen';
+      textSpan.textContent = isHidden ? ' Hide Code' : ' Show Code';
     }
   });
 }
