@@ -681,7 +681,7 @@ Requires:
 
 ## License
 
-MIT © [Your Name]
+MIT © Kevin Imig
 
 ## Contributing
 
