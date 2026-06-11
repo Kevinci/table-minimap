@@ -29,9 +29,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && cp src/shadcn.css dist/shadcn.css",
+    "build:demo": "vite build --config vite.demo.config.ts",
     "preview": "vite preview",
     "lint": "eslint src --ext .ts",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "deploy": "npm run build:demo && gh-pages -d demo-dist"
   },
   "keywords": [
     "table",
@@ -53,11 +55,9 @@
     "url": "https://github.com/Kevinci/table-minimap.git"
   },
   "devDependencies": {
+    "gh-pages": "^6.3.0",
     "typescript": "^5.4.5",
     "vite": "^5.2.11",
     "vite-plugin-dts": "^3.9.1"
-  },
-  "peerDependencies": {},
-  "dependencies": {}
+  }
 }
-

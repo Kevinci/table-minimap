@@ -2,9 +2,11 @@
 
 A framework-agnostic minimap component for navigating large HTML tables. Inspired by VS Code's minimap, this library provides a visual overview of wide tables and enables drag-to-scroll navigation.
 
-![npm version](https://img.shields.io/npm/v/table-minimap)
-![bundle size](https://img.shields.io/bundlephobia/minzip/table-minimap)
-![license](https://img.shields.io/npm/l/table-minimap)
+[![npm version](https://img.shields.io/npm/v/table-minimap)](https://www.npmjs.com/package/table-minimap)
+[![bundle size](https://img.shields.io/bundlephobia/minzip/table-minimap)](https://bundlephobia.com/package/table-minimap)
+[![license](https://img.shields.io/npm/l/table-minimap)](https://github.com/Kevinci/table-minimap/blob/main/LICENSE)
+
+**[Live Demo](https://kevinci.github.io/table-minimap/)**
 
 ## Features
 
