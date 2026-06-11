@@ -114,6 +114,24 @@ function toggleCodeBlock(buttonId: string, blockId: string): void {
 }
 
 /**
+ * Toggles collapsible section visibility
+ */
+function toggleSection(buttonId: string, contentId: string, iconId: string): void {
+  const button = document.getElementById(buttonId);
+  const content = document.getElementById(contentId);
+  const icon = document.getElementById(iconId);
+  if (!button || !content) return;
+
+  button.addEventListener('click', () => {
+    const isHidden = content.classList.contains('hidden');
+    content.classList.toggle('hidden');
+    if (icon) {
+      icon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
+    }
+  });
+}
+
+/**
  * Generates random cell content
  */
 function generateCellContent(row: number, col: number): string {
@@ -253,6 +271,11 @@ function init(): void {
   toggleCodeBlock('show-code-2', 'code-block-2');
   toggleCodeBlock('show-code-compact', 'code-block-compact');
   toggleCodeBlock('show-code-3', 'code-block-3');
+
+  // Initialize collapsible sections
+  toggleSection('toggle-vanilla', 'content-vanilla', 'icon-vanilla');
+  toggleSection('toggle-react', 'content-react', 'icon-react');
+  toggleSection('toggle-vue', 'content-vue', 'icon-vue');
 
   // === Demo 1: Columns Mode with Position Toggle ===
   wrapper1.addEventListener('scroll', () => updateScrollInfo(wrapper1, 'scroll-pos-1'));
