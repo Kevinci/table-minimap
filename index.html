@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Table Minimap Demo</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .tm-minimap {
+      --tm-background: #e3f2fd;
+      --tm-border: #bbdefb;
+      --tm-viewport-color: rgba(25, 118, 210, 0.3);
+      --tm-viewport-border: #1976d2;
+      --tm-column-color: #90caf9;
+    }
+    .demo-table { width: max-content; min-width: 100%; }
+    .demo-table th, .demo-table td { padding: 12px 16px; text-align: left; font-size: 14px; white-space: nowrap; border-bottom: 1px solid #f3f4f6; }
+    .demo-table th { background: #f9fafb; font-weight: 600; color: #374151; position: sticky; top: 0; z-index: 10; }
+    .demo-table tr:hover td { background: #f9fafb; }
+    .code-block .keyword { color: #569cd6; }
+    .code-block .string { color: #ce9178; }
+    .code-block .comment { color: #6a9955; }
+    .code-block .function { color: #dcdcaa; }
+    .code-block .type { color: #4ec9b0; }
+  </style>
+  <script type="module" crossorigin src="/table-minimap/assets/index-CRvURU5r.js"></script>
+  <link rel="stylesheet" crossorigin href="/table-minimap/assets/index-DcNxe7A0.css">
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-10">
+    <header class="mb-10">
+      <h1 class="text-3xl font-bold text-gray-900 mb-2">Table Minimap</h1>
+      <p class="text-gray-600 text-lg">Tired of explaining to your boss why having too many columns in a table isn't a good idea? Give him Table-Minimap so he'll leave you alone. A framework-agnostic minimap for navigating large HTML tables. <span class="text-gray-500">Like VS Code's minimap – but for tables.</span></p>
+    </header>
+
+    <!-- Demo 1: Columns Mode with Position Toggle -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Columns Mode</h2>
+        <span class="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Top / Bottom Position</span>
+      </div>
+      <p class="text-gray-600 mb-6">Simple column-based visualization. Toggle between <strong>top</strong> and <strong>bottom</strong> position.</p>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button id="scroll-start-1" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">Scroll to Start</button>
+        <button id="scroll-middle-1" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to Middle</button>
+        <button id="scroll-end-1" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to End</button>
+      </div>
+      <div id="demo-container-1" class="border border-gray-200 rounded-lg mb-4">
+        <div id="table-wrapper-1" class="overflow-auto max-h-80">
+          <table id="demo-table-1" class="demo-table"><thead><tr id="header-row-1"></tr></thead><tbody id="table-body-1"></tbody></table>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label for="cols-1" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Columns</label>
+          <input type="number" id="cols-1" value="20" min="5" max="200" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label for="rows-1" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Rows</label>
+          <input type="number" id="rows-1" value="50" min="5" max="500" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Position</label>
+          <select id="position-1" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="bottom">Bottom</option>
+            <option value="top">Top</option>
+          </select>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Scroll Position</p>
+          <p id="scroll-pos-1" class="text-2xl font-semibold text-gray-900">0%</p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Mode</p>
+          <p class="text-2xl font-semibold text-gray-900">Columns</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Demo 2: Fixed Position -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Fixed Position</h2>
+        <span class="text-xs font-medium bg-purple-100 text-purple-700 px-3 py-1 rounded-full">Floating Overlay</span>
+      </div>
+      <p class="text-gray-600 mb-6">Minimap floats in the <strong>bottom-right corner</strong> over the table. Stays visible while scrolling!</p>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button id="scroll-start-2" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">Scroll to Start</button>
+        <button id="scroll-middle-2" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to Middle</button>
+        <button id="scroll-end-2" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to End</button>
+      </div>
+      <div id="demo-container-2" class="relative border border-gray-200 rounded-lg mb-4">
+        <div id="table-wrapper-2" class="overflow-auto max-h-80">
+          <table id="demo-table-2" class="demo-table"><thead><tr id="header-row-2"></tr></thead><tbody id="table-body-2"></tbody></table>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label for="cols-2" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Columns</label>
+          <input type="number" id="cols-2" value="20" min="5" max="200" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label for="rows-2" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Rows</label>
+          <input type="number" id="rows-2" value="50" min="5" max="500" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label for="width-2" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Map Width</label>
+          <input type="number" id="width-2" value="250" min="150" max="500" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Scroll Position</p>
+          <p id="scroll-pos-2" class="text-2xl font-semibold text-gray-900">0%</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Demo 3: Canvas Mode -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Canvas Mode</h2>
+        <span class="text-xs font-medium bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">Real Text + Zoom</span>
+      </div>
+      <p class="text-gray-600 mb-6">Renders <strong>actual table content</strong>! Scroll wheel to zoom, drag to pan. Click columns to jump.</p>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button id="scroll-start-3" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">Scroll to Start</button>
+        <button id="scroll-middle-3" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to Middle</button>
+        <button id="scroll-end-3" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to End</button>
+        <button id="reset-zoom-3" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Reset Zoom</button>
+      </div>
+      <div id="demo-container-3" class="border border-gray-200 rounded-lg mb-4">
+        <div id="table-wrapper-3" class="overflow-auto max-h-80">
+          <table id="demo-table-3" class="demo-table"><thead><tr id="header-row-3"></tr></thead><tbody id="table-body-3"></tbody></table>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label for="cols-3" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Columns</label>
+          <input type="number" id="cols-3" value="20" min="5" max="200" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label for="rows-3" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Rows</label>
+          <input type="number" id="rows-3" value="50" min="5" max="500" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Scroll Position</p>
+          <p id="scroll-pos-3" class="text-2xl font-semibold text-gray-900">0%</p>
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Zoom Level</p>
+          <p id="zoom-level-3" class="text-2xl font-semibold text-gray-900">1.0x</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Installation -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Installation</h2>
+      <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
+<pre class="text-sm font-mono leading-relaxed text-gray-300"><code><span class="comment"># npm</span>
+npm install table-minimap
+
+<span class="comment"># yarn</span>
+yarn add table-minimap
+
+<span class="comment"># pnpm</span>
+pnpm add table-minimap</code></pre>
+      </div>
+    </section>
+
+    <!-- Vanilla JS Usage -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Vanilla JavaScript</h2>
+        <span class="text-xs font-medium bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full">No Framework</span>
+      </div>
+      <p class="text-gray-600 mb-4">Works with any HTML table – no framework required.</p>
+
+      <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Basic Usage</h3>
+      <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+<pre class="text-sm font-mono leading-relaxed text-gray-300"><code><span class="keyword">import</span> { TableMinimap } <span class="keyword">from</span> <span class="string">'table-minimap'</span>;
+<span class="keyword">import</span> <span class="string">'table-minimap/style.css'</span>;
+
+<span class="comment">// Initialize with selector</span>
+<span class="keyword">const</span> minimap = <span class="keyword">new</span> <span class="function">TableMinimap</span>(<span class="string">'#my-table'</span>, {
+  mode: <span class="string">'columns'</span>,
+  height: 40,
+  position: <span class="string">'bottom'</span>
+});
+
+<span class="comment">// Or with DOM element</span>
+<span class="keyword">const</span> tableEl = document.<span class="function">getElementById</span>(<span class="string">'my-table'</span>);
+<span class="keyword">const</span> minimap2 = <span class="keyword">new</span> <span class="function">TableMinimap</span>(tableEl, {
+  mode: <span class="string">'canvas'</span>,
+  height: 80,
+  zoomable: <span class="keyword">true</span>,
+  maxZoom: 12
+});</code></pre>
+      </div>
+
+      <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Dynamic Tables</h3>
+      <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+<pre class="text-sm font-mono leading-relaxed text-gray-300"><code><span class="keyword">let</span> minimap = <span class="keyword">null</span>;
+
+<span class="comment">// Initialize after table is loaded</span>
+<span class="keyword">function</span> <span class="function">initTable</span>(data) {
+  <span class="comment">// Destroy existing minimap</span>
+  minimap?.<span class="function">destroy</span>();
+
+  <span class="comment">// Populate your table...</span>
+  <span class="function">renderTable</span>(data);
+
+  <span class="comment">// Create new minimap</span>
+  minimap = <span class="keyword">new</span> <span class="function">TableMinimap</span>(<span class="string">'#data-table'</span>, {
+    mode: <span class="string">'canvas'</span>,
+    height: 60,
+    zoomable: <span class="keyword">true</span>
+  });
+}
+
+<span class="comment">// Call refresh() when table content changes</span>
+<span class="keyword">function</span> <span class="function">updateCell</span>(row, col, value) {
+  <span class="comment">// Update cell...</span>
+  minimap?.<span class="function">refresh</span>();
+}</code></pre>
+      </div>
+
+      <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Complete HTML Example</h3>
+      <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
+<pre class="text-sm font-mono leading-relaxed text-gray-300"><code><span class="comment">&lt;!-- HTML --&gt;</span>
+&lt;<span class="keyword">div</span> <span class="type">id</span>=<span class="string">"table-container"</span>&gt;
+  &lt;<span class="keyword">div</span> <span class="type">class</span>=<span class="string">"table-wrapper"</span> <span class="type">style</span>=<span class="string">"overflow-x: auto;"</span>&gt;
+    &lt;<span class="keyword">table</span> <span class="type">id</span>=<span class="string">"my-table"</span>&gt;
+      &lt;<span class="keyword">thead</span>&gt;
+        &lt;<span class="keyword">tr</span>&gt;
+          &lt;<span class="keyword">th</span>&gt;Column 1&lt;/<span class="keyword">th</span>&gt;
+          &lt;<span class="keyword">th</span>&gt;Column 2&lt;/<span class="keyword">th</span>&gt;
+          <span class="comment">&lt;!-- ... more columns --&gt;</span>
+        &lt;/<span class="keyword">tr</span>&gt;
+      &lt;/<span class="keyword">thead</span>&gt;
+      &lt;<span class="keyword">tbody</span>&gt;
+        <span class="comment">&lt;!-- Table rows --&gt;</span>
+      &lt;/<span class="keyword">tbody</span>&gt;
+    &lt;/<span class="keyword">table</span>&gt;
+  &lt;/<span class="keyword">div</span>&gt;
+&lt;/<span class="keyword">div</span>&gt;
+
+<span class="comment">&lt;!-- JavaScript --&gt;</span>
+&lt;<span class="keyword">script</span> <span class="type">type</span>=<span class="string">"module"</span>&gt;
+  <span class="keyword">import</span> { TableMinimap } <span class="keyword">from</span> <span class="string">'table-minimap'</span>;
+  <span class="keyword">import</span> <span class="string">'table-minimap/style.css'</span>;
+
+  <span class="keyword">const</span> minimap = <span class="keyword">new</span> <span class="function">TableMinimap</span>(<span class="string">'#my-table'</span>, {
+    mode: <span class="string">'canvas'</span>,
+    height: 60,
+    zoomable: <span class="keyword">true</span>
+  });
+&lt;/<span class="keyword">script</span>&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- React Usage -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">React</h2>
+        <span class="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full">Hook Pattern</span>
+      </div>
+      <p class="text-gray-600 mb-4">Use a custom hook for clean integration with React's lifecycle.</p>
+
+      <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">useTableMinimap Hook</h3>
+      <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+<pre class="text-sm font-mono leading-relaxed text-gray-300"><code><span class="comment">// hooks/useTableMinimap.ts</span>
+<span class="keyword">import</span> { useEffect, useRef, RefObject } <span class="keyword">from</span> <span class="string">'react'</span>;
+<span class="keyword">import</span> { TableMinimap, TableMinimapOptions } <span class="keyword">from</span> <span class="string">'table-minimap'</span>;
+<span class="keyword">import</span> <span class="string">'table-minimap/style.css'</span>;
+
+<span class="keyword">export function</span> <span class="function">useTableMinimap</span>&lt;<span class="type">T</span> <span class="keyword">extends</span> <span class="type">HTMLElement</span>&gt;(
+  options: <span class="type">TableMinimapOptions</span> = {}
+): {
+  tableRef: <span class="type">RefObject</span>&lt;<span class="type">T</span>&gt;;
+  minimapRef: <span class="type">RefObject</span>&lt;<span class="type">TableMinimap</span> | <span class="keyword">null</span>&gt;;
+  refresh: () =&gt; <span class="keyword">void</span>;
+  resetZoom: () =&gt; <span class="keyword">void</span>;
+} {
+  <span class="keyword">const</span> tableRef = <span class="function">useRef</span>&lt;<span class="type">T</span>&gt;(<span class="keyword">null</span>);
+  <span class="keyword">const</span> minimapRef = <span class="function">useRef</span>&lt;<span class="type">TableMinimap</span> | <span class="keyword">null</span>&gt;(<span class="keyword">null</span>);
+
+  <span class="function">useEffect</span>(() =&gt; {
+    <span class="keyword">if</span> (!tableRef.current) <span class="keyword">return</span>;
+
+    minimapRef.current = <span class="keyword">new</span> <span class="function">TableMinimap</span>(tableRef.current, options);
+
+    <span class="keyword">return</span> () =&gt; {
+      minimapRef.current?.<span class="function">destroy</span>();
+      minimapRef.current = <span class="keyword">null</span>;
+    };
+  }, []);
+
+  <span class="keyword">const</span> refresh = () =&gt; minimapRef.current?.<span class="function">refresh</span>();
+  <span class="keyword">const</span> resetZoom = () =&gt; minimapRef.current?.<span class="function">resetZoom</span>();
+
+  <span class="keyword">return</span> { tableRef, minimapRef, refresh, resetZoom };
+}</code></pre>
+      </div>
+
+      <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Usage in Component</h3>
+      <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+<pre class="text-sm font-mono leading-relaxed text-gray-300"><code><span class="comment">// components/DataTable.tsx</span>
+<span class="keyword">import</span> { useTableMinimap } <span class="keyword">from</span> <span class="string">'../hooks/useTableMinimap'</span>;
+
+<span class="keyword">interface</span> <span class="type">DataTableProps</span> {
+  data: <span class="type">Array</span>&lt;{ id: <span class="type">string</span>; [key: <span class="type">string</span>]: <span class="type">any</span> }&gt;;
+  columns: <span class="type">string</span>[];
+}
+
+<span class="keyword">export function</span> <span class="function">DataTable</span>({ data, columns }: <span class="type">DataTableProps</span>) {
+  <span class="keyword">const</span> { tableRef, refresh, resetZoom } = <span class="function">useTableMinimap</span>&lt;<span class="type">HTMLDivElement</span>&gt;({
+    mode: <span class="string">'canvas'</span>,
+    height: 80,
+    zoomable: <span class="keyword">true</span>,
+    maxZoom: 12
+  });
+
+  <span class="keyword">return</span> (
+    &lt;<span class="keyword">div</span> <span class="type">className</span>=<span class="string">"space-y-4"</span>&gt;
+      &lt;<span class="keyword">div</span> <span class="type">className</span>=<span class="string">"flex gap-2"</span>&gt;
+        &lt;<span class="keyword">button</span> <span class="type">onClick</span>={refresh}&gt;Refresh&lt;/<span class="keyword">button</span>&gt;
+        &lt;<span class="keyword">button</span> <span class="type">onClick</span>={resetZoom}&gt;Reset Zoom&lt;/<span class="keyword">button</span>&gt;
+      &lt;/<span class="keyword">div</span>&gt;
+
+      &lt;<span class="keyword">div</span> <span class="type">ref</span>={tableRef} <span class="type">className</span>=<span class="string">"overflow-x-auto"</span>&gt;
+        &lt;<span class="keyword">table</span> <span class="type">className</span>=<span class="string">"min-w-full"</span>&gt;
+          &lt;<span class="keyword">thead</span>&gt;
+            &lt;<span class="keyword">tr</span>&gt;
+              {columns.<span class="function">map</span>(col =&gt; (
+                &lt;<span class="keyword">th</span> <span class="type">key</span>={col}&gt;{col}&lt;/<span class="keyword">th</span>&gt;
+              ))}
+            &lt;/<span class="keyword">tr</span>&gt;
+          &lt;/<span class="keyword">thead</span>&gt;
+          &lt;<span class="keyword">tbody</span>&gt;
+            {data.<span class="function">map</span>(row =&gt; (
+              &lt;<span class="keyword">tr</span> <span class="type">key</span>={row.id}&gt;
+                {columns.<span class="function">map</span>(col =&gt; (
+                  &lt;<span class="keyword">td</span> <span class="type">key</span>={col}&gt;{row[col]}&lt;/<span class="keyword">td</span>&gt;
+                ))}
+              &lt;/<span class="keyword">tr</span>&gt;
+            ))}
+          &lt;/<span class="keyword">tbody</span>&gt;
+        &lt;/<span class="keyword">table</span>&gt;
+      &lt;/<span class="keyword">div</span>&gt;
+    &lt;/<span class="keyword">div</span>&gt;
+  );
+}</code></pre>
+      </div>
+
+      <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">With Dynamic Data</h3>
+      <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
+<pre class="text-sm font-mono leading-relaxed text-gray-300"><code><span class="comment">// When data changes, refresh the minimap</span>
+<span class="keyword">import</span> { useEffect } <span class="keyword">from</span> <span class="string">'react'</span>;
+<span class="keyword">import</span> { useTableMinimap } <span class="keyword">from</span> <span class="string">'../hooks/useTableMinimap'</span>;
+
+<span class="keyword">export function</span> <span class="function">DynamicTable</span>({ data }) {
+  <span class="keyword">const</span> { tableRef, refresh } = <span class="function">useTableMinimap</span>({
+    mode: <span class="string">'canvas'</span>,
+    height: 60
+  });
+
+  <span class="comment">// Refresh minimap when data changes</span>
+  <span class="function">useEffect</span>(() =&gt; {
+    <span class="function">refresh</span>();
+  }, [data]);
+
+  <span class="keyword">return</span> (
+    &lt;<span class="keyword">div</span> <span class="type">ref</span>={tableRef}&gt;
+      &lt;<span class="keyword">table</span>&gt;{<span class="comment">/* ... */</span>}&lt;/<span class="keyword">table</span>&gt;
+    &lt;/<span class="keyword">div</span>&gt;
+  );
+}</code></pre>
+      </div>
+    </section>
+
+    <!-- Vue 3 Usage -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <div class="flex items-center gap-3 mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Vue 3</h2>
+        <span class="text-xs font-medium bg-green-100 text-green-700 px-3 py-1 rounded-full">Composition API</span>
+      </div>
+      <p class="text-gray-600 mb-4">Clean integration using Vue 3's Composition API with composables.</p>
+
+      <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">useTableMinimap Composable</h3>
+      <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+<pre class="text-sm font-mono leading-relaxed text-gray-300"><code><span class="comment">// composables/useTableMinimap.ts</span>
+<span class="keyword">import</span> { ref, onMounted, onBeforeUnmount, <span class="type">Ref</span> } <span class="keyword">from</span> <span class="string">'vue'</span>;
+<span class="keyword">import</span> { TableMinimap, <span class="type">TableMinimapOptions</span> } <span class="keyword">from</span> <span class="string">'table-minimap'</span>;
+<span class="keyword">import</span> <span class="string">'table-minimap/style.css'</span>;
+
+<span class="keyword">export function</span> <span class="function">useTableMinimap</span>(options: <span class="type">TableMinimapOptions</span> = {}) {
+  <span class="keyword">const</span> tableRef = <span class="function">ref</span>&lt;<span class="type">HTMLElement</span> | <span class="keyword">null</span>&gt;(<span class="keyword">null</span>);
+  <span class="keyword">let</span> minimap: <span class="type">TableMinimap</span> | <span class="keyword">null</span> = <span class="keyword">null</span>;
+
+  <span class="function">onMounted</span>(() =&gt; {
+    <span class="keyword">if</span> (tableRef.value) {
+      minimap = <span class="keyword">new</span> <span class="function">TableMinimap</span>(tableRef.value, options);
+    }
+  });
+
+  <span class="function">onBeforeUnmount</span>(() =&gt; {
+    minimap?.<span class="function">destroy</span>();
+    minimap = <span class="keyword">null</span>;
+  });
+
+  <span class="keyword">const</span> refresh = () =&gt; minimap?.<span class="function">refresh</span>();
+  <span class="keyword">const</span> resetZoom = () =&gt; minimap?.<span class="function">resetZoom</span>();
+  <span class="keyword">const</span> getZoomState = () =&gt; minimap?.<span class="function">getZoomState</span>();
+
+  <span class="keyword">return</span> {
+    tableRef,
+    refresh,
+    resetZoom,
+    getZoomState
+  };
+}</code></pre>
+      </div>
+
+      <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Usage in Component</h3>
+      <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+<pre class="text-sm font-mono leading-relaxed text-gray-300"><code><span class="comment">&lt;!-- components/DataTable.vue --&gt;</span>
+&lt;<span class="keyword">script</span> <span class="type">setup</span> <span class="type">lang</span>=<span class="string">"ts"</span>&gt;
+<span class="keyword">import</span> { watch } <span class="keyword">from</span> <span class="string">'vue'</span>;
+<span class="keyword">import</span> { useTableMinimap } <span class="keyword">from</span> <span class="string">'@/composables/useTableMinimap'</span>;
+
+<span class="keyword">const</span> props = <span class="function">defineProps</span>&lt;{
+  data: <span class="type">Array</span>&lt;Record&lt;<span class="type">string</span>, <span class="type">any</span>&gt;&gt;;
+  columns: <span class="type">string</span>[];
+}&gt;();
+
+<span class="keyword">const</span> { tableRef, refresh, resetZoom } = <span class="function">useTableMinimap</span>({
+  mode: <span class="string">'canvas'</span>,
+  height: 80,
+  zoomable: <span class="keyword">true</span>,
+  maxZoom: 12
+});
+
+<span class="comment">// Refresh when data changes</span>
+<span class="function">watch</span>(() =&gt; props.data, () =&gt; {
+  <span class="function">refresh</span>();
+}, { deep: <span class="keyword">true</span> });
+&lt;/<span class="keyword">script</span>&gt;
+
+&lt;<span class="keyword">template</span>&gt;
+  &lt;<span class="keyword">div</span> <span class="type">class</span>=<span class="string">"space-y-4"</span>&gt;
+    &lt;<span class="keyword">div</span> <span class="type">class</span>=<span class="string">"flex gap-2"</span>&gt;
+      &lt;<span class="keyword">button</span> @<span class="type">click</span>=<span class="string">"refresh"</span>&gt;Refresh&lt;/<span class="keyword">button</span>&gt;
+      &lt;<span class="keyword">button</span> @<span class="type">click</span>=<span class="string">"resetZoom"</span>&gt;Reset Zoom&lt;/<span class="keyword">button</span>&gt;
+    &lt;/<span class="keyword">div</span>&gt;
+
+    &lt;<span class="keyword">div</span> <span class="type">ref</span>=<span class="string">"tableRef"</span> <span class="type">class</span>=<span class="string">"overflow-x-auto"</span>&gt;
+      &lt;<span class="keyword">table</span> <span class="type">class</span>=<span class="string">"min-w-full"</span>&gt;
+        &lt;<span class="keyword">thead</span>&gt;
+          &lt;<span class="keyword">tr</span>&gt;
+            &lt;<span class="keyword">th</span> <span class="type">v-for</span>=<span class="string">"col in columns"</span> :<span class="type">key</span>=<span class="string">"col"</span>&gt;{{ col }}&lt;/<span class="keyword">th</span>&gt;
+          &lt;/<span class="keyword">tr</span>&gt;
+        &lt;/<span class="keyword">thead</span>&gt;
+        &lt;<span class="keyword">tbody</span>&gt;
+          &lt;<span class="keyword">tr</span> <span class="type">v-for</span>=<span class="string">"row in data"</span> :<span class="type">key</span>=<span class="string">"row.id"</span>&gt;
+            &lt;<span class="keyword">td</span> <span class="type">v-for</span>=<span class="string">"col in columns"</span> :<span class="type">key</span>=<span class="string">"col"</span>&gt;{{ row[col] }}&lt;/<span class="keyword">td</span>&gt;
+          &lt;/<span class="keyword">tr</span>&gt;
+        &lt;/<span class="keyword">tbody</span>&gt;
+      &lt;/<span class="keyword">table</span>&gt;
+    &lt;/<span class="keyword">div</span>&gt;
+  &lt;/<span class="keyword">div</span>&gt;
+&lt;/<span class="keyword">template</span>&gt;</code></pre>
+      </div>
+
+      <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">Options API Alternative</h3>
+      <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
+<pre class="text-sm font-mono leading-relaxed text-gray-300"><code><span class="comment">&lt;!-- For Vue Options API users --&gt;</span>
+&lt;<span class="keyword">script</span>&gt;
+<span class="keyword">import</span> { TableMinimap } <span class="keyword">from</span> <span class="string">'table-minimap'</span>;
+<span class="keyword">import</span> <span class="string">'table-minimap/style.css'</span>;
+
+<span class="keyword">export default</span> {
+  data() {
+    <span class="keyword">return</span> {
+      minimap: <span class="keyword">null</span>
+    };
+  },
+  mounted() {
+    <span class="keyword">this</span>.minimap = <span class="keyword">new</span> <span class="function">TableMinimap</span>(<span class="keyword">this</span>.$refs.tableWrapper, {
+      mode: <span class="string">'canvas'</span>,
+      height: 60,
+      zoomable: <span class="keyword">true</span>
+    });
+  },
+  beforeUnmount() {
+    <span class="keyword">this</span>.minimap?.<span class="function">destroy</span>();
+  },
+  methods: {
+    <span class="function">refreshMinimap</span>() {
+      <span class="keyword">this</span>.minimap?.<span class="function">refresh</span>();
+    }
+  }
+};
+&lt;/<span class="keyword">script</span>&gt;
+
+&lt;<span class="keyword">template</span>&gt;
+  &lt;<span class="keyword">div</span> <span class="type">ref</span>=<span class="string">"tableWrapper"</span>&gt;
+    &lt;<span class="keyword">table</span>&gt;<span class="comment">&lt;!-- ... --&gt;</span>&lt;/<span class="keyword">table</span>&gt;
+  &lt;/<span class="keyword">div</span>&gt;
+&lt;/<span class="keyword">template</span>&gt;</code></pre>
+      </div>
+    </section>
+
+    <!-- Options -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">Options</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="border-b border-gray-200">
+            <th class="text-left py-3 px-4 font-semibold text-gray-700">Option</th>
+            <th class="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
+            <th class="text-left py-3 px-4 font-semibold text-gray-700">Default</th>
+            <th class="text-left py-3 px-4 font-semibold text-gray-700">Description</th>
+          </tr></thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">mode</code></td><td class="py-3 px-4 text-gray-600">'columns' | 'canvas'</td><td class="py-3 px-4 text-gray-500">'columns'</td><td class="py-3 px-4 text-gray-600">Rendering mode</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">height</code></td><td class="py-3 px-4 text-gray-600">number</td><td class="py-3 px-4 text-gray-500">40</td><td class="py-3 px-4 text-gray-600">Height in pixels</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">position</code></td><td class="py-3 px-4 text-gray-600">'top' | 'bottom' | 'fixed'</td><td class="py-3 px-4 text-gray-500">'bottom'</td><td class="py-3 px-4 text-gray-600">Position: top/bottom of table, or fixed overlay</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">fixedWidth</code></td><td class="py-3 px-4 text-gray-600">number</td><td class="py-3 px-4 text-gray-500">300</td><td class="py-3 px-4 text-gray-600">Width when position is 'fixed'</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">zoomable</code></td><td class="py-3 px-4 text-gray-600">boolean</td><td class="py-3 px-4 text-gray-500">false</td><td class="py-3 px-4 text-gray-600">Enable zoom (canvas mode)</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">maxZoom</code></td><td class="py-3 px-4 text-gray-600">number</td><td class="py-3 px-4 text-gray-500">10</td><td class="py-3 px-4 text-gray-600">Maximum zoom level</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">draggable</code></td><td class="py-3 px-4 text-gray-600">boolean</td><td class="py-3 px-4 text-gray-500">true</td><td class="py-3 px-4 text-gray-600">Enable drag navigation</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- API -->
+    <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+      <h2 class="text-xl font-semibold text-gray-900 mb-4">API Methods</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead><tr class="border-b border-gray-200">
+            <th class="text-left py-3 px-4 font-semibold text-gray-700">Method</th>
+            <th class="text-left py-3 px-4 font-semibold text-gray-700">Description</th>
+          </tr></thead>
+          <tbody class="divide-y divide-gray-100">
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">destroy()</code></td><td class="py-3 px-4 text-gray-600">Remove minimap and cleanup</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">refresh()</code></td><td class="py-3 px-4 text-gray-600">Force refresh after table changes</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">getZoomState()</code></td><td class="py-3 px-4 text-gray-600">Get current zoom level</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">resetZoom()</code></td><td class="py-3 px-4 text-gray-600">Reset to full view</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">scrollToColumn(index)</code></td><td class="py-3 px-4 text-gray-600">Scroll to specific column</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <footer class="text-center text-gray-500 text-sm py-8">MIT License · Zero Dependencies · TypeScript</footer>
+  </div>
+</body>
+</html>
+
