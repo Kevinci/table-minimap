@@ -23,7 +23,7 @@
     .code-block .function { color: #dcdcaa; }
     .code-block .type { color: #4ec9b0; }
   </style>
-  <script type="module" crossorigin src="/table-minimap/assets/index-hi22wVW9.js"></script>
+  <script type="module" crossorigin src="/table-minimap/assets/index-rZUYYwU8.js"></script>
   <link rel="stylesheet" crossorigin href="/table-minimap/assets/index-nO9ckWZK.css">
 </head>
 <body class="bg-gray-50 min-h-screen">
@@ -75,6 +75,15 @@
           <p class="text-2xl font-semibold text-gray-900">Columns</p>
         </div>
       </div>
+      <div class="mt-4">
+        <button id="show-code-1" class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+          Code anzeigen
+        </button>
+        <div id="code-block-1" class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
+          <pre class="text-sm font-mono leading-relaxed text-gray-300"><code id="code-content-1"></code></pre>
+        </div>
+      </div>
     </section>
 
     <!-- Demo 2: Fixed Position -->
@@ -110,6 +119,15 @@
         <div class="bg-gray-50 rounded-lg p-4">
           <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Scroll Position</p>
           <p id="scroll-pos-2" class="text-2xl font-semibold text-gray-900">0%</p>
+        </div>
+      </div>
+      <div class="mt-4">
+        <button id="show-code-2" class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+          Code anzeigen
+        </button>
+        <div id="code-block-2" class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
+          <pre class="text-sm font-mono leading-relaxed text-gray-300"><code id="code-content-2"></code></pre>
         </div>
       </div>
     </section>
@@ -149,6 +167,15 @@
           <p class="text-2xl font-semibold text-gray-900">Compact</p>
         </div>
       </div>
+      <div class="mt-4">
+        <button id="show-code-compact" class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+          Code anzeigen
+        </button>
+        <div id="code-block-compact" class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
+          <pre class="text-sm font-mono leading-relaxed text-gray-300"><code id="code-content-compact"></code></pre>
+        </div>
+      </div>
     </section>
 
     <!-- Demo 3: Canvas Mode -->
@@ -185,6 +212,15 @@
         <div class="bg-gray-50 rounded-lg p-4">
           <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Zoom Level</p>
           <p id="zoom-level-3" class="text-2xl font-semibold text-gray-900">1.0x</p>
+        </div>
+      </div>
+      <div class="mt-4">
+        <button id="show-code-3" class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+          Code anzeigen
+        </button>
+        <div id="code-block-3" class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
+          <pre class="text-sm font-mono leading-relaxed text-gray-300"><code id="code-content-3"></code></pre>
         </div>
       </div>
     </section>
