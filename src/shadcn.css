@@ -1,0 +1,138 @@
+/* ==========================================================================
+   Table Minimap - shadcn/ui Theme
+
+   This stylesheet uses shadcn/ui CSS variables for seamless integration.
+   Import this instead of the default style.css when using shadcn/ui.
+
+   Usage:
+   import 'table-minimap/shadcn.css';
+   ========================================================================== */
+
+/* Map shadcn/ui variables to table-minimap */
+.tm-minimap {
+  --tm-background: hsl(var(--muted));
+  --tm-border: hsl(var(--border));
+  --tm-viewport-color: hsl(var(--primary) / 0.2);
+  --tm-viewport-border: hsl(var(--primary));
+  --tm-height: 40px;
+  --tm-column-color: hsl(var(--muted-foreground) / 0.3);
+  --tm-column-gap: 1px;
+  --tm-border-radius: var(--radius);
+  --tm-canvas-empty: hsl(var(--muted));
+  --tm-canvas-filled: hsl(var(--foreground) / 0.7);
+}
+
+/* ==========================================================================
+   Main Container
+   ========================================================================== */
+
+.tm-minimap {
+  position: relative;
+  width: 100%;
+  height: var(--tm-height);
+  background: var(--tm-background);
+  border: 1px solid var(--tm-border);
+  border-radius: var(--tm-border-radius);
+  box-sizing: border-box;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.tm-minimap--top {
+  margin-bottom: 8px;
+}
+
+.tm-minimap--bottom {
+  margin-top: 8px;
+}
+
+/* ==========================================================================
+   Columns Mode
+   ========================================================================== */
+
+.tm-columns {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  gap: var(--tm-column-gap);
+  padding: 4px;
+  box-sizing: border-box;
+}
+
+.tm-column {
+  flex-shrink: 0;
+  height: 100%;
+  background: var(--tm-column-color);
+  border-radius: calc(var(--tm-border-radius) / 2);
+  transition: background-color 0.15s ease;
+}
+
+.tm-column:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
+/* ==========================================================================
+   Canvas Mode
+   ========================================================================== */
+
+.tm-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* ==========================================================================
+   Viewport Indicator
+   ========================================================================== */
+
+.tm-viewport {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  background: var(--tm-viewport-color);
+  border-left: 2px solid var(--tm-viewport-border);
+  border-right: 2px solid var(--tm-viewport-border);
+  box-sizing: border-box;
+  cursor: grab;
+  transition: background-color 0.15s ease;
+  z-index: 10;
+}
+
+.tm-viewport:hover {
+  background: hsl(var(--primary) / 0.3);
+}
+
+.tm-viewport--dragging {
+  cursor: grabbing;
+  background: hsl(var(--primary) / 0.4);
+  transition: none;
+}
+
+.tm-viewport--disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ==========================================================================
+   Accessibility
+   ========================================================================== */
+
+.tm-minimap:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.tm-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
