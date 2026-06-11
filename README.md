@@ -39,7 +39,7 @@ pnpm add table-minimap
 
 ```typescript
 import { TableMinimap } from 'table-minimap';
-import 'table-minimap/style.css';
+
 
 // Using a CSS selector
 const minimap = new TableMinimap('#my-table');
@@ -76,7 +76,7 @@ minimap.destroy();
 
 ```typescript
 import { TableMinimap } from 'table-minimap';
-import 'table-minimap/style.css';
+
 
 const minimap = new TableMinimap('#my-table');
 ```
@@ -520,7 +520,7 @@ export function DataTableWithMinimap({ data }: { data: any[] }) {
 ```tsx
 import { useEffect, useRef } from 'react';
 import { TableMinimap } from 'table-minimap';
-import 'table-minimap/style.css';
+
 
 function DataTable() {
   const tableRef = useRef<HTMLTableElement>(null);
@@ -552,7 +552,7 @@ function DataTable() {
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { TableMinimap } from 'table-minimap';
-import 'table-minimap/style.css';
+
 
 const tableRef = ref<HTMLTableElement | null>(null);
 let minimap: TableMinimap | null = null;
@@ -582,7 +582,7 @@ onUnmounted(() => {
 ```typescript
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { TableMinimap } from 'table-minimap';
-import 'table-minimap/style.css';
+
 
 @Component({
   selector: 'app-data-table',

@@ -28,7 +28,6 @@ function formatCode(code: string): string {
  */
 function generateCode1(): string {
   return formatCode(`import { TableMinimap } from 'table-minimap';
-import 'table-minimap/style.css';
 
 const minimap = new TableMinimap('#my-table', {
   mode: 'columns',
@@ -42,7 +41,6 @@ const minimap = new TableMinimap('#my-table', {
  */
 function generateCode2(): string {
   return formatCode(`import { TableMinimap } from 'table-minimap';
-import 'table-minimap/style.css';
 
 const minimap = new TableMinimap('#my-table', {
   mode: 'columns',
@@ -57,7 +55,6 @@ const minimap = new TableMinimap('#my-table', {
  */
 function generateCodeCompact(): string {
   return formatCode(`import { TableMinimap } from 'table-minimap';
-import 'table-minimap/style.css';
 
 const minimap = new TableMinimap('#my-table', {
   mode: 'columns',
@@ -73,7 +70,6 @@ const minimap = new TableMinimap('#my-table', {
  */
 function generateCode3(): string {
   return formatCode(`import { TableMinimap } from 'table-minimap';
-import 'table-minimap/style.css';
 
 const minimap = new TableMinimap('#my-table', {
   mode: 'canvas',
