@@ -895,6 +895,16 @@ export class TableMinimap {
   private onMinimapClick(e: MouseEvent): void {
     if (!this.minimapEl || !this.scrollContainer) return;
 
+    if (this.isCompactMode && (this.isCompactCollapsed || this.isCompactExpanding)) {
+      e.preventDefault();
+      this.clearMinimapClickTimer();
+
+      if (this.isCompactCollapsed) {
+        this.expandCompact();
+      }
+      return;
+    }
+
     if (this.options.position === 'fixed') {
       if (e.detail > 1) return;
 
