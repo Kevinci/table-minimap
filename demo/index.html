@@ -51,14 +51,14 @@
       <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div class="bg-gray-50 rounded-lg p-4">
           <label for="cols-1" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Columns</label>
-          <input type="number" id="cols-1" value="20" min="5" max="200" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <input type="number" id="cols-1" value="20" min="5" max="99" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div class="bg-gray-50 rounded-lg p-4">
           <label for="rows-1" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Rows</label>
           <input type="number" id="rows-1" value="50" min="5" max="500" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div class="bg-gray-50 rounded-lg p-4">
-          <label class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Position</label>
+          <label for="position-1" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Position</label>
           <select id="position-1" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <option value="bottom">Bottom</option>
             <option value="top">Top</option>
@@ -90,7 +90,7 @@
         <h2 class="text-xl font-semibold text-gray-900">Fixed Position</h2>
         <span class="text-xs font-medium bg-purple-100 text-purple-700 px-3 py-1 rounded-full">Floating Overlay</span>
       </div>
-      <p class="text-gray-600 mb-6">Minimap floats in the <strong>bottom-right corner</strong> over the table. Stays visible while scrolling!</p>
+      <p class="text-gray-600 mb-6">Minimap floats in a configurable corner over the table. Stays visible while scrolling!</p>
       <div class="flex flex-wrap gap-2 mb-4">
         <button id="scroll-start-2" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">Scroll to Start</button>
         <button id="scroll-middle-2" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to Middle</button>
@@ -101,10 +101,10 @@
           <table id="demo-table-2" class="demo-table"><thead><tr id="header-row-2"></tr></thead><tbody id="table-body-2"></tbody></table>
         </div>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div class="bg-gray-50 rounded-lg p-4">
           <label for="cols-2" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Columns</label>
-          <input type="number" id="cols-2" value="20" min="5" max="200" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <input type="number" id="cols-2" value="20" min="5" max="99" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div class="bg-gray-50 rounded-lg p-4">
           <label for="rows-2" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Rows</label>
@@ -113,6 +113,15 @@
         <div class="bg-gray-50 rounded-lg p-4">
           <label for="width-2" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Map Width</label>
           <input type="number" id="width-2" value="250" min="150" max="500" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label for="fixed-position-2" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Fixed Position</label>
+          <select id="fixed-position-2" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="bottom-right">Bottom Right</option>
+            <option value="bottom-left">Bottom Left</option>
+            <option value="top-right">Top Right</option>
+            <option value="top-left">Top Left</option>
+          </select>
         </div>
         <div class="bg-gray-50 rounded-lg p-4">
           <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Scroll Position</p>
@@ -136,7 +145,7 @@
         <h2 class="text-xl font-semibold text-gray-900">Compact Fixed Position</h2>
         <span class="text-xs font-medium bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">Hideable Dot</span>
       </div>
-      <p class="text-gray-600 mb-6">A smaller floating minimap that collapses into a translucent dot in the bottom-right corner. Hover or click it to expand again.</p>
+      <p class="text-gray-600 mb-6">A smaller floating minimap that collapses into a translucent dot in a configurable corner. Hover or click it to expand again.</p>
       <div class="flex flex-wrap gap-2 mb-4">
         <button id="scroll-start-compact" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">Scroll to Start</button>
         <button id="scroll-middle-compact" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to Middle</button>
@@ -147,14 +156,23 @@
           <table id="demo-table-compact" class="demo-table"><thead><tr id="header-row-compact"></tr></thead><tbody id="table-body-compact"></tbody></table>
         </div>
       </div>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
         <div class="bg-gray-50 rounded-lg p-4">
           <label for="cols-compact" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Columns</label>
-          <input type="number" id="cols-compact" value="22" min="5" max="200" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <input type="number" id="cols-compact" value="22" min="5" max="99" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div class="bg-gray-50 rounded-lg p-4">
           <label for="rows-compact" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Rows</label>
           <input type="number" id="rows-compact" value="48" min="5" max="500" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+        </div>
+        <div class="bg-gray-50 rounded-lg p-4">
+          <label for="fixed-position-compact" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Fixed Position</label>
+          <select id="fixed-position-compact" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="bottom-right">Bottom Right</option>
+            <option value="bottom-left">Bottom Left</option>
+            <option value="top-right">Top Right</option>
+            <option value="top-left">Top Left</option>
+          </select>
         </div>
         <div class="bg-gray-50 rounded-lg p-4">
           <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Scroll Position</p>
@@ -197,7 +215,7 @@
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="bg-gray-50 rounded-lg p-4">
           <label for="cols-3" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Columns</label>
-          <input type="number" id="cols-3" value="20" min="5" max="200" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          <input type="number" id="cols-3" value="20" min="5" max="99" class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
         </div>
         <div class="bg-gray-50 rounded-lg p-4">
           <label for="rows-3" class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Rows</label>
@@ -612,6 +630,7 @@ pnpm add table-minimap</code></pre>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">height</code></td><td class="py-3 px-4 text-gray-600">number</td><td class="py-3 px-4 text-gray-500">40</td><td class="py-3 px-4 text-gray-600">Height in pixels</td></tr>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">position</code></td><td class="py-3 px-4 text-gray-600">'top' | 'bottom' | 'fixed'</td><td class="py-3 px-4 text-gray-500">'bottom'</td><td class="py-3 px-4 text-gray-600">Position: top/bottom of table, or fixed overlay</td></tr>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">fixedWidth</code></td><td class="py-3 px-4 text-gray-600">number</td><td class="py-3 px-4 text-gray-500">300</td><td class="py-3 px-4 text-gray-600">Width when position is 'fixed'</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">fixedPosition</code></td><td class="py-3 px-4 text-gray-600">'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'</td><td class="py-3 px-4 text-gray-500">'bottom-right'</td><td class="py-3 px-4 text-gray-600">Corner when position is 'fixed'</td></tr>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">zoomable</code></td><td class="py-3 px-4 text-gray-600">boolean</td><td class="py-3 px-4 text-gray-500">false</td><td class="py-3 px-4 text-gray-600">Enable zoom (canvas mode)</td></tr>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">maxZoom</code></td><td class="py-3 px-4 text-gray-600">number</td><td class="py-3 px-4 text-gray-500">10</td><td class="py-3 px-4 text-gray-600">Maximum zoom level</td></tr>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">draggable</code></td><td class="py-3 px-4 text-gray-600">boolean</td><td class="py-3 px-4 text-gray-500">true</td><td class="py-3 px-4 text-gray-600">Enable drag navigation</td></tr>
@@ -641,6 +660,15 @@ pnpm add table-minimap</code></pre>
     </section>
 
     <footer class="text-center text-gray-500 text-sm py-8">MIT License · Zero Dependencies · TypeScript</footer>
+  </div>
+  <div id="column-limit-dialog" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-gray-900/50 px-4" role="dialog" aria-modal="true" aria-hidden="true" aria-labelledby="column-limit-title">
+    <div class="max-w-md rounded-xl bg-white p-6 shadow-2xl border border-gray-200">
+      <h2 id="column-limit-title" class="text-lg font-semibold text-gray-900 mb-3">Column overload detected</h2>
+      <p id="column-limit-message" class="text-gray-700 leading-relaxed"></p>
+      <div class="mt-5 flex justify-end">
+        <button id="column-limit-close" class="px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition">Understood</button>
+      </div>
+    </div>
   </div>
   <script type="module" src="./main.ts"></script>
 </body>

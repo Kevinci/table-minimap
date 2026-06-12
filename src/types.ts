@@ -31,6 +31,12 @@ export interface TableMinimapOptions {
   fixedWidth?: number;
 
   /**
+   * Corner position when using position: 'fixed'
+   * @default "bottom-right"
+   */
+  fixedPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+
+  /**
    * Enable compact floating mode for fixed minimaps.
    * When enabled, the minimap collapses into a small dot handle in the
    * bottom-right corner and expands on hover/focus/click.
@@ -81,7 +87,7 @@ export interface TableMinimapOptions {
 export interface ZoomState {
   /** Current zoom level (1 = no zoom) */
   level: number;
-  /** Horizontal pan offset (0-1, representing position in table) */
+  /** @deprecated Pan offset is now derived from scroll position */
   panX: number;
   /** Whether zoom is at minimum (showing full overview) */
   isMinZoom: boolean;

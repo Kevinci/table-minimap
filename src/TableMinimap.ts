@@ -15,6 +15,7 @@ const DEFAULT_OPTIONS: RequiredOptions = {
   height: 40,
   position: 'bottom',
   fixedWidth: 300,
+  fixedPosition: 'bottom-right',
   compact: false,
   draggable: true,
   showViewport: true,
@@ -66,6 +67,9 @@ export class TableMinimap {
 
   /** Whether the compact minimap is currently collapsed */
   private isCompactCollapsed = false;
+
+  /** Whether the compact minimap is currently expanding (transition in progress) */
+  private isCompactExpanding = false;
 
   /** Timeout used to collapse compact mode after pointer leave */
   private compactCollapseTimer: number | null = null;
@@ -124,11 +128,7 @@ export class TableMinimap {
   /** Currently hovered column index (-1 = none) */
   private hoveredColumn = -1;
 
-  /** Currently focused/clicked column index (-1 = none) */
-  private focusedColumn = -1;
-
-
-  /** Drag start position */
+  /** Drag start X position */
   private dragStartX = 0;
 
   /** Drag start scroll position */
@@ -337,9 +337,10 @@ export class TableMinimap {
     this.minimapEl.className = `tm-minimap tm-minimap--${this.options.position}`;
     this.minimapEl.style.setProperty('--tm-minimap-height', `${this.options.height}px`);
 
-    // Set width for fixed position
+    // Set width and position class for fixed position
     if (this.options.position === 'fixed') {
       this.minimapEl.style.setProperty('--tm-minimap-width', `${this.options.fixedWidth}px`);
+      this.minimapEl.classList.add(`tm-minimap--${this.options.fixedPosition}`);
     }
 
     if (this.isCompactMode) {
@@ -383,10 +384,9 @@ export class TableMinimap {
     this.columnsEl = document.createElement('div');
     this.columnsEl.className = 'tm-columns';
 
-    this.columns.forEach((col) => {
+    this.columns.forEach(() => {
       const colEl = document.createElement('div');
       colEl.className = 'tm-column';
-      colEl.style.width = `${col.widthPercent}%`;
       this.columnsEl!.appendChild(colEl);
     });
 
@@ -448,12 +448,33 @@ export class TableMinimap {
           parent.appendChild(this.minimapEl);
         }
 
-        // Apply fixed positioning styles
+        // Apply fixed positioning styles based on fixedPosition
         this.minimapEl.style.position = 'absolute';
         const offset = this.isCompactMode ? 8 : 12;
-        this.minimapEl.style.bottom = `${offset}px`;
-        this.minimapEl.style.right = `${offset}px`;
+        const pos = this.options.fixedPosition;
+
+        // Reset all positions first
+        this.minimapEl.style.top = '';
+        this.minimapEl.style.bottom = '';
+        this.minimapEl.style.left = '';
+        this.minimapEl.style.right = '';
         this.minimapEl.style.marginTop = '0';
+
+        // Apply position based on fixedPosition option
+        if (pos === 'top-left') {
+          this.minimapEl.style.top = `${offset}px`;
+          this.minimapEl.style.left = `${offset}px`;
+        } else if (pos === 'top-right') {
+          this.minimapEl.style.top = `${offset}px`;
+          this.minimapEl.style.right = `${offset}px`;
+        } else if (pos === 'bottom-left') {
+          this.minimapEl.style.bottom = `${offset}px`;
+          this.minimapEl.style.left = `${offset}px`;
+        } else {
+          // bottom-right (default)
+          this.minimapEl.style.bottom = `${offset}px`;
+          this.minimapEl.style.right = `${offset}px`;
+        }
       }
     } else if (this.options.position === 'top') {
       // Insert before the scroll container (outside, above it)
@@ -578,30 +599,23 @@ export class TableMinimap {
 
   /**
    * Updates the viewport indicator position and size
-   * In canvas mode, the viewport shows the focused (clicked) column
+   * Shows the visible portion of the table (columns mode only)
    */
   private updateViewport(): void {
     if (!this.viewportEl || !this.minimapEl) return;
 
-    // Canvas mode: show focused column
+    // No viewport in canvas mode
     if (this.options.mode === 'canvas') {
-      if (this.focusedColumn >= 0 && this.columns.length > 0) {
-        const { cellWidth, startColFloat } = this.getCanvasMetrics();
-        const colPosInCanvas = (this.focusedColumn - startColFloat) * cellWidth;
-
-        this.viewportEl.style.cssText = `width:${cellWidth}px;left:${colPosInCanvas}px;display:block`;
-      } else {
-        this.viewportEl.style.display = 'none';
-      }
+      this.viewportEl.style.display = 'none';
       return;
     }
 
-    // Columns mode: standard viewport
     const minimapWidth = this.minimapEl.offsetWidth;
+    
+    // Columns mode: viewport showing visible area
     const viewportWidth = Math.max(minimapWidth * this.scrollState.viewportRatio, 20);
     const maxLeft = minimapWidth - viewportWidth;
     const viewportLeft = maxLeft * this.scrollState.positionRatio;
-
     this.viewportEl.style.cssText = `width:${viewportWidth}px;left:${viewportLeft}px;display:block`;
   }
 
@@ -809,7 +823,7 @@ export class TableMinimap {
       this.updateScrollState();
       this.updateViewport();
 
-      // Re-render canvas to update viewport position
+      // Re-render canvas
       if (this.options.mode === 'canvas') {
         this.render();
       }
@@ -832,73 +846,40 @@ export class TableMinimap {
       return;
     }
 
-    // Ignore clicks during dragging, panning, or right after panning
-    if (this.isDragging || this.isPanning || this.wasPanning) return;
-
-    // Ignore clicks on viewport
-    if (e.target === this.viewportEl) return;
+    // Ignore clicks during expansion transition, dragging, panning
+    if (this.isCompactExpanding || this.isDragging || this.isPanning || this.wasPanning) return;
 
     const { scrollWidth, clientWidth } = this.scrollContainer;
-    const numCols = this.columns.length;
+    const maxScroll = scrollWidth - clientWidth;
 
-    // If we have a hovered column (from canvas mode), scroll to that column and set focus
-    if (this.hoveredColumn >= 0 && numCols > 0) {
-      // Set the focused column
-      this.focusedColumn = this.hoveredColumn;
+    // Get click position relative to minimap
+    const rect = this.minimapEl.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
 
-      // Calculate the scroll position to center the hovered column
-      const colWidth = scrollWidth / numCols;
-      const colCenter = (this.hoveredColumn + 0.5) * colWidth;
-      const targetScroll = colCenter - clientWidth / 2;
+    // Canvas mode: scroll to center the clicked column
+    if (this.options.mode === 'canvas') {
+      const clickedColumn = this.getColumnAtX(clickX);
 
-      // Clamp to valid scroll range
-      const maxScroll = scrollWidth - clientWidth;
-      const clampedScroll = Math.max(0, Math.min(maxScroll, targetScroll));
+      if (clickedColumn >= 0) {
+        const numCols = this.columns.length;
+        const colWidth = scrollWidth / numCols;
+        const colCenter = (clickedColumn + 0.5) * colWidth;
+        const targetScroll = colCenter - clientWidth / 2;
 
-      this.scrollContainer.scrollTo({
-        left: clampedScroll,
-        behavior: 'smooth',
-      });
-
-      // Update viewport to show focused column
-      this.updateViewport();
+        this.scrollContainer.scrollTo({
+          left: Math.max(0, Math.min(maxScroll, targetScroll)),
+          behavior: 'smooth',
+        });
+      }
       return;
     }
 
-    // Fallback: calculate position from click coordinates
-    const rect = this.minimapEl.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
-    const clickRatio = clickX / rect.width; // 0-1 position within minimap
-
-    const zoom = this.zoomState.level;
-
-    let targetRatio: number;
-
-    if (zoom > 1) {
-      // When zoomed: the minimap shows a portion of the table
-      // Calculate which portion based on current scroll position
-      const scrollLeft = this.scrollContainer.scrollLeft;
-      const scrollRatio = scrollLeft / Math.max(scrollWidth - clientWidth, 1);
-      const visibleRatio = 1 / zoom;
-      const panX = scrollRatio * (1 - visibleRatio);
-
-      // Convert click within zoomed view to full table position
-      targetRatio = panX + clickRatio * visibleRatio;
-    } else {
-      // Not zoomed: direct mapping
-      targetRatio = clickRatio;
-    }
-
-    // Calculate target scroll position (center the clicked position)
-    const targetPosition = targetRatio * scrollWidth;
-    const targetScroll = targetPosition - clientWidth / 2;
-
-    // Clamp to valid scroll range
-    const maxScroll = scrollWidth - clientWidth;
-    const clampedScroll = Math.max(0, Math.min(maxScroll, targetScroll));
-
+    // Columns mode: scroll to clicked position (percentage-based)
+    const clickRatio = clickX / rect.width;
+    const targetScroll = clickRatio * maxScroll;
+    
     this.scrollContainer.scrollTo({
-      left: clampedScroll,
+      left: Math.max(0, Math.min(maxScroll, targetScroll)),
       behavior: 'smooth',
     });
   }
@@ -969,22 +950,16 @@ export class TableMinimap {
 
     e.preventDefault();
 
-    const deltaX = e.clientX - this.dragStartX;
+    const { scrollWidth, clientWidth } = this.scrollContainer;
     const minimapWidth = this.minimapEl.offsetWidth;
-    const scrollableWidth =
-      this.scrollContainer.scrollWidth - this.scrollContainer.clientWidth;
+    const maxScroll = scrollWidth - clientWidth;
 
-    // Convert minimap delta to scroll delta
-    const scrollDelta = (deltaX / minimapWidth) * scrollableWidth;
+    // Scroll based on drag delta
+    const deltaX = e.clientX - this.dragStartX;
+    const scrollDelta = (deltaX / minimapWidth) * maxScroll;
     const newScrollLeft = this.dragStartScrollLeft + scrollDelta;
 
-    // Apply scroll
-    this.scrollContainer.scrollLeft = Math.max(
-      0,
-      Math.min(scrollableWidth, newScrollLeft)
-    );
-
-    // Update state immediately
+    this.scrollContainer.scrollLeft = Math.max(0, Math.min(maxScroll, newScrollLeft));
     this.updateScrollState();
     this.updateViewport();
   }
@@ -1050,23 +1025,57 @@ export class TableMinimap {
    */
   private onWheel(e: WheelEvent): void {
     if (!this.options.zoomable || this.options.mode !== 'canvas') return;
+    if (!this.canvasEl || !this.scrollContainer || !this.minimapEl) return;
 
     e.preventDefault();
 
+    const oldZoom = this.zoomState.level;
     const delta = -e.deltaY * this.options.zoomSpeed;
     const newZoom = Math.max(
       this.options.minZoom,
-      Math.min(this.options.maxZoom, this.zoomState.level + delta)
+      Math.min(this.options.maxZoom, oldZoom + delta)
     );
 
-    // Just update zoom level - panX is derived from scroll position
+    if (newZoom === oldZoom) return;
+
+    // Get mouse position relative to canvas
+    const rect = this.canvasEl.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const width = this.minimapEl.offsetWidth;
+    const relativeX = mouseX / width; // 0-1 position in canvas
+
+    // Calculate the table position (0-1) under the mouse BEFORE zoom
+    const oldVisibleRatio = 1 / oldZoom;
+    const { scrollLeft, scrollWidth, clientWidth } = this.scrollContainer;
+    const maxScroll = Math.max(scrollWidth - clientWidth, 1);
+    const oldScrollRatio = scrollLeft / maxScroll;
+    const oldPanX = oldZoom > 1 ? oldScrollRatio * (1 - oldVisibleRatio) : 0;
+    const tableX = oldPanX + relativeX * oldVisibleRatio; // Position in table (0-1)
+
+    // Update zoom level
     this.zoomState = {
       level: newZoom,
-      panX: 0, // Not used anymore - derived from scroll position
+      panX: 0,
       isMinZoom: newZoom <= this.options.minZoom,
       isMaxZoom: newZoom >= this.options.maxZoom,
     };
 
+    // Calculate new scroll position to keep tableX under the mouse
+    const newVisibleRatio = 1 / newZoom;
+
+    if (newZoom > 1) {
+      // newPanX + relativeX * newVisibleRatio = tableX
+      // newPanX = tableX - relativeX * newVisibleRatio
+      // newScrollRatio * (1 - newVisibleRatio) = newPanX
+      // newScrollRatio = newPanX / (1 - newVisibleRatio)
+      const newPanX = tableX - relativeX * newVisibleRatio;
+      const newScrollRatio = newPanX / (1 - newVisibleRatio);
+      const newScrollLeft = Math.max(0, Math.min(maxScroll, newScrollRatio * maxScroll));
+
+      this.scrollContainer.scrollLeft = newScrollLeft;
+    }
+
+    this.updateScrollState();
     this.render();
   }
 
@@ -1126,11 +1135,21 @@ export class TableMinimap {
    * Expands the compact minimap and clears any pending collapse.
    */
   private expandCompact(): void {
-    if (!this.isCompactMode || !this.minimapEl) return;
+    if (!this.isCompactMode || !this.minimapEl || this.isCompactExpanding) return;
 
     this.clearCompactCollapseTimer();
+    this.isCompactExpanding = true;
     this.applyCompactDimensions(false);
-    this.render();
+    
+    // Wait for CSS transition to complete before rendering
+    // This ensures correct dimensions are used for viewport calculation
+    setTimeout(() => {
+      this.isCompactExpanding = false;
+      if (!this.isDestroyed && !this.isCompactCollapsed) {
+        this.updateScrollState();
+        this.render();
+      }
+    }, 200); // Slightly longer than transition duration (180ms)
   }
 
   /**
@@ -1294,10 +1313,9 @@ export class TableMinimap {
       // Rebuild columns if in columns mode
       if (this.options.mode === 'columns' && this.columnsEl && this.minimapEl) {
         this.columnsEl.innerHTML = '';
-        this.columns.forEach((col) => {
+        this.columns.forEach(() => {
           const colEl = document.createElement('div');
           colEl.className = 'tm-column';
-          colEl.style.width = `${col.widthPercent}%`;
           this.columnsEl!.appendChild(colEl);
         });
       }
@@ -1320,10 +1338,9 @@ export class TableMinimap {
     // Rebuild columns if in columns mode
     if (this.options.mode === 'columns' && this.columnsEl) {
       this.columnsEl.innerHTML = '';
-      this.columns.forEach((col) => {
+      this.columns.forEach(() => {
         const colEl = document.createElement('div');
         colEl.className = 'tm-column';
-        colEl.style.width = `${col.widthPercent}%`;
         this.columnsEl!.appendChild(colEl);
       });
     }
@@ -1381,10 +1398,9 @@ export class TableMinimap {
 
     if (this.options.mode === 'columns' && this.columnsEl) {
       this.columnsEl.innerHTML = '';
-      this.columns.forEach((col) => {
+      this.columns.forEach(() => {
         const colEl = document.createElement('div');
         colEl.className = 'tm-column';
-        colEl.style.width = `${col.widthPercent}%`;
         this.columnsEl!.appendChild(colEl);
       });
     }
@@ -1403,10 +1419,10 @@ export class TableMinimap {
    * Sets the zoom level programmatically (canvas mode only)
    *
    * @param level - Zoom level (1 = no zoom)
-   * @param panX - Optional pan position (0-1)
+   * @param panX - Optional pan position (0-1), controls which part of table is visible
    */
   public setZoom(level: number, panX?: number): void {
-    if (this.isDestroyed || this.options.mode !== 'canvas') return;
+    if (this.isDestroyed || this.options.mode !== 'canvas' || !this.scrollContainer) return;
 
     const newZoom = Math.max(
       this.options.minZoom,
@@ -1416,16 +1432,29 @@ export class TableMinimap {
     const visibleRange = 1 / newZoom;
     const maxPanX = 1 - visibleRange;
 
-    let newPanX = panX !== undefined ? panX : this.zoomState.panX;
+    let newPanX = panX !== undefined ? panX : 0;
     newPanX = Math.max(0, Math.min(maxPanX, newPanX));
 
     this.zoomState = {
       level: newZoom,
-      panX: newZoom > 1 ? newPanX : 0,
+      panX: 0, // Not used - panX is derived from scroll position
       isMinZoom: newZoom <= this.options.minZoom,
       isMaxZoom: newZoom >= this.options.maxZoom,
     };
 
+    // Set scroll position to match the desired panX
+    if (newZoom > 1 && newPanX > 0) {
+      const { scrollWidth, clientWidth } = this.scrollContainer;
+      const maxScroll = Math.max(scrollWidth - clientWidth, 1);
+      // panX = scrollRatio * (1 - visibleRatio)
+      // scrollRatio = panX / (1 - visibleRatio)
+      const scrollRatio = newPanX / (1 - visibleRange);
+      this.scrollContainer.scrollLeft = Math.max(0, Math.min(maxScroll, scrollRatio * maxScroll));
+    } else if (newZoom <= 1) {
+      this.scrollContainer.scrollLeft = 0;
+    }
+
+    this.updateScrollState();
     this.render();
   }
 

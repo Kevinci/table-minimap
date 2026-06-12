@@ -191,6 +191,12 @@ interface TableMinimapOptions {
   position?: 'top' | 'bottom' | 'fixed';
 
   /**
+   * Corner position when using position: 'fixed'
+   * @default "bottom-right"
+   */
+  fixedPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+
+  /**
    * Enable compact floating mode for fixed minimaps
    * @default false
    */
@@ -241,6 +247,7 @@ interface TableMinimapOptions {
 | `mode` | `'columns'` |
 | `height` | `40` |
 | `position` | `'bottom'` |
+| `fixedPosition` | `'bottom-right'` |
 | `compact` | `false` |
 | `draggable` | `true` |
 | `showViewport` | `true` |

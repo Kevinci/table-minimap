@@ -120,7 +120,8 @@
 }
 
 .tm-column {
-  flex-shrink: 0;
+  flex: 1 1 0;
+  min-width: 0;
   height: 100%;
   background: var(--tm-column-color);
   border-radius: calc(var(--tm-border-radius) / 2);

@@ -1,10 +1,15 @@
 import { TableMinimap } from '../src';
 import '../src/styles.css';
 
+type FixedPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+
+const MAX_DEMO_COLUMNS = 99;
+const COLUMN_LIMIT_MESSAGE = 'If this is what your boss wants, call the men in white coats and quit as fast as you can.';
+
 // State
 let cols1 = 20, rows1 = 50, position1: 'top' | 'bottom' = 'bottom';
-let cols2 = 20, rows2 = 50, width2 = 250;
-let colsCompact = 22, rowsCompact = 48;
+let cols2 = 20, rows2 = 50, width2 = 250, fixedPosition2: FixedPosition = 'bottom-right';
+let colsCompact = 22, rowsCompact = 48, fixedPositionCompact: FixedPosition = 'bottom-right';
 let cols3 = 20, rows3 = 50;
 let minimap1: TableMinimap | null = null;
 let minimap2: TableMinimap | null = null;
@@ -46,7 +51,8 @@ const minimap = new TableMinimap('#my-table', {
   mode: 'columns',
   height: 50,
   position: 'fixed',
-  fixedWidth: ${width2}
+  fixedWidth: ${width2},
+  fixedPosition: '${fixedPosition2}'
 });`);
 }
 
@@ -61,6 +67,7 @@ const minimap = new TableMinimap('#my-table', {
   height: 44,
   position: 'fixed',
   fixedWidth: 260,
+  fixedPosition: '${fixedPositionCompact}',
   compact: true
 });`);
 }
@@ -129,6 +136,51 @@ function toggleSection(buttonId: string, contentId: string, iconId: string): voi
       icon.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
     }
   });
+}
+
+/**
+ * Shows the Easter egg dialog when users try to create too many columns.
+ */
+function showColumnLimitDialog(): void {
+  const dialog = document.getElementById('column-limit-dialog');
+  const message = document.getElementById('column-limit-message');
+  if (!dialog || !message) {
+    window.alert(COLUMN_LIMIT_MESSAGE);
+    return;
+  }
+
+  message.textContent = COLUMN_LIMIT_MESSAGE;
+  dialog.classList.remove('hidden');
+  dialog.setAttribute('aria-hidden', 'false');
+}
+
+/**
+ * Hides the Easter egg dialog.
+ */
+function hideColumnLimitDialog(): void {
+  const dialog = document.getElementById('column-limit-dialog');
+  if (!dialog) return;
+
+  dialog.classList.add('hidden');
+  dialog.setAttribute('aria-hidden', 'true');
+}
+
+/**
+ * Returns a valid demo column count or restores the previous value when blocked.
+ */
+function getValidColumnCount(input: HTMLInputElement, previousValue: number): number | null {
+  const requestedValue = parseInt(input.value, 10);
+
+  if (requestedValue >= 100) {
+    input.value = String(previousValue);
+    showColumnLimitDialog();
+    return null;
+  }
+
+  const nextValue = Number.isFinite(requestedValue) ? requestedValue : previousValue;
+  const clampedValue = Math.max(5, Math.min(MAX_DEMO_COLUMNS, nextValue));
+  input.value = String(clampedValue);
+  return clampedValue;
 }
 
 /**
@@ -217,6 +269,7 @@ function recreateDemo2(): void {
     height: 50,
     position: 'fixed',
     fixedWidth: width2,
+    fixedPosition: fixedPosition2,
   });
 }
 
@@ -231,6 +284,7 @@ function recreateDemoCompact(): void {
     height: 44,
     position: 'fixed',
     fixedWidth: 260,
+    fixedPosition: fixedPositionCompact,
     compact: true,
   });
 }
@@ -272,6 +326,11 @@ function init(): void {
   toggleCodeBlock('show-code-compact', 'code-block-compact');
   toggleCodeBlock('show-code-3', 'code-block-3');
 
+  document.getElementById('column-limit-close')?.addEventListener('click', hideColumnLimitDialog);
+  document.getElementById('column-limit-dialog')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) hideColumnLimitDialog();
+  });
+
   // Initialize collapsible sections
   toggleSection('toggle-vanilla', 'content-vanilla', 'icon-vanilla');
   toggleSection('toggle-react', 'content-react', 'icon-react');
@@ -292,7 +351,9 @@ function init(): void {
 
   // Reactive inputs for Demo 1
   document.getElementById('cols-1')?.addEventListener('change', (e) => {
-    cols1 = parseInt((e.target as HTMLInputElement).value) || 20;
+    const nextCols = getValidColumnCount(e.target as HTMLInputElement, cols1);
+    if (nextCols === null) return;
+    cols1 = nextCols;
     recreateDemo1();
   });
   document.getElementById('rows-1')?.addEventListener('change', (e) => {
@@ -320,7 +381,9 @@ function init(): void {
 
   // Reactive inputs for Demo 2
   document.getElementById('cols-2')?.addEventListener('change', (e) => {
-    cols2 = parseInt((e.target as HTMLInputElement).value) || 20;
+    const nextCols = getValidColumnCount(e.target as HTMLInputElement, cols2);
+    if (nextCols === null) return;
+    cols2 = nextCols;
     recreateDemo2();
   });
   document.getElementById('rows-2')?.addEventListener('change', (e) => {
@@ -329,6 +392,11 @@ function init(): void {
   });
   document.getElementById('width-2')?.addEventListener('change', (e) => {
     width2 = parseInt((e.target as HTMLInputElement).value) || 250;
+    recreateDemo2();
+    updateCodeBlocks();
+  });
+  document.getElementById('fixed-position-2')?.addEventListener('change', (e) => {
+    fixedPosition2 = (e.target as HTMLSelectElement).value as FixedPosition;
     recreateDemo2();
     updateCodeBlocks();
   });
@@ -348,12 +416,19 @@ function init(): void {
   });
 
   document.getElementById('cols-compact')?.addEventListener('change', (e) => {
-    colsCompact = parseInt((e.target as HTMLInputElement).value) || 22;
+    const nextCols = getValidColumnCount(e.target as HTMLInputElement, colsCompact);
+    if (nextCols === null) return;
+    colsCompact = nextCols;
     recreateDemoCompact();
   });
   document.getElementById('rows-compact')?.addEventListener('change', (e) => {
     rowsCompact = parseInt((e.target as HTMLInputElement).value) || 48;
     recreateDemoCompact();
+  });
+  document.getElementById('fixed-position-compact')?.addEventListener('change', (e) => {
+    fixedPositionCompact = (e.target as HTMLSelectElement).value as FixedPosition;
+    recreateDemoCompact();
+    updateCodeBlocks();
   });
 
   // === Demo 3: Canvas Mode ===
@@ -384,7 +459,9 @@ function init(): void {
 
   // Reactive inputs for Demo 3
   document.getElementById('cols-3')?.addEventListener('change', (e) => {
-    cols3 = parseInt((e.target as HTMLInputElement).value) || 20;
+    const nextCols = getValidColumnCount(e.target as HTMLInputElement, cols3);
+    if (nextCols === null) return;
+    cols3 = nextCols;
     recreateDemo3();
   });
   document.getElementById('rows-3')?.addEventListener('change', (e) => {
