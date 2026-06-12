@@ -101,15 +101,17 @@ For a smaller, hideable floating minimap, enable `compact` together with `positi
 const minimap = new TableMinimap('#my-table', {
   position: 'fixed',
   fixedWidth: 260,
+  fixedPosition: 'bottom-right',
   compact: true,
   height: 44,
 });
 ```
 
 - Collapses into a small translucent dot in the bottom-right corner
-- Expands on hover or keyboard focus
+- Expands on click or keyboard focus
 - Remains clickable when collapsed
 - Uses a short ease-in-out transition for width/height/opacity
+- Double-click fixed minimaps to move them to the next corner
 
 ### Canvas Mode (VS Code-like)
 
@@ -192,6 +194,7 @@ interface TableMinimapOptions {
 
   /**
    * Corner position when using position: 'fixed'
+   * Double-click fixed minimaps to cycle to the next corner.
    * @default "bottom-right"
    */
   fixedPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';

@@ -32,6 +32,7 @@ export interface TableMinimapOptions {
 
   /**
    * Corner position when using position: 'fixed'
+   * Double-click fixed minimaps to cycle to the next corner.
    * @default "bottom-right"
    */
   fixedPosition?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';

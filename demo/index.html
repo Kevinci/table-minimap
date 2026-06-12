@@ -90,7 +90,7 @@
         <h2 class="text-xl font-semibold text-gray-900">Fixed Position</h2>
         <span class="text-xs font-medium bg-purple-100 text-purple-700 px-3 py-1 rounded-full">Floating Overlay</span>
       </div>
-      <p class="text-gray-600 mb-6">Minimap floats in a configurable corner over the table. Stays visible while scrolling!</p>
+      <p class="text-gray-600 mb-6">Minimap floats in a configurable corner over the table. Double-click the minimap to move it to the next corner.</p>
       <div class="flex flex-wrap gap-2 mb-4">
         <button id="scroll-start-2" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">Scroll to Start</button>
         <button id="scroll-middle-2" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to Middle</button>
@@ -145,7 +145,7 @@
         <h2 class="text-xl font-semibold text-gray-900">Compact Fixed Position</h2>
         <span class="text-xs font-medium bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full">Hideable Dot</span>
       </div>
-      <p class="text-gray-600 mb-6">A smaller floating minimap that collapses into a translucent dot in a configurable corner. Hover or click it to expand again.</p>
+      <p class="text-gray-600 mb-6">A smaller floating minimap that collapses into a translucent dot in a configurable corner. Click it to expand, or double-click it to move it to the next corner.</p>
       <div class="flex flex-wrap gap-2 mb-4">
         <button id="scroll-start-compact" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">Scroll to Start</button>
         <button id="scroll-middle-compact" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to Middle</button>
@@ -630,7 +630,7 @@ pnpm add table-minimap</code></pre>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">height</code></td><td class="py-3 px-4 text-gray-600">number</td><td class="py-3 px-4 text-gray-500">40</td><td class="py-3 px-4 text-gray-600">Height in pixels</td></tr>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">position</code></td><td class="py-3 px-4 text-gray-600">'top' | 'bottom' | 'fixed'</td><td class="py-3 px-4 text-gray-500">'bottom'</td><td class="py-3 px-4 text-gray-600">Position: top/bottom of table, or fixed overlay</td></tr>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">fixedWidth</code></td><td class="py-3 px-4 text-gray-600">number</td><td class="py-3 px-4 text-gray-500">300</td><td class="py-3 px-4 text-gray-600">Width when position is 'fixed'</td></tr>
-            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">fixedPosition</code></td><td class="py-3 px-4 text-gray-600">'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'</td><td class="py-3 px-4 text-gray-500">'bottom-right'</td><td class="py-3 px-4 text-gray-600">Corner when position is 'fixed'</td></tr>
+            <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">fixedPosition</code></td><td class="py-3 px-4 text-gray-600">'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'</td><td class="py-3 px-4 text-gray-500">'bottom-right'</td><td class="py-3 px-4 text-gray-600">Corner when position is 'fixed'; double-click to cycle corners</td></tr>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">zoomable</code></td><td class="py-3 px-4 text-gray-600">boolean</td><td class="py-3 px-4 text-gray-500">false</td><td class="py-3 px-4 text-gray-600">Enable zoom (canvas mode)</td></tr>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">maxZoom</code></td><td class="py-3 px-4 text-gray-600">number</td><td class="py-3 px-4 text-gray-500">10</td><td class="py-3 px-4 text-gray-600">Maximum zoom level</td></tr>
             <tr class="hover:bg-gray-50"><td class="py-3 px-4"><code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">draggable</code></td><td class="py-3 px-4 text-gray-600">boolean</td><td class="py-3 px-4 text-gray-500">true</td><td class="py-3 px-4 text-gray-600">Enable drag navigation</td></tr>

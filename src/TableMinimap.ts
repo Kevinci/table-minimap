@@ -34,6 +34,17 @@ const COMPACT_DOT_SIZE = 5;
 /** Delay before compact mode collapses after pointer leave */
 const COMPACT_COLLAPSE_DELAY = 180;
 
+/** Delay used to distinguish single click navigation from double-click repositioning */
+const DOUBLE_CLICK_DELAY = 180;
+
+/** Fixed corner positions used when cycling the minimap by double-click */
+const FIXED_POSITIONS: RequiredOptions['fixedPosition'][] = [
+  'bottom-right',
+  'bottom-left',
+  'top-left',
+  'top-right',
+];
+
 /**
  * TableMinimap - A framework-agnostic minimap component for large HTML tables
  *
@@ -73,6 +84,9 @@ export class TableMinimap {
 
   /** Timeout used to collapse compact mode after pointer leave */
   private compactCollapseTimer: number | null = null;
+
+  /** Timeout used to delay fixed minimap click navigation until double-click is ruled out */
+  private minimapClickTimer: number | null = null;
 
   /** The scrollable container (parent of table) */
   private scrollContainer: HTMLElement | null = null;
@@ -147,6 +161,7 @@ export class TableMinimap {
     onPointerMove: (e: PointerEvent) => void;
     onPointerUp: (e: PointerEvent) => void;
     onMinimapClick: (e: MouseEvent) => void;
+    onMinimapDoubleClick: (e: MouseEvent) => void;
     onWheel: (e: WheelEvent) => void;
     onCanvasPointerDown: (e: PointerEvent) => void;
     onCanvasMouseMove: (e: MouseEvent) => void;
@@ -182,6 +197,7 @@ export class TableMinimap {
       onPointerMove: this.onPointerMove.bind(this),
       onPointerUp: this.onPointerUp.bind(this),
       onMinimapClick: this.onMinimapClick.bind(this),
+      onMinimapDoubleClick: this.onMinimapDoubleClick.bind(this),
       onWheel: this.onWheel.bind(this),
       onCanvasPointerDown: this.onCanvasPointerDown.bind(this),
       onCanvasMouseMove: this.onCanvasMouseMove.bind(this),
@@ -340,7 +356,7 @@ export class TableMinimap {
     // Set width and position class for fixed position
     if (this.options.position === 'fixed') {
       this.minimapEl.style.setProperty('--tm-minimap-width', `${this.options.fixedWidth}px`);
-      this.minimapEl.classList.add(`tm-minimap--${this.options.fixedPosition}`);
+      this.minimapEl.title = 'Double-click to move minimap to the next corner';
     }
 
     if (this.isCompactMode) {
@@ -450,31 +466,7 @@ export class TableMinimap {
 
         // Apply fixed positioning styles based on fixedPosition
         this.minimapEl.style.position = 'absolute';
-        const offset = this.isCompactMode ? 8 : 12;
-        const pos = this.options.fixedPosition;
-
-        // Reset all positions first
-        this.minimapEl.style.top = '';
-        this.minimapEl.style.bottom = '';
-        this.minimapEl.style.left = '';
-        this.minimapEl.style.right = '';
-        this.minimapEl.style.marginTop = '0';
-
-        // Apply position based on fixedPosition option
-        if (pos === 'top-left') {
-          this.minimapEl.style.top = `${offset}px`;
-          this.minimapEl.style.left = `${offset}px`;
-        } else if (pos === 'top-right') {
-          this.minimapEl.style.top = `${offset}px`;
-          this.minimapEl.style.right = `${offset}px`;
-        } else if (pos === 'bottom-left') {
-          this.minimapEl.style.bottom = `${offset}px`;
-          this.minimapEl.style.left = `${offset}px`;
-        } else {
-          // bottom-right (default)
-          this.minimapEl.style.bottom = `${offset}px`;
-          this.minimapEl.style.right = `${offset}px`;
-        }
+        this.applyFixedPosition();
       }
     } else if (this.options.position === 'top') {
       // Insert before the scroll container (outside, above it)
@@ -497,6 +489,56 @@ export class TableMinimap {
         this.scrollContainer.appendChild(this.minimapEl);
       }
     }
+  }
+
+  /**
+   * Applies the configured fixed corner position to the minimap element.
+   */
+  private applyFixedPosition(): void {
+    if (!this.minimapEl || this.options.position !== 'fixed') return;
+
+    const offset = this.isCompactMode ? 8 : 12;
+    const pos = this.options.fixedPosition;
+
+    FIXED_POSITIONS.forEach((fixedPosition) => {
+      this.minimapEl!.classList.remove(`tm-minimap--${fixedPosition}`);
+    });
+    this.minimapEl.classList.add(`tm-minimap--${pos}`);
+
+    // Reset all positions first
+    this.minimapEl.style.top = '';
+    this.minimapEl.style.bottom = '';
+    this.minimapEl.style.left = '';
+    this.minimapEl.style.right = '';
+    this.minimapEl.style.marginTop = '0';
+
+    // Apply position based on fixedPosition option
+    if (pos === 'top-left') {
+      this.minimapEl.style.top = `${offset}px`;
+      this.minimapEl.style.left = `${offset}px`;
+    } else if (pos === 'top-right') {
+      this.minimapEl.style.top = `${offset}px`;
+      this.minimapEl.style.right = `${offset}px`;
+    } else if (pos === 'bottom-left') {
+      this.minimapEl.style.bottom = `${offset}px`;
+      this.minimapEl.style.left = `${offset}px`;
+    } else {
+      // bottom-right (default)
+      this.minimapEl.style.bottom = `${offset}px`;
+      this.minimapEl.style.right = `${offset}px`;
+    }
+  }
+
+  /**
+   * Moves fixed minimaps to the next configured corner.
+   */
+  private cycleFixedPosition(): void {
+    if (this.options.position !== 'fixed') return;
+
+    const currentIndex = FIXED_POSITIONS.indexOf(this.options.fixedPosition);
+    const nextIndex = currentIndex >= 0 ? (currentIndex + 1) % FIXED_POSITIONS.length : 0;
+    this.options.fixedPosition = FIXED_POSITIONS[nextIndex];
+    this.applyFixedPosition();
   }
 
   /**
@@ -774,6 +816,7 @@ export class TableMinimap {
 
     // Click on minimap to jump
     this.minimapEl.addEventListener('click', this.boundHandlers.onMinimapClick);
+    this.minimapEl.addEventListener('dblclick', this.boundHandlers.onMinimapDoubleClick);
 
     if (this.isCompactMode) {
       this.minimapEl.addEventListener('focusin', this.boundHandlers.onCompactFocusIn);
@@ -840,8 +883,54 @@ export class TableMinimap {
   private onMinimapClick(e: MouseEvent): void {
     if (!this.minimapEl || !this.scrollContainer) return;
 
+    if (this.options.position === 'fixed') {
+      if (e.detail > 1) return;
+
+      const clientX = e.clientX;
+      this.clearMinimapClickTimer();
+      this.minimapClickTimer = window.setTimeout(() => {
+        this.minimapClickTimer = null;
+        this.handleMinimapClick(clientX);
+      }, DOUBLE_CLICK_DELAY);
+      return;
+    }
+
+    this.handleMinimapClick(e.clientX);
+  }
+
+  /**
+   * Handles double-click on fixed minimaps to move them to the next corner.
+   *
+   * @param e - Mouse event
+   */
+  private onMinimapDoubleClick(e: MouseEvent): void {
+    if (this.options.position !== 'fixed') return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    this.clearMinimapClickTimer();
+    this.cycleFixedPosition();
+  }
+
+  /**
+   * Clears a pending delayed minimap click.
+   */
+  private clearMinimapClickTimer(): void {
+    if (this.minimapClickTimer === null) return;
+
+    clearTimeout(this.minimapClickTimer);
+    this.minimapClickTimer = null;
+  }
+
+  /**
+   * Handles single-click minimap navigation.
+   *
+   * @param clientX - Click position in viewport coordinates
+   */
+  private handleMinimapClick(clientX: number): void {
+    if (!this.minimapEl || !this.scrollContainer) return;
+
     if (this.isCompactMode && this.isCompactCollapsed) {
-      e.preventDefault();
       this.expandCompact();
       return;
     }
@@ -854,7 +943,7 @@ export class TableMinimap {
 
     // Get click position relative to minimap
     const rect = this.minimapEl.getBoundingClientRect();
-    const clickX = e.clientX - rect.left;
+    const clickX = clientX - rect.left;
 
     // Canvas mode: scroll to center the clicked column
     if (this.options.mode === 'canvas') {
@@ -1496,6 +1585,7 @@ export class TableMinimap {
     this.isDestroyed = true;
 
     this.clearCompactCollapseTimer();
+    this.clearMinimapClickTimer();
 
     // Cancel any pending animation frame
     if (this.rafId !== null) {
@@ -1510,6 +1600,7 @@ export class TableMinimap {
 
     if (this.minimapEl) {
       this.minimapEl.removeEventListener('click', this.boundHandlers.onMinimapClick);
+      this.minimapEl.removeEventListener('dblclick', this.boundHandlers.onMinimapDoubleClick);
       this.minimapEl.removeEventListener('focusin', this.boundHandlers.onCompactFocusIn);
       this.minimapEl.removeEventListener('focusout', this.boundHandlers.onCompactFocusOut);
       this.minimapEl.removeEventListener('keydown', this.boundHandlers.onCompactKeyDown);
