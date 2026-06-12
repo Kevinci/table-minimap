@@ -45,6 +45,12 @@ const FIXED_POSITIONS: RequiredOptions['fixedPosition'][] = [
   'top-right',
 ];
 
+/** Pixels before a canvas pointer interaction is treated as panning instead of click */
+const CANVAS_PAN_THRESHOLD = 3;
+
+/** Multiplier for canvas drag-to-scroll movement; lower values feel smoother */
+const CANVAS_PAN_SENSITIVITY = 0.85;
+
 /**
  * TableMinimap - A framework-agnostic minimap component for large HTML tables
  *
@@ -139,6 +145,9 @@ export class TableMinimap {
   /** Pan start position */
   private panStartX = 0;
 
+  /** Last pointer X waiting to be applied during canvas panning */
+  private pendingPanClientX: number | null = null;
+
   /** Currently hovered column index (-1 = none) */
   private hoveredColumn = -1;
 
@@ -174,6 +183,9 @@ export class TableMinimap {
 
   /** Animation frame ID for throttling */
   private rafId: number | null = null;
+
+  /** Animation frame ID for throttling canvas panning */
+  private canvasPanRafId: number | null = null;
 
   /** Whether the instance has been destroyed */
   private isDestroyed = false;
@@ -1001,9 +1013,8 @@ export class TableMinimap {
     // Check if we should start panning (threshold check for potential pan)
     if (this.isPotentialPan && !this.isPanning && this.canvasEl && this.zoomState.level > 1) {
       const deltaX = Math.abs(e.clientX - this.panStartX);
-      const PAN_THRESHOLD = 3; // pixels before we consider it a drag vs click
 
-      if (deltaX > PAN_THRESHOLD) {
+      if (deltaX > CANVAS_PAN_THRESHOLD) {
         this.isPanning = true;
         this.canvasEl.style.cursor = 'grabbing';
       }
@@ -1012,24 +1023,8 @@ export class TableMinimap {
     // Handle canvas dragging (scrolls the table)
     if (this.isPanning && this.canvasEl && this.minimapEl && this.scrollContainer) {
       e.preventDefault();
-
-      const deltaX = e.clientX - this.panStartX;
-      const minimapWidth = this.minimapEl.offsetWidth;
-      const { scrollWidth, clientWidth } = this.scrollContainer;
-      const maxScroll = scrollWidth - clientWidth;
-
-      // Convert minimap movement to scroll movement
-      // When zoomed, movement on minimap represents more scroll distance
-      const scrollDelta = (deltaX / minimapWidth) * maxScroll * this.zoomState.level;
-      const newScrollLeft = this.dragStartScrollLeft + scrollDelta;
-
-      // Apply scroll
-      this.scrollContainer.scrollLeft = Math.max(0, Math.min(maxScroll, newScrollLeft));
-
-      // Update state and re-render
-      this.updateScrollState();
-      this.updateViewport();
-      this.render();
+      this.pendingPanClientX = e.clientX;
+      this.scheduleCanvasPan();
       return;
     }
 
@@ -1054,6 +1049,62 @@ export class TableMinimap {
   }
 
   /**
+   * Schedules canvas panning work for the next animation frame.
+   */
+  private scheduleCanvasPan(): void {
+    if (this.canvasPanRafId !== null) return;
+
+    this.canvasPanRafId = requestAnimationFrame(() => {
+      this.canvasPanRafId = null;
+      this.applyCanvasPan();
+    });
+  }
+
+  /**
+   * Applies pending canvas pan movement using a dampened scroll ratio.
+   */
+  private applyCanvasPan(): void {
+    if (
+      !this.isPanning ||
+      this.pendingPanClientX === null ||
+      !this.minimapEl ||
+      !this.scrollContainer
+    ) {
+      return;
+    }
+
+    const deltaX = this.pendingPanClientX - this.panStartX;
+    const minimapWidth = Math.max(this.minimapEl.offsetWidth, 1);
+    const { scrollWidth, clientWidth } = this.scrollContainer;
+    const maxScroll = Math.max(scrollWidth - clientWidth, 0);
+    const visibleRatio = 1 / Math.max(this.zoomState.level, 1);
+
+    // In zoomed canvas mode the minimap represents only the visible slice.
+    // Scaling by visibleRatio makes left/right panning much less jumpy at high zoom levels.
+    const scrollDelta =
+      (deltaX / minimapWidth) * maxScroll * visibleRatio * CANVAS_PAN_SENSITIVITY;
+
+    this.scrollContainer.scrollLeft = Math.max(
+      0,
+      Math.min(maxScroll, this.dragStartScrollLeft + scrollDelta)
+    );
+
+    this.updateScrollState();
+    this.updateViewport();
+    this.render();
+  }
+
+  /**
+   * Cancels any pending canvas pan frame.
+   */
+  private clearCanvasPanFrame(): void {
+    if (this.canvasPanRafId === null) return;
+
+    cancelAnimationFrame(this.canvasPanRafId);
+    this.canvasPanRafId = null;
+  }
+
+  /**
    * Handles pointer up to end drag
    *
    * @param e - Pointer event
@@ -1062,6 +1113,7 @@ export class TableMinimap {
     // Handle potential pan that was actually a click
     if (this.isPotentialPan && !this.isPanning && this.canvasEl && this.minimapEl) {
       this.isPotentialPan = false;
+      this.pendingPanClientX = null;
 
       if (this.canvasEl.hasPointerCapture(e.pointerId)) {
         this.canvasEl.releasePointerCapture(e.pointerId);
@@ -1081,6 +1133,9 @@ export class TableMinimap {
 
     // End canvas panning
     if (this.isPanning && this.canvasEl) {
+      this.applyCanvasPan();
+      this.clearCanvasPanFrame();
+      this.pendingPanClientX = null;
       this.isPanning = false;
       this.wasPanning = true;
 
@@ -1586,6 +1641,8 @@ export class TableMinimap {
 
     this.clearCompactCollapseTimer();
     this.clearMinimapClickTimer();
+    this.clearCanvasPanFrame();
+    this.pendingPanClientX = null;
 
     // Cancel any pending animation frame
     if (this.rafId !== null) {
