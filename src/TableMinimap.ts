@@ -1073,13 +1073,14 @@ export class TableMinimap {
       return;
     }
 
-    const deltaX = this.pendingPanClientX - this.panStartX;
+    const deltaX = this.panStartX - this.pendingPanClientX;
     const minimapWidth = Math.max(this.minimapEl.offsetWidth, 1);
     const { scrollWidth, clientWidth } = this.scrollContainer;
     const maxScroll = Math.max(scrollWidth - clientWidth, 0);
     const visibleRatio = 1 / Math.max(this.zoomState.level, 1);
 
     // In zoomed canvas mode the minimap represents only the visible slice.
+    // Invert pointer delta so dragging left/right moves the table in the same perceived direction.
     // Scaling by visibleRatio makes left/right panning much less jumpy at high zoom levels.
     const scrollDelta =
       (deltaX / minimapWidth) * maxScroll * visibleRatio * CANVAS_PAN_SENSITIVITY;
