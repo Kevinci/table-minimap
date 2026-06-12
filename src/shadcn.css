@@ -58,6 +58,19 @@
   margin-top: 8px;
 }
 
+.tm-minimap--fixed {
+  background: color-mix(in srgb, var(--tm-background) 72%, transparent);
+  border-color: color-mix(in srgb, var(--tm-border) 72%, transparent);
+  opacity: 0.78;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.tm-minimap--fixed:hover,
+.tm-minimap--fixed:focus-within {
+  opacity: 0.96;
+}
+
 .tm-minimap--compact {
   border-radius: 999px;
 }
@@ -70,7 +83,7 @@
   background: color-mix(in srgb, var(--tm-background) 60%, transparent);
   border-color: color-mix(in srgb, var(--tm-border) 45%, transparent);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--tm-border) 20%, transparent);
-  opacity: 0.92;
+  opacity: 0.72;
   transform: translate(2px, 2px);
 }
 

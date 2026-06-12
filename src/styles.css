@@ -68,8 +68,18 @@
 
 .tm-minimap--fixed {
   z-index: 100;
+  background: color-mix(in srgb, var(--tm-background) 72%, transparent);
+  border-color: color-mix(in srgb, var(--tm-border) 72%, transparent);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   border-radius: 8px;
+  opacity: 0.78;
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.tm-minimap--fixed:hover,
+.tm-minimap--fixed:focus-within {
+  opacity: 0.96;
 }
 
 .tm-minimap--compact-collapsed {
@@ -88,7 +98,7 @@
   background: color-mix(in srgb, var(--tm-background) 60%, transparent);
   border-color: color-mix(in srgb, var(--tm-border) 45%, transparent);
   box-shadow: 0 0 0 1px color-mix(in srgb, var(--tm-border) 20%, transparent);
-  opacity: 0.92;
+  opacity: 0.72;
   transform: translate(2px, 2px);
 }
 
