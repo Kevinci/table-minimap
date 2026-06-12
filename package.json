@@ -21,7 +21,8 @@
     "./shadcn.css": "./dist/shadcn.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "CHANGELOG.md"
   ],
   "sideEffects": [
     "**/*.css"
@@ -52,7 +53,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Kevinci/table-minimap.git"
+    "url": "git+https://github.com/Kevinci/table-minimap.git"
   },
   "homepage": "https://kevinci.github.io/table-minimap/",
   "devDependencies": {

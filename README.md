@@ -6,7 +6,7 @@ A framework-agnostic minimap component for navigating large HTML tables. Inspire
 [![bundle size](https://img.shields.io/bundlephobia/minzip/table-minimap)](https://bundlephobia.com/package/table-minimap)
 [![license](https://img.shields.io/npm/l/table-minimap)](https://github.com/Kevinci/table-minimap/blob/main/LICENSE)
 
-**[Live Demo](https://kevinci.github.io/table-minimap/)**
+**[Live Demo](https://kevinci.github.io/table-minimap/)** · **[Changelog](CHANGELOG.md)**
 
 ## Features
 
