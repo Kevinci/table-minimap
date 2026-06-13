@@ -90,6 +90,8 @@ const minimap = new TableMinimap('#my-table', {
   position: 'bottom',  // 'top' | 'bottom' | 'fixed'
   draggable: true,     // Enable drag navigation
   showViewport: true,  // Show viewport indicator
+  canvasClipboard: true, // Right-click canvas column to copy
+  canvasClipboardLabel: 'Spalte kopieren', // i18n label
 });
 ```
 
@@ -121,12 +123,14 @@ Canvas mode renders a compressed pixel preview of the entire table:
 const minimap = new TableMinimap('#data-table', {
   mode: 'canvas',
   height: 60,
+  canvasClipboard: true,
 });
 ```
 
 - Darker pixels indicate cells with more content
 - Empty cells appear lighter
 - Provides a visual "density map" of your data
+- Optional: right-click a column and use **Copy column to clipboard**
 
 ### Canvas Mode with Zoom
 
@@ -137,6 +141,7 @@ const minimap = new TableMinimap('#data-table', {
   mode: 'canvas',
   height: 80,
   zoomable: true,
+  canvasClipboard: true,
   minZoom: 1,
   maxZoom: 10,
   zoomSpeed: 0.1,
@@ -240,6 +245,18 @@ interface TableMinimapOptions {
    * @default 0.1
    */
   zoomSpeed?: number;
+
+  /**
+   * Enable right-click context menu in canvas mode to copy a column
+   * @default false
+   */
+  canvasClipboard?: boolean;
+
+  /**
+   * Label text used for the canvas clipboard action (useful for i18n)
+   * @default "Copy column to clipboard"
+   */
+  canvasClipboardLabel?: string;
 }
 ```
 
@@ -255,6 +272,8 @@ interface TableMinimapOptions {
 | `draggable` | `true` |
 | `showViewport` | `true` |
 | `zoomable` | `false` |
+| `canvasClipboard` | `false` |
+| `canvasClipboardLabel` | `'Copy column to clipboard'` |
 | `minZoom` | `1` |
 | `maxZoom` | `10` |
 | `zoomSpeed` | `0.1` |
@@ -398,6 +417,12 @@ Override these CSS variables to customize the minimap appearance:
   --tm-border-radius: 4px;
   --tm-canvas-empty: #f0f0f0;
   --tm-canvas-filled: #606060;
+  --tm-context-menu-bg: #ffffff;
+  --tm-context-menu-border: #d4dce7;
+  --tm-context-menu-text: #0f172a;
+  --tm-context-menu-hover-text: #0369a1;
+  --tm-context-menu-status: #475569;
+  --tm-context-menu-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
 }
 ```
 

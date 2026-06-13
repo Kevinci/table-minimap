@@ -11,6 +11,7 @@ let cols1 = 20, rows1 = 50, position1: 'top' | 'bottom' = 'bottom';
 let cols2 = 20, rows2 = 50, width2 = 250, fixedPosition2: FixedPosition = 'bottom-right';
 let colsCompact = 22, rowsCompact = 48, fixedPositionCompact: FixedPosition = 'bottom-right';
 let cols3 = 20, rows3 = 50;
+let canvasClipboard3 = true;
 let minimap1: TableMinimap | null = null;
 let minimap2: TableMinimap | null = null;
 let minimapCompact: TableMinimap | null = null;
@@ -76,15 +77,34 @@ const minimap = new TableMinimap('#my-table', {
  * Generates code string for Demo 3
  */
 function generateCode3(): string {
+  const clipboardLine = canvasClipboard3 ? "\n  canvasClipboard: true," : '';
+
   return formatCode(`import { TableMinimap } from 'table-minimap';
 
 const minimap = new TableMinimap('#my-table', {
   mode: 'canvas',
   height: 100,
   position: 'bottom',
+${clipboardLine}
   zoomable: true,
   maxZoom: 12
 });`);
+}
+
+/**
+ * Updates the Canvas demo description text based on clipboard toggle.
+ */
+function updateCanvasSubtext(): void {
+  const subtext = document.getElementById('canvas-subtext-3');
+  if (!subtext) return;
+
+  const clipboardHint = canvasClipboard3
+    ? ' Right-click a column to copy it to clipboard.'
+    : ' Clipboard copy is currently disabled.';
+
+  subtext.innerHTML =
+    'Renders <strong>actual table content</strong>! Scroll wheel to zoom, drag to pan. Click columns to jump.' +
+    clipboardHint;
 }
 
 /**
@@ -196,6 +216,31 @@ function generateCellContent(row: number, col: number): string {
 }
 
 /**
+ * Fetches and displays weekly npm download counts for this package.
+ */
+async function updateNpmWeeklyDownloads(): Promise<void> {
+  const downloadsEl = document.getElementById('npm-weekly-downloads');
+  if (!downloadsEl) return;
+
+  try {
+    const response = await fetch('https://api.npmjs.org/downloads/point/last-week/table-minimap');
+    if (!response.ok) {
+      throw new Error(`npm API request failed with status ${response.status}`);
+    }
+
+    const data = await response.json() as { downloads?: number };
+    if (typeof data.downloads !== 'number') {
+      throw new Error('npm API returned an invalid response payload');
+    }
+
+    downloadsEl.textContent = new Intl.NumberFormat('en-US').format(data.downloads);
+  } catch (error) {
+    console.warn('Failed to load weekly npm downloads', error);
+    downloadsEl.textContent = 'n/a';
+  }
+}
+
+/**
  * Creates/recreates a table with specified dimensions
  */
 function createTable(
@@ -299,6 +344,7 @@ function recreateDemo3(): void {
     mode: 'canvas',
     height: 100,
     position: 'bottom',
+    canvasClipboard: canvasClipboard3,
     zoomable: true,
     maxZoom: 12,
   });
@@ -318,6 +364,9 @@ function init(): void {
   recreateDemo2();
   recreateDemoCompact();
   recreateDemo3();
+  updateCanvasSubtext();
+
+  void updateNpmWeeklyDownloads();
 
   // Initialize code blocks
   updateCodeBlocks();
@@ -467,6 +516,12 @@ function init(): void {
   document.getElementById('rows-3')?.addEventListener('change', (e) => {
     rows3 = parseInt((e.target as HTMLInputElement).value) || 50;
     recreateDemo3();
+  });
+  document.getElementById('clipboard-toggle-3')?.addEventListener('change', (e) => {
+    canvasClipboard3 = (e.target as HTMLInputElement).checked;
+    recreateDemo3();
+    updateCanvasSubtext();
+    updateCodeBlocks();
   });
 
   console.log('TableMinimap Demo Initialized');

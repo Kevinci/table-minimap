@@ -80,6 +80,18 @@ export interface TableMinimapOptions {
    * @default 0.1
    */
   zoomSpeed?: number;
+
+  /**
+   * Enable right-click context menu in canvas mode to copy a column to clipboard
+   * @default false
+   */
+  canvasClipboard?: boolean;
+
+  /**
+   * Label text used for the canvas clipboard action (useful for i18n)
+   * @default "Copy column to clipboard"
+   */
+  canvasClipboardLabel?: string;
 }
 
 /**

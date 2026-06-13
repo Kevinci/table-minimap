@@ -23,6 +23,8 @@ const DEFAULT_OPTIONS: RequiredOptions = {
   minZoom: 1,
   maxZoom: 10,
   zoomSpeed: 0.1,
+  canvasClipboard: false,
+  canvasClipboardLabel: 'Copy column to clipboard',
 };
 
 /** Compact floating minimap handle size in pixels */
@@ -109,6 +111,18 @@ export class TableMinimap {
   /** Canvas 2D rendering context */
   private canvasCtx: CanvasRenderingContext2D | null = null;
 
+  /** Canvas context menu for clipboard copy */
+  private canvasContextMenuEl: HTMLDivElement | null = null;
+
+  /** Copy action text inside the canvas context menu */
+  private canvasContextCopyActionEl: HTMLDivElement | null = null;
+
+  /** Status line inside the canvas context menu */
+  private canvasContextStatusEl: HTMLDivElement | null = null;
+
+  /** Selected canvas column index for context menu actions */
+  private canvasContextColumnIndex = -1;
+
 
   /** Viewport indicator element */
   private viewportEl: HTMLDivElement | null = null;
@@ -173,12 +187,14 @@ export class TableMinimap {
     onMinimapDoubleClick: (e: MouseEvent) => void;
     onWheel: (e: WheelEvent) => void;
     onCanvasPointerDown: (e: PointerEvent) => void;
+    onCanvasContextMenu: (e: MouseEvent) => void;
     onCanvasMouseMove: (e: MouseEvent) => void;
     onCanvasMouseLeave: () => void;
     onCompactFocusIn: () => void;
     onCompactFocusOut: () => void;
     onCompactKeyDown: (e: KeyboardEvent) => void;
     onDocumentClick: (e: MouseEvent) => void;
+    onDocumentKeyDown: (e: KeyboardEvent) => void;
   };
 
   /** Animation frame ID for throttling */
@@ -212,12 +228,14 @@ export class TableMinimap {
       onMinimapDoubleClick: this.onMinimapDoubleClick.bind(this),
       onWheel: this.onWheel.bind(this),
       onCanvasPointerDown: this.onCanvasPointerDown.bind(this),
+      onCanvasContextMenu: this.onCanvasContextMenu.bind(this),
       onCanvasMouseMove: this.onCanvasMouseMove.bind(this),
       onCanvasMouseLeave: this.onCanvasMouseLeave.bind(this),
       onCompactFocusIn: this.onCompactFocusIn.bind(this),
       onCompactFocusOut: this.onCompactFocusOut.bind(this),
       onCompactKeyDown: this.onCompactKeyDown.bind(this),
       onDocumentClick: this.onDocumentClick.bind(this),
+      onDocumentKeyDown: this.onDocumentKeyDown.bind(this),
     };
 
     this.init();
@@ -834,8 +852,10 @@ export class TableMinimap {
       this.minimapEl.addEventListener('focusin', this.boundHandlers.onCompactFocusIn);
       this.minimapEl.addEventListener('focusout', this.boundHandlers.onCompactFocusOut);
       this.minimapEl.addEventListener('keydown', this.boundHandlers.onCompactKeyDown);
-      document.addEventListener('click', this.boundHandlers.onDocumentClick);
     }
+
+    document.addEventListener('click', this.boundHandlers.onDocumentClick);
+    document.addEventListener('keydown', this.boundHandlers.onDocumentKeyDown);
 
     // Drag events on viewport
     if (this.options.draggable && this.viewportEl) {
@@ -858,6 +878,10 @@ export class TableMinimap {
     if (this.options.mode === 'canvas' && this.canvasEl) {
       this.canvasEl.addEventListener('mousemove', this.boundHandlers.onCanvasMouseMove);
       this.canvasEl.addEventListener('mouseleave', this.boundHandlers.onCanvasMouseLeave);
+
+      if (this.options.canvasClipboard) {
+        this.canvasEl.addEventListener('contextmenu', this.boundHandlers.onCanvasContextMenu);
+      }
     }
 
     // Global pointer events for dragging
@@ -951,6 +975,8 @@ export class TableMinimap {
    */
   private handleMinimapClick(clientX: number): void {
     if (!this.minimapEl || !this.scrollContainer) return;
+
+    this.closeCanvasContextMenu();
 
     if (this.isCompactMode && this.isCompactCollapsed) {
       this.expandCompact();
@@ -1122,7 +1148,7 @@ export class TableMinimap {
    */
   private onPointerUp(e: PointerEvent): void {
     // Handle potential pan that was actually a click
-    if (this.isPotentialPan && !this.isPanning && this.canvasEl && this.minimapEl) {
+    if (this.isPotentialPan && !this.isPanning && this.canvasEl && this.minimapEl && e.button === 0) {
       this.isPotentialPan = false;
       this.pendingPanClientX = null;
 
@@ -1245,6 +1271,9 @@ export class TableMinimap {
   private onCanvasPointerDown(e: PointerEvent): void {
     if (!this.canvasEl || !this.scrollContainer) return;
 
+    // Keep right-click free for the canvas context menu.
+    if (e.button !== 0) return;
+
     // At any zoom level, track potential pan/click
     this.isPotentialPan = true;
     this.panStartX = e.clientX;
@@ -1284,6 +1313,181 @@ export class TableMinimap {
       }
       this.render();
     }
+  }
+
+  /**
+   * Handles context menu opening on a canvas column.
+   */
+  private onCanvasContextMenu(e: MouseEvent): void {
+    if (!this.canvasEl || !this.options.canvasClipboard) return;
+
+    e.preventDefault();
+
+    const rect = this.canvasEl.getBoundingClientRect();
+    const columnIndex = this.getColumnAtX(e.clientX - rect.left);
+    if (columnIndex < 0) return;
+
+    this.hoveredColumn = columnIndex;
+    this.render();
+    this.openCanvasContextMenu(e.clientX, e.clientY, columnIndex);
+  }
+
+  /**
+   * Creates the canvas clipboard context menu element on demand.
+   */
+  private ensureCanvasContextMenu(): void {
+    if (this.canvasContextMenuEl) return;
+
+    const menu = document.createElement('div');
+    menu.className = 'tm-canvas-context-menu';
+    menu.style.display = 'none';
+
+    const copyAction = document.createElement('div');
+    copyAction.className = 'tm-canvas-context-menu__action';
+    copyAction.textContent = this.options.canvasClipboardLabel;
+    copyAction.setAttribute('role', 'button');
+    copyAction.setAttribute('tabindex', '0');
+
+    const status = document.createElement('div');
+    status.className = 'tm-canvas-context-menu__status';
+    status.setAttribute('aria-live', 'polite');
+
+    copyAction.addEventListener('click', () => {
+      if (this.canvasContextColumnIndex < 0) return;
+      void this.copyColumnToClipboard(this.canvasContextColumnIndex);
+    });
+
+    copyAction.addEventListener('keydown', (event: KeyboardEvent) => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      event.preventDefault();
+      if (this.canvasContextColumnIndex < 0) return;
+      void this.copyColumnToClipboard(this.canvasContextColumnIndex);
+    });
+
+    menu.appendChild(copyAction);
+    menu.appendChild(status);
+    document.body.appendChild(menu);
+
+    this.canvasContextMenuEl = menu;
+    this.canvasContextCopyActionEl = copyAction;
+    this.canvasContextStatusEl = status;
+  }
+
+  /**
+   * Opens the canvas clipboard context menu near the pointer.
+   */
+  private openCanvasContextMenu(clientX: number, clientY: number, columnIndex: number): void {
+    this.ensureCanvasContextMenu();
+    if (!this.canvasContextMenuEl || !this.canvasContextStatusEl) return;
+
+    this.canvasContextColumnIndex = columnIndex;
+    const header = this.getColumnHeaderText(columnIndex);
+    this.canvasContextStatusEl.textContent = `Column: ${header}`;
+
+    this.canvasContextMenuEl.style.display = 'block';
+    this.canvasContextMenuEl.style.visibility = 'hidden';
+
+    const menuWidth = this.canvasContextMenuEl.offsetWidth;
+    const menuHeight = this.canvasContextMenuEl.offsetHeight;
+    const maxLeft = Math.max(8, window.innerWidth - menuWidth - 8);
+    const maxTop = Math.max(8, window.innerHeight - menuHeight - 8);
+    const left = Math.max(8, Math.min(clientX, maxLeft));
+    const top = Math.max(8, Math.min(clientY, maxTop));
+
+    this.canvasContextMenuEl.style.left = `${left}px`;
+    this.canvasContextMenuEl.style.top = `${top}px`;
+    this.canvasContextMenuEl.style.visibility = 'visible';
+    this.canvasContextCopyActionEl?.focus();
+  }
+
+  /**
+   * Closes the canvas clipboard context menu.
+   */
+  private closeCanvasContextMenu(): void {
+    if (!this.canvasContextMenuEl) return;
+
+    this.canvasContextMenuEl.style.display = 'none';
+    this.canvasContextMenuEl.style.visibility = 'hidden';
+    this.canvasContextColumnIndex = -1;
+  }
+
+  /**
+   * Gets display text for a column header.
+   */
+  private getColumnHeaderText(columnIndex: number): string {
+    const headerRow = this.table.querySelector('thead tr') || this.table.querySelector('tr');
+    if (!headerRow) {
+      return `Column ${columnIndex + 1}`;
+    }
+
+    const headerCells = Array.from(headerRow.querySelectorAll('th, td'));
+    const headerText = headerCells[columnIndex]?.textContent?.trim();
+    return headerText || `Column ${columnIndex + 1}`;
+  }
+
+  /**
+   * Builds clipboard text for a single column (header + non-empty rows).
+   */
+  private getColumnClipboardText(columnIndex: number): string {
+    const header = this.getColumnHeaderText(columnIndex);
+    const bodyRows = Array.from(this.table.querySelectorAll('tbody tr'));
+    const rows =
+      bodyRows.length > 0
+        ? bodyRows
+        : Array.from(this.table.querySelectorAll('tr')).filter((row) => !row.closest('thead'));
+
+    const values = rows
+      .map((row) => {
+        const cells = Array.from(row.querySelectorAll('th, td'));
+        return cells[columnIndex]?.textContent?.trim() ?? '';
+      })
+      .filter((value) => value.length > 0);
+
+    return [header, ...values].join('\n');
+  }
+
+  /**
+   * Writes text to clipboard with a fallback for browsers without navigator.clipboard.
+   */
+  private async writeClipboardText(text: string): Promise<boolean> {
+    if (navigator.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    textarea.style.pointerEvents = 'none';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    textarea.remove();
+    return copied;
+  }
+
+  /**
+   * Copies the selected column content to the clipboard.
+   */
+  private async copyColumnToClipboard(columnIndex: number): Promise<void> {
+    if (!this.canvasContextStatusEl) return;
+
+    const text = this.getColumnClipboardText(columnIndex);
+
+    try {
+      const copied = await this.writeClipboardText(text);
+      this.canvasContextStatusEl.textContent = copied
+        ? 'Column copied to clipboard.'
+        : 'Copy failed in this browser.';
+    } catch {
+      this.canvasContextStatusEl.textContent = 'Clipboard access denied.';
+      return;
+    }
+
+    window.setTimeout(() => {
+      this.closeCanvasContextMenu();
+    }, 180);
   }
 
   /**
@@ -1367,11 +1571,34 @@ export class TableMinimap {
    * Handles document click for closing compact mode when clicking outside.
    */
   private onDocumentClick(e: MouseEvent): void {
-    if (!this.isCompactMode || !this.minimapEl || this.isCompactCollapsed) return;
+    const target = e.target as Node | null;
+
+    if (
+      this.canvasContextMenuEl &&
+      this.canvasContextMenuEl.style.display !== 'none' &&
+      target &&
+      !this.canvasContextMenuEl.contains(target)
+    ) {
+      this.closeCanvasContextMenu();
+    }
+
+    if (!this.isCompactMode || !this.minimapEl || this.isCompactCollapsed || !target) return;
 
     // Check if click is outside the minimap
-    if (!this.minimapEl.contains(e.target as Node)) {
+    if (!this.minimapEl.contains(target)) {
       this.collapseCompact();
+    }
+  }
+
+  /**
+   * Handles global Escape to close the canvas context menu.
+   */
+  private onDocumentKeyDown(e: KeyboardEvent): void {
+    if (e.key !== 'Escape') return;
+
+    if (this.canvasContextMenuEl && this.canvasContextMenuEl.style.display !== 'none') {
+      e.preventDefault();
+      this.closeCanvasContextMenu();
     }
   }
 
@@ -1675,6 +1902,7 @@ export class TableMinimap {
     }
 
     document.removeEventListener('click', this.boundHandlers.onDocumentClick);
+    document.removeEventListener('keydown', this.boundHandlers.onDocumentKeyDown);
 
     if (this.viewportEl) {
       this.viewportEl.removeEventListener('pointerdown', this.boundHandlers.onPointerDown);
@@ -1686,6 +1914,15 @@ export class TableMinimap {
       this.canvasEl.removeEventListener('pointerdown', this.boundHandlers.onCanvasPointerDown);
       this.canvasEl.removeEventListener('mousemove', this.boundHandlers.onCanvasMouseMove);
       this.canvasEl.removeEventListener('mouseleave', this.boundHandlers.onCanvasMouseLeave);
+      this.canvasEl.removeEventListener('contextmenu', this.boundHandlers.onCanvasContextMenu);
+    }
+
+    if (this.canvasContextMenuEl) {
+      this.canvasContextMenuEl.remove();
+      this.canvasContextMenuEl = null;
+      this.canvasContextCopyActionEl = null;
+      this.canvasContextStatusEl = null;
+      this.canvasContextColumnIndex = -1;
     }
 
     document.removeEventListener('pointermove', this.boundHandlers.onPointerMove);
