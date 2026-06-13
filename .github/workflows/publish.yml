@@ -1,19 +1,23 @@
 name: Publish to npm
 
 on:
-  release:
-    types: [published]
+  push:
+    branches:
+      - main
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
 jobs:
   publish:
+    if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -26,5 +30,28 @@ jobs:
 
       - run: npm pack --dry-run
 
-      - run: npm publish --provenance --access public
+      - run: npm run build:demo
 
+      - name: Configure git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump patch version
+        run: 'npm version patch -m "chore(release): %s [skip ci]"'
+
+      - name: Publish package to npm
+        id: npm_publish
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Push version commit and tag
+        run: git push origin HEAD:main --follow-tags
+
+      - name: Deploy demo to GitHub Pages
+        if: ${{ steps.npm_publish.outcome == 'success' }}
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./demo-dist

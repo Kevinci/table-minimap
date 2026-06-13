@@ -4,13 +4,22 @@ import '../src/styles.css';
 type FixedPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
 const MAX_DEMO_COLUMNS = 99;
-const COLUMN_LIMIT_MESSAGE = 'If this is what your boss wants, call the men in white coats and quit as fast as you can.';
+const COLUMN_LIMIT_MESSAGE =
+  'If this is what your boss wants, call the men in white coats and quit as fast as you can.';
 
 // State
-let cols1 = 20, rows1 = 50, position1: 'top' | 'bottom' = 'bottom';
-let cols2 = 20, rows2 = 50, width2 = 250, fixedPosition2: FixedPosition = 'bottom-right';
-let colsCompact = 22, rowsCompact = 48, fixedPositionCompact: FixedPosition = 'bottom-right';
-let cols3 = 20, rows3 = 50;
+let cols1 = 20,
+  rows1 = 50,
+  position1: 'top' | 'bottom' = 'bottom';
+let cols2 = 20,
+  rows2 = 50,
+  width2 = 250,
+  fixedPosition2: FixedPosition = 'bottom-right';
+let colsCompact = 22,
+  rowsCompact = 48,
+  fixedPositionCompact: FixedPosition = 'bottom-right';
+let cols3 = 20,
+  rows3 = 50;
 let canvasClipboard3 = true;
 let minimap1: TableMinimap | null = null;
 let minimap2: TableMinimap | null = null;
@@ -23,7 +32,7 @@ let minimap3: TableMinimap | null = null;
 function formatCode(code: string): string {
   return code
     .replace(/\b(import|from|const|new)\b/g, '<span class="keyword">$1</span>')
-    .replace(/'([^']+)'/g, "'<span class=\"string\">$1</span>'")
+    .replace(/'([^']+)'/g, '\'<span class="string">$1</span>\'')
     .replace(/\/\/.*/g, '<span class="comment">$&</span>')
     .replace(/\b(TableMinimap)\b/g, '<span class="function">$1</span>')
     .replace(/\b(true|false)\b/g, '<span class="keyword">$1</span>');
@@ -77,7 +86,7 @@ const minimap = new TableMinimap('#my-table', {
  * Generates code string for Demo 3
  */
 function generateCode3(): string {
-  const clipboardLine = canvasClipboard3 ? "\n  canvasClipboard: true," : '';
+  const clipboardLine = canvasClipboard3 ? '\n  canvasClipboard: true,' : '';
 
   return formatCode(`import { TableMinimap } from 'table-minimap';
 
@@ -103,7 +112,7 @@ function updateCanvasSubtext(): void {
     : ' Clipboard copy is currently disabled.';
 
   subtext.innerHTML =
-    'Renders <strong>actual table content</strong>! Scroll wheel to zoom, drag to pan. Click columns to jump.' +
+    'Renders <strong>actual table content</strong>! Scroll wheel to zoom. Click columns to jump.' +
     clipboardHint;
 }
 
@@ -225,12 +234,16 @@ async function updateNpmWeeklyDownloads(): Promise<void> {
   try {
     const response = await fetch('https://api.npmjs.org/downloads/point/last-week/table-minimap');
     if (!response.ok) {
-      throw new Error(`npm API request failed with status ${response.status}`);
+      console.warn(`npm API request failed with status ${response.status}`);
+      downloadsEl.textContent = 'n/a';
+      return;
     }
 
-    const data = await response.json() as { downloads?: number };
+    const data = (await response.json()) as { downloads?: number };
     if (typeof data.downloads !== 'number') {
-      throw new Error('npm API returned an invalid response payload');
+      console.warn('npm API returned an invalid response payload');
+      downloadsEl.textContent = 'n/a';
+      return;
     }
 
     downloadsEl.textContent = new Intl.NumberFormat('en-US').format(data.downloads);
@@ -248,7 +261,7 @@ function createTable(
   bodyId: string,
   cols: number,
   rows: number,
-  randomContent = false
+  randomContent = false,
 ): void {
   const headerRow = document.getElementById(headerRowId);
   const tbody = document.getElementById(bodyId);
@@ -392,7 +405,10 @@ function init(): void {
     wrapper1.scrollTo({ left: 0, behavior: 'smooth' });
   });
   document.getElementById('scroll-middle-1')?.addEventListener('click', () => {
-    wrapper1.scrollTo({ left: (wrapper1.scrollWidth - wrapper1.clientWidth) / 2, behavior: 'smooth' });
+    wrapper1.scrollTo({
+      left: (wrapper1.scrollWidth - wrapper1.clientWidth) / 2,
+      behavior: 'smooth',
+    });
   });
   document.getElementById('scroll-end-1')?.addEventListener('click', () => {
     wrapper1.scrollTo({ left: wrapper1.scrollWidth, behavior: 'smooth' });
@@ -422,7 +438,10 @@ function init(): void {
     wrapper2.scrollTo({ left: 0, behavior: 'smooth' });
   });
   document.getElementById('scroll-middle-2')?.addEventListener('click', () => {
-    wrapper2.scrollTo({ left: (wrapper2.scrollWidth - wrapper2.clientWidth) / 2, behavior: 'smooth' });
+    wrapper2.scrollTo({
+      left: (wrapper2.scrollWidth - wrapper2.clientWidth) / 2,
+      behavior: 'smooth',
+    });
   });
   document.getElementById('scroll-end-2')?.addEventListener('click', () => {
     wrapper2.scrollTo({ left: wrapper2.scrollWidth, behavior: 'smooth' });
@@ -452,13 +471,18 @@ function init(): void {
 
   // === Demo 2b: Compact Fixed Position ===
   const wrapperCompact = document.getElementById('table-wrapper-compact')!;
-  wrapperCompact.addEventListener('scroll', () => updateScrollInfo(wrapperCompact, 'scroll-pos-compact'));
+  wrapperCompact.addEventListener('scroll', () =>
+    updateScrollInfo(wrapperCompact, 'scroll-pos-compact'),
+  );
 
   document.getElementById('scroll-start-compact')?.addEventListener('click', () => {
     wrapperCompact.scrollTo({ left: 0, behavior: 'smooth' });
   });
   document.getElementById('scroll-middle-compact')?.addEventListener('click', () => {
-    wrapperCompact.scrollTo({ left: (wrapperCompact.scrollWidth - wrapperCompact.clientWidth) / 2, behavior: 'smooth' });
+    wrapperCompact.scrollTo({
+      left: (wrapperCompact.scrollWidth - wrapperCompact.clientWidth) / 2,
+      behavior: 'smooth',
+    });
   });
   document.getElementById('scroll-end-compact')?.addEventListener('click', () => {
     wrapperCompact.scrollTo({ left: wrapperCompact.scrollWidth, behavior: 'smooth' });
@@ -490,13 +514,18 @@ function init(): void {
   };
 
   wrapper3.addEventListener('scroll', updateInfo3);
-  wrapper3.parentElement?.addEventListener('wheel', () => setTimeout(updateInfo3, 50), { passive: true });
+  wrapper3.parentElement?.addEventListener('wheel', () => setTimeout(updateInfo3, 50), {
+    passive: true,
+  });
 
   document.getElementById('scroll-start-3')?.addEventListener('click', () => {
     wrapper3.scrollTo({ left: 0, behavior: 'smooth' });
   });
   document.getElementById('scroll-middle-3')?.addEventListener('click', () => {
-    wrapper3.scrollTo({ left: (wrapper3.scrollWidth - wrapper3.clientWidth) / 2, behavior: 'smooth' });
+    wrapper3.scrollTo({
+      left: (wrapper3.scrollWidth - wrapper3.clientWidth) / 2,
+      behavior: 'smooth',
+    });
   });
   document.getElementById('scroll-end-3')?.addEventListener('click', () => {
     wrapper3.scrollTo({ left: wrapper3.scrollWidth, behavior: 'smooth' });

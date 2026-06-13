@@ -40,7 +40,6 @@ pnpm add table-minimap
 ```typescript
 import { TableMinimap } from 'table-minimap';
 
-
 // Using a CSS selector
 const minimap = new TableMinimap('#my-table');
 
@@ -77,7 +76,6 @@ minimap.destroy();
 ```typescript
 import { TableMinimap } from 'table-minimap';
 
-
 const minimap = new TableMinimap('#my-table');
 ```
 
@@ -85,11 +83,11 @@ const minimap = new TableMinimap('#my-table');
 
 ```typescript
 const minimap = new TableMinimap('#my-table', {
-  mode: 'canvas',      // 'columns' | 'canvas'
-  height: 50,          // Height in pixels
-  position: 'bottom',  // 'top' | 'bottom' | 'fixed'
-  draggable: true,     // Enable drag navigation
-  showViewport: true,  // Show viewport indicator
+  mode: 'canvas', // 'columns' | 'canvas'
+  height: 50, // Height in pixels
+  position: 'bottom', // 'top' | 'bottom' | 'fixed'
+  draggable: true, // Enable drag navigation
+  showViewport: true, // Show viewport indicator
   canvasClipboard: true, // Right-click canvas column to copy
   canvasClipboardLabel: 'Spalte kopieren', // i18n label
 });
@@ -148,12 +146,13 @@ const minimap = new TableMinimap('#data-table', {
 });
 
 // Programmatic zoom control
-minimap.setZoom(3, 0.5);     // Zoom to 3x at center
+minimap.setZoom(3, 0.5); // Zoom to 3x at center
 minimap.zoomToColumns(5, 15); // Zoom to columns 5-15
-minimap.resetZoom();          // Reset to full view
+minimap.resetZoom(); // Reset to full view
 ```
 
 **Zoom Controls:**
+
 - **Scroll wheel** on minimap to zoom in/out
 - **Drag** the canvas when zoomed to pan
 - A position indicator appears at the bottom when zoomed
@@ -262,21 +261,21 @@ interface TableMinimapOptions {
 
 ### Default Values
 
-| Option | Default |
-|--------|---------|
-| `mode` | `'columns'` |
-| `height` | `40` |
-| `position` | `'bottom'` |
-| `fixedPosition` | `'bottom-right'` |
-| `compact` | `false` |
-| `draggable` | `true` |
-| `showViewport` | `true` |
-| `zoomable` | `false` |
-| `canvasClipboard` | `false` |
+| Option                 | Default                      |
+| ---------------------- | ---------------------------- |
+| `mode`                 | `'columns'`                  |
+| `height`               | `40`                         |
+| `position`             | `'bottom'`                   |
+| `fixedPosition`        | `'bottom-right'`             |
+| `compact`              | `false`                      |
+| `draggable`            | `true`                       |
+| `showViewport`         | `true`                       |
+| `zoomable`             | `false`                      |
+| `canvasClipboard`      | `false`                      |
 | `canvasClipboardLabel` | `'Copy column to clipboard'` |
-| `minZoom` | `1` |
-| `maxZoom` | `10` |
-| `zoomSpeed` | `0.1` |
+| `minZoom`              | `1`                          |
+| `maxZoom`              | `10`                         |
+| `zoomSpeed`            | `0.1`                        |
 
 ## API Reference
 
@@ -287,10 +286,12 @@ new TableMinimap(selector: string | HTMLTableElement, options?: TableMinimapOpti
 ```
 
 **Parameters:**
+
 - `selector` - CSS selector string or HTMLTableElement
 - `options` - Optional configuration object
 
 **Throws:**
+
 - Error if element is not found
 - Error if element is not a `<table>`
 
@@ -446,17 +447,17 @@ The library automatically supports `prefers-color-scheme: dark`:
 
 ### CSS Classes
 
-| Class | Description |
-|-------|-------------|
-| `.tm-minimap` | Main container |
-| `.tm-minimap--top` | Applied when position is 'top' |
-| `.tm-minimap--bottom` | Applied when position is 'bottom' |
-| `.tm-columns` | Columns container (columns mode) |
-| `.tm-column` | Individual column segment |
-| `.tm-canvas` | Canvas element (canvas mode) |
-| `.tm-viewport` | Viewport indicator |
-| `.tm-viewport--dragging` | Applied during drag |
-| `.tm-viewport--disabled` | Applied when draggable is false |
+| Class                    | Description                       |
+| ------------------------ | --------------------------------- |
+| `.tm-minimap`            | Main container                    |
+| `.tm-minimap--top`       | Applied when position is 'top'    |
+| `.tm-minimap--bottom`    | Applied when position is 'bottom' |
+| `.tm-columns`            | Columns container (columns mode)  |
+| `.tm-column`             | Individual column segment         |
+| `.tm-canvas`             | Canvas element (canvas mode)      |
+| `.tm-viewport`           | Viewport indicator                |
+| `.tm-viewport--dragging` | Applied during drag               |
+| `.tm-viewport--disabled` | Applied when draggable is false   |
 
 ### Custom Theme Example
 
@@ -484,14 +485,14 @@ const minimap = new TableMinimap('#my-table');
 
 The shadcn theme automatically uses your project's color scheme:
 
-| Minimap Variable | shadcn Variable |
-|------------------|-----------------|
-| `--tm-background` | `--muted` |
-| `--tm-border` | `--border` |
-| `--tm-viewport-color` | `--primary` (with opacity) |
-| `--tm-viewport-border` | `--primary` |
-| `--tm-column-color` | `--muted-foreground` |
-| `--tm-border-radius` | `--radius` |
+| Minimap Variable       | shadcn Variable            |
+| ---------------------- | -------------------------- |
+| `--tm-background`      | `--muted`                  |
+| `--tm-border`          | `--border`                 |
+| `--tm-viewport-color`  | `--primary` (with opacity) |
+| `--tm-viewport-border` | `--primary`                |
+| `--tm-column-color`    | `--muted-foreground`       |
+| `--tm-border-radius`   | `--radius`                 |
 
 This ensures the minimap matches your shadcn/ui theme including dark mode support.
 
@@ -535,13 +536,9 @@ export function DataTableWithMinimap({ data }: { data: any[] }) {
     <div ref={containerRef} className="overflow-x-auto rounded-md border">
       <Table>
         <TableHeader>
-          <TableRow>
-            {/* Your headers */}
-          </TableRow>
+          <TableRow>{/* Your headers */}</TableRow>
         </TableHeader>
-        <TableBody>
-          {/* Your rows */}
-        </TableBody>
+        <TableBody>{/* Your rows */}</TableBody>
       </Table>
     </div>
   );
@@ -555,7 +552,6 @@ export function DataTableWithMinimap({ data }: { data: any[] }) {
 ```tsx
 import { useEffect, useRef } from 'react';
 import { TableMinimap } from 'table-minimap';
-
 
 function DataTable() {
   const tableRef = useRef<HTMLTableElement>(null);
@@ -573,9 +569,7 @@ function DataTable() {
 
   return (
     <div style={{ overflowX: 'auto' }}>
-      <table ref={tableRef}>
-        {/* ... */}
-      </table>
+      <table ref={tableRef}>{/* ... */}</table>
     </div>
   );
 }
@@ -587,7 +581,6 @@ function DataTable() {
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted } from 'vue';
 import { TableMinimap } from 'table-minimap';
-
 
 const tableRef = ref<HTMLTableElement | null>(null);
 let minimap: TableMinimap | null = null;
@@ -618,7 +611,6 @@ onUnmounted(() => {
 import { Component, ElementRef, ViewChild, AfterViewInit, OnDestroy } from '@angular/core';
 import { TableMinimap } from 'table-minimap';
 
-
 @Component({
   selector: 'app-data-table',
   template: `
@@ -627,7 +619,7 @@ import { TableMinimap } from 'table-minimap';
         <!-- ... -->
       </table>
     </div>
-  `
+  `,
 })
 export class DataTableComponent implements AfterViewInit, OnDestroy {
   @ViewChild('tableElement') tableRef!: ElementRef<HTMLTableElement>;
@@ -668,6 +660,7 @@ npm run build
 ```
 
 Outputs to `dist/`:
+
 - `table-minimap.js` (ESM)
 - `table-minimap.cjs` (CommonJS)
 - `style.css`
@@ -694,6 +687,22 @@ table-minimap/
 
 ## Publishing
 
+Automatic publish is configured in `.github/workflows/publish.yml`.
+
+On every push to `main`, GitHub Actions will:
+
+1. build and validate the package,
+2. bump the patch version in `package.json` + `package-lock.json`,
+3. publish the new version to npm,
+4. push the release commit and tag back to `main`,
+5. build the demo and deploy `demo-dist` to GitHub Pages.
+
+Required repository secret:
+
+- `NPM_TOKEN` (npm automation token with publish permission for `table-minimap`)
+
+Manual publishing (optional):
+
 ```bash
 # Ensure build is up to date
 npm run build
@@ -710,6 +719,7 @@ npm publish
 - Edge (latest)
 
 Requires:
+
 - `ResizeObserver`
 - `MutationObserver`
 - `PointerEvents`
@@ -727,4 +737,3 @@ Contributions are welcome! Please open an issue or submit a pull request.
 3. Commit your changes (`git commit -m 'Add amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-

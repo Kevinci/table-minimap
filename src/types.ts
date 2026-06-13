@@ -159,4 +159,3 @@ export type RequiredOptions = Required<TableMinimapOptions>;
  * Table element selector type
  */
 export type TableSelector = string | HTMLTableElement;
-

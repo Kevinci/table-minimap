@@ -31,4 +31,3 @@ export function injectStyles(): void {
 
 // Auto-inject on import (can be tree-shaken if not used)
 injectStyles();
-

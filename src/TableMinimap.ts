@@ -123,7 +123,6 @@ export class TableMinimap {
   /** Selected canvas column index for context menu actions */
   private canvasContextColumnIndex = -1;
 
-
   /** Viewport indicator element */
   private viewportEl: HTMLDivElement | null = null;
 
@@ -254,21 +253,19 @@ export class TableMinimap {
     if (typeof selector === 'string') {
       element = document.querySelector<HTMLTableElement>(selector);
       if (!element) {
-        throw new Error(
-          `TableMinimap: No element found for selector "${selector}"`
-        );
+        throw new Error(`TableMinimap: No element found for selector "${selector}"`);
       }
     } else if (selector instanceof HTMLTableElement) {
       element = selector;
     } else {
       throw new Error(
-        'TableMinimap: Selector must be a CSS selector string or an HTMLTableElement'
+        'TableMinimap: Selector must be a CSS selector string or an HTMLTableElement',
       );
     }
 
     if (element.tagName !== 'TABLE') {
       throw new Error(
-        `TableMinimap: Element must be a <table>, got <${element.tagName.toLowerCase()}>`
+        `TableMinimap: Element must be a <table>, got <${element.tagName.toLowerCase()}>`,
       );
     }
 
@@ -329,9 +326,7 @@ export class TableMinimap {
     this.columns = [];
 
     // Try thead th first
-    const theadCells = this.table.querySelectorAll<HTMLTableCellElement>(
-      'thead th, thead td'
-    );
+    const theadCells = this.table.querySelectorAll<HTMLTableCellElement>('thead th, thead td');
 
     let cells: NodeListOf<HTMLTableCellElement> | HTMLTableCellElement[];
 
@@ -398,7 +393,7 @@ export class TableMinimap {
     } else {
       this.minimapEl.setAttribute('aria-expanded', 'true');
     }
-    
+
     this.minimapEl.setAttribute('role', 'slider');
     this.minimapEl.setAttribute('aria-label', 'Table minimap navigation');
     this.minimapEl.setAttribute('aria-valuemin', '0');
@@ -595,7 +590,7 @@ export class TableMinimap {
     if (this.minimapEl) {
       this.minimapEl.setAttribute(
         'aria-valuenow',
-        String(Math.round(this.scrollState.positionRatio * 100))
+        String(Math.round(this.scrollState.positionRatio * 100)),
       );
     }
   }
@@ -683,7 +678,7 @@ export class TableMinimap {
     }
 
     const minimapWidth = this.minimapEl.offsetWidth;
-    
+
     // Columns mode: viewport showing visible area
     const viewportWidth = Math.max(minimapWidth * this.scrollState.viewportRatio, 20);
     const maxLeft = minimapWidth - viewportWidth;
@@ -719,7 +714,7 @@ export class TableMinimap {
    */
   private renderTableDirect(
     metrics: ReturnType<typeof this.getCanvasMetrics>,
-    height: number
+    height: number,
   ): void {
     if (!this.canvasCtx) return;
 
@@ -829,9 +824,6 @@ export class TableMinimap {
       ctx.strokeRect(hoverX, 0, cellWidth, height);
     }
   }
-
-
-
 
   /**
    * Attaches event listeners
@@ -1014,7 +1006,7 @@ export class TableMinimap {
     // Columns mode: scroll to clicked position (percentage-based)
     const clickRatio = clickX / rect.width;
     const targetScroll = clickRatio * maxScroll;
-    
+
     this.scrollContainer.scrollTo({
       left: Math.max(0, Math.min(maxScroll, targetScroll)),
       behavior: 'smooth',
@@ -1063,7 +1055,6 @@ export class TableMinimap {
       this.scheduleCanvasPan();
       return;
     }
-
 
     // Handle viewport dragging
     if (!this.isDragging || !this.minimapEl || !this.scrollContainer) return;
@@ -1118,12 +1109,11 @@ export class TableMinimap {
     // In zoomed canvas mode the minimap represents only the visible slice.
     // Invert pointer delta so dragging left/right moves the table in the same perceived direction.
     // Scaling by visibleRatio makes left/right panning much less jumpy at high zoom levels.
-    const scrollDelta =
-      (deltaX / minimapWidth) * maxScroll * visibleRatio * CANVAS_PAN_SENSITIVITY;
+    const scrollDelta = (deltaX / minimapWidth) * maxScroll * visibleRatio * CANVAS_PAN_SENSITIVITY;
 
     this.scrollContainer.scrollLeft = Math.max(
       0,
-      Math.min(maxScroll, this.dragStartScrollLeft + scrollDelta)
+      Math.min(maxScroll, this.dragStartScrollLeft + scrollDelta),
     );
 
     this.updateScrollState();
@@ -1148,7 +1138,13 @@ export class TableMinimap {
    */
   private onPointerUp(e: PointerEvent): void {
     // Handle potential pan that was actually a click
-    if (this.isPotentialPan && !this.isPanning && this.canvasEl && this.minimapEl && e.button === 0) {
+    if (
+      this.isPotentialPan &&
+      !this.isPanning &&
+      this.canvasEl &&
+      this.minimapEl &&
+      e.button === 0
+    ) {
       this.isPotentialPan = false;
       this.pendingPanClientX = null;
 
@@ -1212,10 +1208,7 @@ export class TableMinimap {
 
     const oldZoom = this.zoomState.level;
     const delta = -e.deltaY * this.options.zoomSpeed;
-    const newZoom = Math.max(
-      this.options.minZoom,
-      Math.min(this.options.maxZoom, oldZoom + delta)
-    );
+    const newZoom = Math.max(this.options.minZoom, Math.min(this.options.maxZoom, oldZoom + delta));
 
     if (newZoom === oldZoom) return;
 
@@ -1297,7 +1290,8 @@ export class TableMinimap {
 
     if (newHoveredColumn !== this.hoveredColumn) {
       this.hoveredColumn = newHoveredColumn;
-      this.canvasEl.style.cursor = newHoveredColumn >= 0 ? 'pointer' : (this.zoomState.level > 1 ? 'grab' : 'default');
+      this.canvasEl.style.cursor =
+        newHoveredColumn >= 0 ? 'pointer' : this.zoomState.level > 1 ? 'grab' : 'default';
       this.render();
     }
   }
@@ -1499,7 +1493,7 @@ export class TableMinimap {
     this.clearCompactCollapseTimer();
     this.isCompactExpanding = true;
     this.applyCompactDimensions(false);
-    
+
     // Wait for CSS transition to complete before rendering
     // This ensures correct dimensions are used for viewport calculation
     setTimeout(() => {
@@ -1659,7 +1653,7 @@ export class TableMinimap {
     // MutationObserver for table structure changes
     this.mutationObserver = new MutationObserver((mutations) => {
       const hasStructuralChanges = mutations.some(
-        (m) => m.type === 'childList' || m.attributeName === 'colspan'
+        (m) => m.type === 'childList' || m.attributeName === 'colspan',
       );
 
       if (hasStructuralChanges) {
@@ -1806,10 +1800,7 @@ export class TableMinimap {
   public setZoom(level: number, panX?: number): void {
     if (this.isDestroyed || this.options.mode !== 'canvas' || !this.scrollContainer) return;
 
-    const newZoom = Math.max(
-      this.options.minZoom,
-      Math.min(this.options.maxZoom, level)
-    );
+    const newZoom = Math.max(this.options.minZoom, Math.min(this.options.maxZoom, level));
 
     const visibleRange = 1 / newZoom;
     const maxPanX = 1 - visibleRange;
