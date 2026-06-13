@@ -25,8 +25,8 @@
     .code-block .function { color: #dcdcaa; }
     .code-block .type { color: #4ec9b0; }
   </style>
-  <script type="module" crossorigin src="/table-minimap/assets/index-B2T9HYUj.js"></script>
-  <link rel="stylesheet" crossorigin href="/table-minimap/assets/index-Boz8w_nX.css">
+  <script type="module" crossorigin src="/table-minimap/assets/index-NkKVAFXj.js"></script>
+  <link rel="stylesheet" crossorigin href="/table-minimap/assets/index-BaYuqgu_.css">
 </head>
 <body class="bg-gray-50 min-h-screen">
   <div class="max-w-6xl mx-auto px-4 py-10">
@@ -215,7 +215,7 @@
         <h2 class="text-xl font-semibold text-gray-900">Canvas Mode</h2>
         <span class="text-xs font-medium bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full">Real Text + Zoom</span>
       </div>
-      <p class="text-gray-600 mb-6">Renders <strong>actual table content</strong>! Scroll wheel to zoom, drag to pan. Click columns to jump.</p>
+      <p id="canvas-subtext-3" class="text-gray-600 mb-6">Renders <strong>actual table content</strong>! Scroll wheel to zoom, drag to pan. Click columns to jump. Right-click a column to copy it to clipboard.</p>
       <div class="flex flex-wrap gap-2 mb-4">
         <button id="scroll-start-3" class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition">Scroll to Start</button>
         <button id="scroll-middle-3" class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition">Scroll to Middle</button>
@@ -226,6 +226,12 @@
         <div id="table-wrapper-3" class="overflow-auto max-h-80">
           <table id="demo-table-3" class="demo-table"><thead><tr id="header-row-3"></tr></thead><tbody id="table-body-3"></tbody></table>
         </div>
+      </div>
+      <div class="mb-4">
+        <label for="clipboard-toggle-3" class="inline-flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 cursor-pointer select-none">
+          <input type="checkbox" id="clipboard-toggle-3" checked class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500">
+          <span class="text-sm font-medium text-gray-800">Copy to clipboard in canvas mode</span>
+        </label>
       </div>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div class="bg-gray-50 rounded-lg p-4">
