@@ -16,6 +16,12 @@
   --tm-canvas-filled: #1565c0;
   --tm-compact-dot-size: 5px;
   --tm-compact-transition-duration: 180ms;
+  --tm-context-menu-bg: #ffffff;
+  --tm-context-menu-border: #d4dce7;
+  --tm-context-menu-text: #0f172a;
+  --tm-context-menu-hover-text: #0369a1;
+  --tm-context-menu-status: #475569;
+  --tm-context-menu-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
 }
 
 /* Dark mode support */
@@ -28,6 +34,11 @@
     --tm-column-color: #3f51b5;
     --tm-canvas-empty: #283593;
     --tm-canvas-filled: #90caf9;
+    --tm-context-menu-bg: #ffffff;
+    --tm-context-menu-border: #cbd5e1;
+    --tm-context-menu-text: #0f172a;
+    --tm-context-menu-hover-text: #0284c7;
+    --tm-context-menu-status: #475569;
   }
 }
 
@@ -170,6 +181,47 @@
   height: 100%;
   display: block;
   cursor: pointer;
+}
+
+.tm-canvas-context-menu {
+  position: fixed;
+  z-index: 1000;
+  min-width: 220px;
+  padding: 8px;
+  border: 1px solid var(--tm-context-menu-border);
+  border-radius: 8px;
+  background: var(--tm-context-menu-bg);
+  box-shadow: var(--tm-context-menu-shadow);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+
+.tm-canvas-context-menu__action {
+  display: inline;
+  border: 0;
+  background: transparent;
+  color: var(--tm-context-menu-text);
+  font: inherit;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 1.2;
+  padding: 2px 0;
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 0.15s ease-in-out;
+}
+
+.tm-canvas-context-menu__action:hover,
+.tm-canvas-context-menu__action:focus-visible {
+  color: var(--tm-context-menu-hover-text);
+  outline: none;
+}
+
+.tm-canvas-context-menu__status {
+  margin-top: 6px;
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--tm-context-menu-status);
 }
 
 /* ==========================================================================
