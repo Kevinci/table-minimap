@@ -40,9 +40,22 @@ jobs:
       - name: Bump patch version
         run: 'npm version patch -m "chore(release): %s [skip ci]"'
 
-      - name: Publish package to npm
-        id: npm_publish
-        run: npm publish --provenance --access public
+      - name: Prepare publish package (without README)
+        run: |
+          rm -rf .npm-publish
+          mkdir -p .npm-publish/dist
+          cp package.json LICENSE CHANGELOG.md .npm-publish/
+          cp -R dist/. .npm-publish/dist/
+
+      - name: Publish package to npm (Trusted Publishing)
+        id: npm_publish_trusted
+        if: ${{ secrets.NPM_TOKEN == '' }}
+        run: npm publish ./.npm-publish --provenance --access public --ignore-scripts
+
+      - name: Publish package to npm (Token fallback)
+        id: npm_publish_token
+        if: ${{ secrets.NPM_TOKEN != '' }}
+        run: npm publish ./.npm-publish --provenance --access public --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -50,7 +63,7 @@ jobs:
         run: git push origin HEAD:main --follow-tags
 
       - name: Deploy demo to GitHub Pages
-        if: ${{ steps.npm_publish.outcome == 'success' }}
+        if: ${{ steps.npm_publish_trusted.outcome == 'success' || steps.npm_publish_token.outcome == 'success' }}
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
