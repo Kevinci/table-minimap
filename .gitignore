@@ -27,3 +27,6 @@ npm-debug.log*
 *.tsbuildinfo
 
 demo-dist
+
+# Local planning docs
+SPEC.md
