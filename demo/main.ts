@@ -120,7 +120,7 @@ function updateCanvasSubtext(): void {
     : ' Clipboard copy is currently disabled.';
 
   subtext.innerHTML =
-    'Renders <strong>actual table content</strong>! Scroll wheel to zoom. Click columns to jump.' +
+    'Renders <strong>actual table content</strong>! Scroll wheel to zoom. Click columns to jump. Mobile support is planned for Q3 2026.' +
     clipboardHint;
 }
 
