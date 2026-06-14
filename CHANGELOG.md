@@ -1,11 +1,43 @@
 # Changelog
 
+If you find a bug or anything that could be improved, feel free to email me at `kevinci.coding@gmail.com`.
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.2.1] - 2026-06-14
+
+### Improved
+
+- Improved mobile/touch behavior in canvas mode with cleaner pointer cancel handling.
+- Added `touch-action: none` on key minimap elements to reduce gesture conflicts on touch devices.
+- Refreshed the demo page layout and presentation for a cleaner overview.
+- Demo now shows the current package version badge.
+
+### Fixed
+
+- Demo npm download widget now falls back gracefully to `n/a` when the API is unavailable.
+
+## [1.2.0] - 2026-06-13
+
+### Added
+
+- Added canvas clipboard support via right-click context menu (`canvasClipboard`, `canvasClipboardLabel`).
+- Added demo toggle to enable/disable clipboard copy in canvas mode.
+- Added demo header metric for weekly npm downloads.
+
+### Improved
+
+- Added canvas context-menu styling tokens and UI styles in `src/styles.css`.
+- Improved context-menu interactions (keyboard trigger and Escape/outside-click close behavior).
+
+### Fixed
+
+- Limited canvas pan start to left-click so right-click can be used reliably for clipboard actions.
 
 ## [1.1.3] - 2026-06-12
 
@@ -69,7 +101,9 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Updated license author information.
 - Added homepage/demo metadata.
 
-[Unreleased]: https://github.com/Kevinci/table-minimap/compare/v1.1.3...HEAD
+[Unreleased]: https://github.com/Kevinci/table-minimap/compare/v1.2.1...HEAD
+[1.2.1]: https://github.com/Kevinci/table-minimap/compare/v1.2.0...v1.2.1
+[1.2.0]: https://github.com/Kevinci/table-minimap/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/Kevinci/table-minimap/compare/v1.1.2...v1.1.3
 [1.1.2]: https://github.com/Kevinci/table-minimap/compare/v1.1.1...v1.1.2
 [1.1.1]: https://github.com/Kevinci/table-minimap/compare/v1.1.0...v1.1.1
