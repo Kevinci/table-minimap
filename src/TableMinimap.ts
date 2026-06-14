@@ -182,6 +182,7 @@ export class TableMinimap {
     onPointerDown: (e: PointerEvent) => void;
     onPointerMove: (e: PointerEvent) => void;
     onPointerUp: (e: PointerEvent) => void;
+    onPointerCancel: (e: PointerEvent) => void;
     onMinimapClick: (e: MouseEvent) => void;
     onMinimapDoubleClick: (e: MouseEvent) => void;
     onWheel: (e: WheelEvent) => void;
@@ -223,6 +224,7 @@ export class TableMinimap {
       onPointerDown: this.onPointerDown.bind(this),
       onPointerMove: this.onPointerMove.bind(this),
       onPointerUp: this.onPointerUp.bind(this),
+      onPointerCancel: this.onPointerCancel.bind(this),
       onMinimapClick: this.onMinimapClick.bind(this),
       onMinimapDoubleClick: this.onMinimapDoubleClick.bind(this),
       onWheel: this.onWheel.bind(this),
@@ -879,6 +881,7 @@ export class TableMinimap {
     // Global pointer events for dragging
     document.addEventListener('pointermove', this.boundHandlers.onPointerMove);
     document.addEventListener('pointerup', this.boundHandlers.onPointerUp);
+    document.addEventListener('pointercancel', this.boundHandlers.onPointerCancel);
   }
 
   /**
@@ -1190,9 +1193,18 @@ export class TableMinimap {
 
       if (this.viewportEl) {
         this.viewportEl.classList.remove('tm-viewport--dragging');
-        this.viewportEl.releasePointerCapture(e.pointerId);
+        if (this.viewportEl.hasPointerCapture(e.pointerId)) {
+          this.viewportEl.releasePointerCapture(e.pointerId);
+        }
       }
     }
+  }
+
+  /**
+   * Handles pointer cancel (common on mobile when browser gesture handling interrupts touch).
+   */
+  private onPointerCancel(e: PointerEvent): void {
+    this.onPointerUp(e);
   }
 
   /**
@@ -1918,6 +1930,7 @@ export class TableMinimap {
 
     document.removeEventListener('pointermove', this.boundHandlers.onPointerMove);
     document.removeEventListener('pointerup', this.boundHandlers.onPointerUp);
+    document.removeEventListener('pointercancel', this.boundHandlers.onPointerCancel);
 
     // Disconnect observers
     if (this.resizeObserver) {

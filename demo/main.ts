@@ -1,5 +1,13 @@
 import { TableMinimap } from '../src';
+import packageJson from '../package.json';
 import '../src/styles.css';
+
+declare const __TM_DEMO_VERSION__: string;
+
+const DEMO_VERSION =
+  typeof __TM_DEMO_VERSION__ === 'string' && __TM_DEMO_VERSION__.trim().length > 0
+    ? __TM_DEMO_VERSION__
+    : packageJson.version;
 
 type FixedPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 
@@ -364,6 +372,21 @@ function recreateDemo3(): void {
 }
 
 /**
+ * Renders the current package/demo version next to the hero title.
+ */
+function updateDemoVersionBadge(): void {
+  const versionBadge = document.getElementById('demo-version-badge');
+  if (versionBadge) {
+    versionBadge.textContent = `v${DEMO_VERSION}`;
+  }
+
+  const releaseRibbon = document.getElementById('hero-release-ribbon');
+  if (releaseRibbon) {
+    releaseRibbon.textContent = `Latest npm v${DEMO_VERSION}`;
+  }
+}
+
+/**
  * Main initialization
  */
 function init(): void {
@@ -380,6 +403,7 @@ function init(): void {
   updateCanvasSubtext();
 
   void updateNpmWeeklyDownloads();
+  updateDemoVersionBadge();
 
   // Initialize code blocks
   updateCodeBlocks();

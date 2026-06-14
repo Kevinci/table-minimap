@@ -181,6 +181,7 @@
   height: 100%;
   display: block;
   cursor: pointer;
+  touch-action: none;
 }
 
 .tm-canvas-context-menu {
@@ -239,6 +240,7 @@
   cursor: grab;
   transition: background-color 0.15s ease;
   z-index: 10;
+  touch-action: none;
 }
 
 .tm-viewport:hover {
