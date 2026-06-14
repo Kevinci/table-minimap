@@ -13,6 +13,8 @@ jobs:
   publish:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
+    env:
+      HAS_NPM_TOKEN: ${{ secrets.NPM_TOKEN != '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -49,12 +51,12 @@ jobs:
 
       - name: Publish package to npm (Trusted Publishing)
         id: npm_publish_trusted
-        if: ${{ secrets.NPM_TOKEN == '' }}
+        if: ${{ env.HAS_NPM_TOKEN != 'true' }}
         run: npm publish ./.npm-publish --provenance --access public --ignore-scripts
 
       - name: Publish package to npm (Token fallback)
         id: npm_publish_token
-        if: ${{ secrets.NPM_TOKEN != '' }}
+        if: ${{ env.HAS_NPM_TOKEN == 'true' }}
         run: npm publish ./.npm-publish --provenance --access public --ignore-scripts
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
