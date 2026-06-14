@@ -13,8 +13,6 @@ jobs:
   publish:
     if: ${{ !contains(github.event.head_commit.message, '[skip ci]') }}
     runs-on: ubuntu-latest
-    env:
-      HAS_NPM_TOKEN: ${{ secrets.NPM_TOKEN != '' }}
 
     steps:
       - uses: actions/checkout@v4
@@ -50,22 +48,14 @@ jobs:
           cp -R dist/. .npm-publish/dist/
 
       - name: Publish package to npm (Trusted Publishing)
-        id: npm_publish_trusted
-        if: ${{ env.HAS_NPM_TOKEN != 'true' }}
+        id: npm_publish
         run: npm publish ./.npm-publish --provenance --access public --ignore-scripts
-
-      - name: Publish package to npm (Token fallback)
-        id: npm_publish_token
-        if: ${{ env.HAS_NPM_TOKEN == 'true' }}
-        run: npm publish ./.npm-publish --provenance --access public --ignore-scripts
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Push version commit and tag
         run: git push origin HEAD:main --follow-tags
 
       - name: Deploy demo to GitHub Pages
-        if: ${{ steps.npm_publish_trusted.outcome == 'success' || steps.npm_publish_token.outcome == 'success' }}
+        if: ${{ steps.npm_publish.outcome == 'success' }}
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
