@@ -9,6 +9,10 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+### Improved
+
+- Updated the canvas demo notice to mention that mobile support is planned for Q3 2026.
+
 ## [1.2.1] - 2026-06-14
 
 ### Improved
