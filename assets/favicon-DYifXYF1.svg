@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Table icon">
+  <rect x="6" y="8" width="52" height="48" rx="8" fill="#e3f2fd" stroke="#1976d2" stroke-width="4"/>
+  <rect x="6" y="8" width="52" height="12" rx="8" fill="#90caf9"/>
+  <line x1="23" y1="20" x2="23" y2="56" stroke="#1976d2" stroke-width="3"/>
+  <line x1="40" y1="20" x2="40" y2="56" stroke="#1976d2" stroke-width="3"/>
+  <line x1="6" y1="32" x2="58" y2="32" stroke="#1976d2" stroke-width="3"/>
+  <line x1="6" y1="44" x2="58" y2="44" stroke="#1976d2" stroke-width="3"/>
+</svg>
+
