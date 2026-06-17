@@ -1,6 +1,7 @@
 import type {
   TableMinimapOptions,
   RequiredOptions,
+  CanvasMarkedColumnsChangeDetails,
   ColumnInfo,
   ScrollState,
   TableSelector,
@@ -25,6 +26,11 @@ const DEFAULT_OPTIONS: RequiredOptions = {
   zoomSpeed: 0.1,
   canvasClipboard: false,
   canvasClipboardLabel: 'Copy column to clipboard',
+  canvasColumnMarking: false,
+  canvasMarkColumnLabel: 'Mark column',
+  canvasUnmarkColumnLabel: 'Unmark column',
+  markedColumns: [],
+  onMarkedColumnsChange: () => {},
 };
 
 /** Compact floating minimap handle size in pixels */
@@ -38,6 +44,9 @@ const COMPACT_COLLAPSE_DELAY = 180;
 
 /** Delay used to distinguish single click navigation from double-click repositioning */
 const DOUBLE_CLICK_DELAY = 180;
+
+/** Suppression window to ignore synthetic click after a viewport drag ends */
+const DRAG_CLICK_SUPPRESS_MS = 220;
 
 /** Fixed corner positions used when cycling the minimap by double-click */
 const FIXED_POSITIONS: RequiredOptions['fixedPosition'][] = [
@@ -117,11 +126,17 @@ export class TableMinimap {
   /** Copy action text inside the canvas context menu */
   private canvasContextCopyActionEl: HTMLDivElement | null = null;
 
+  /** Mark/Unmark action text inside the canvas context menu */
+  private canvasContextMarkActionEl: HTMLDivElement | null = null;
+
   /** Status line inside the canvas context menu */
   private canvasContextStatusEl: HTMLDivElement | null = null;
 
   /** Selected canvas column index for context menu actions */
   private canvasContextColumnIndex = -1;
+
+  /** Marked column indices used by canvas mode */
+  private markedColumns = new Set<number>();
 
   /** Viewport indicator element */
   private viewportEl: HTMLDivElement | null = null;
@@ -170,6 +185,12 @@ export class TableMinimap {
   /** Drag start scroll position */
   private dragStartScrollLeft = 0;
 
+  /** Whether the viewport pointer interaction moved enough to count as drag */
+  private viewportDragMoved = false;
+
+  /** Timestamp until minimap clicks are ignored (prevents post-drag jump) */
+  private suppressMinimapClickUntil = 0;
+
   /** ResizeObserver instance */
   private resizeObserver: ResizeObserver | null = null;
 
@@ -217,6 +238,7 @@ export class TableMinimap {
     this.table = this.resolveTable(selector);
     this.options = { ...DEFAULT_OPTIONS, ...options };
     this.isCompactMode = this.options.compact && this.options.position === 'fixed';
+    this.markedColumns = new Set(this.normalizeMarkedColumns(this.options.markedColumns));
 
     // Bind event handlers
     this.boundHandlers = {
@@ -369,6 +391,63 @@ export class TableMinimap {
         widthPercent: 100,
       });
     }
+
+    this.clampMarkedColumns(false);
+  }
+
+  /**
+   * Normalizes marked column indices to distinct, sorted, in-range values.
+   */
+  private normalizeMarkedColumns(input: number[]): number[] {
+    const max = this.columns.length;
+    const unique = new Set<number>();
+
+    input.forEach((value) => {
+      const index = Math.floor(value);
+      if (!Number.isFinite(index)) return;
+      if (index < 0 || index >= max) return;
+      unique.add(index);
+    });
+
+    return Array.from(unique).sort((a, b) => a - b);
+  }
+
+  /**
+   * Ensures the internal marked columns remain valid for the current column count.
+   */
+  private clampMarkedColumns(emit: boolean): void {
+    const current = Array.from(this.markedColumns);
+    const normalized = this.normalizeMarkedColumns(current);
+
+    if (normalized.length === current.length && normalized.every((value, i) => value === current[i])) {
+      return;
+    }
+
+    this.markedColumns = new Set(normalized);
+    this.options.markedColumns = normalized;
+
+    if (emit) {
+      this.emitMarkedColumnsChange(null, null);
+    }
+  }
+
+  /**
+   * Emits the marked-columns change callback.
+   */
+  private emitMarkedColumnsChange(
+    changedColumnIndex: number | null,
+    isMarked: boolean | null,
+  ): void {
+    const markedColumns = this.getMarkedColumns();
+    const details: CanvasMarkedColumnsChangeDetails = {
+      markedColumns,
+      changedColumnIndex,
+      isMarked,
+      headers: markedColumns.map((index) => this.getColumnHeaderText(index)),
+      table: this.table,
+    };
+
+    this.options.onMarkedColumnsChange(details);
   }
 
   /**
@@ -667,6 +746,49 @@ export class TableMinimap {
   }
 
   /**
+   * Calculates a column index from a horizontal position in non-zoomed overview space.
+   */
+  private getOverviewColumnAtX(mouseX: number, width: number): number {
+    if (this.columns.length === 0 || width <= 0) return -1;
+
+    const totalColumnWidth = this.columns.reduce((sum, col) => sum + Math.max(col.width, 0), 0);
+    const safeTotalWidth = Math.max(totalColumnWidth, 1);
+    const ratio = Math.max(0, Math.min(1, mouseX / width));
+    const target = ratio * safeTotalWidth;
+
+    let accumulated = 0;
+    for (let i = 0; i < this.columns.length; i++) {
+      accumulated += Math.max(this.columns[i].width, 0);
+      if (target <= accumulated) return i;
+    }
+
+    return this.columns.length - 1;
+  }
+
+  /**
+   * Calculates the scrollLeft that centers a specific column in the viewport.
+   */
+  private getScrollLeftForColumnCenter(columnIndex: number): number {
+    if (!this.scrollContainer || this.columns.length === 0) return 0;
+
+    const safeColumnIndex = Math.max(0, Math.min(this.columns.length - 1, columnIndex));
+    const { scrollWidth, clientWidth } = this.scrollContainer;
+    const maxScroll = Math.max(scrollWidth - clientWidth, 0);
+    if (maxScroll <= 0) return 0;
+
+    const totalColumnWidth = this.columns.reduce((sum, col) => sum + Math.max(col.width, 0), 0);
+    const safeTotalWidth = Math.max(totalColumnWidth, 1);
+    const widthBefore = this.columns
+      .slice(0, safeColumnIndex)
+      .reduce((sum, col) => sum + Math.max(col.width, 0), 0);
+    const currentColWidth = Math.max(this.columns[safeColumnIndex]?.width ?? 0, 0);
+
+    const colCenterRatio = (widthBefore + currentColWidth / 2) / safeTotalWidth;
+    const colCenter = colCenterRatio * scrollWidth;
+    return Math.max(0, Math.min(maxScroll, colCenter - clientWidth / 2));
+  }
+
+  /**
    * Updates the viewport indicator position and size
    * Shows the visible portion of the table (columns mode only)
    */
@@ -711,6 +833,7 @@ export class TableMinimap {
     this.renderTableDirect(metrics, height);
   }
 
+
   /**
    * Renders the visible portion of the table directly onto the canvas
    */
@@ -743,6 +866,8 @@ export class TableMinimap {
       altRow: '#f8fafc',
       hoverFill: 'rgba(59, 130, 246, 0.08)',
       hoverStroke: 'rgba(59, 130, 246, 0.3)',
+      bookmarkFill: '#f59e0b',
+      bookmarkStroke: '#b45309',
     };
 
     // Clear background
@@ -762,6 +887,7 @@ export class TableMinimap {
     for (let col = startCol; col < endCol; col++) {
       const x = xOffset + (col - startCol) * cellWidth;
       if (x + cellWidth < 0 || x > width) continue;
+      const isMarked = this.markedColumns.has(col);
 
       ctx.strokeStyle = colors.border;
       ctx.lineWidth = 1;
@@ -771,10 +897,15 @@ export class TableMinimap {
       ctx.fillStyle = colors.headerText;
       ctx.save();
       ctx.beginPath();
-      ctx.rect(x + 2, 0, cellWidth - 4, headerHeight);
+      const iconPadding = isMarked ? 16 : 0;
+      ctx.rect(x + 2, 0, Math.max(cellWidth - 6 - iconPadding, 0), headerHeight);
       ctx.clip();
       ctx.fillText(text, x + 4, headerHeight / 2);
       ctx.restore();
+
+      if (isMarked) {
+        this.drawColumnBookmark(x, cellWidth, headerHeight, colors.bookmarkFill, colors.bookmarkStroke);
+      }
     }
 
     // Draw data rows
@@ -824,7 +955,95 @@ export class TableMinimap {
       ctx.strokeStyle = colors.hoverStroke;
       ctx.lineWidth = 1;
       ctx.strokeRect(hoverX, 0, cellWidth, height);
+
+      if (this.markedColumns.has(this.hoveredColumn)) {
+        this.drawColumnBookmark(
+          hoverX,
+          cellWidth,
+          headerHeight,
+          colors.bookmarkFill,
+          colors.bookmarkStroke,
+        );
+      }
     }
+  }
+
+  /**
+   * Draws a modern bookmark badge in the header area for marked columns.
+   */
+  private drawColumnBookmark(
+    x: number,
+    cellWidth: number,
+    headerHeight: number,
+    fill: string,
+    stroke: string,
+  ): void {
+    if (!this.canvasCtx) return;
+
+    const ctx = this.canvasCtx;
+    const badgeSize = Math.min(12, Math.max(9, Math.min(cellWidth * 0.24, headerHeight * 0.78)));
+    const badgeX = x + cellWidth - badgeSize - 3;
+    const badgeY = Math.max(1.5, (headerHeight - badgeSize) / 2 - 0.5);
+    const radius = Math.min(3.5, badgeSize * 0.32);
+
+    if (badgeX <= x + 2) return;
+
+    // Outer badge container for a cleaner, more modern indicator.
+    ctx.save();
+    this.drawRoundedRectPath(ctx, badgeX, badgeY, badgeSize, badgeSize, radius);
+    ctx.shadowColor = 'rgba(15, 23, 42, 0.24)';
+    ctx.shadowBlur = 3;
+    ctx.shadowOffsetY = 1;
+    ctx.fillStyle = fill;
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = 0.7;
+    ctx.stroke();
+
+    // Simple ribbon glyph inside the badge.
+    const iconPadding = Math.max(2, badgeSize * 0.2);
+    const iconX = badgeX + iconPadding;
+    const iconY = badgeY + iconPadding - 0.2;
+    const iconWidth = badgeSize - iconPadding * 2;
+    const iconHeight = badgeSize - iconPadding * 1.8;
+    const notchY = iconY + iconHeight - Math.max(1.2, iconHeight * 0.2);
+
+    ctx.beginPath();
+    ctx.moveTo(iconX, iconY);
+    ctx.lineTo(iconX + iconWidth, iconY);
+    ctx.lineTo(iconX + iconWidth, notchY);
+    ctx.lineTo(iconX + iconWidth / 2, iconY + iconHeight);
+    ctx.lineTo(iconX, notchY);
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  /**
+   * Builds a rounded-rectangle path for small canvas UI elements.
+   */
+  private drawRoundedRectPath(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number,
+  ): void {
+    const r = Math.max(0, Math.min(radius, width / 2, height / 2));
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + width - r, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + r);
+    ctx.lineTo(x + width, y + height - r);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+    ctx.lineTo(x + r, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
   }
 
   /**
@@ -856,10 +1075,20 @@ export class TableMinimap {
       this.viewportEl.addEventListener('pointerdown', this.boundHandlers.onPointerDown);
     }
 
+    // Pointer handling for canvas mode
+    if (this.options.mode === 'canvas' && this.canvasEl) {
+      if (this.options.zoomable) {
+        this.canvasEl.addEventListener('pointerdown', this.boundHandlers.onCanvasPointerDown);
+      }
+    }
+
     // Zoom events on canvas (wheel) - also listen on viewport so zoom works when hovering over it
-    if (this.options.zoomable && this.options.mode === 'canvas' && this.canvasEl) {
+    if (
+      this.options.mode === 'canvas' &&
+      this.canvasEl &&
+      this.options.zoomable
+    ) {
       this.canvasEl.addEventListener('wheel', this.boundHandlers.onWheel, { passive: false });
-      this.canvasEl.addEventListener('pointerdown', this.boundHandlers.onCanvasPointerDown);
       this.canvasEl.style.cursor = this.zoomState.level > 1 ? 'grab' : 'pointer';
 
       // Also listen on viewport for wheel events
@@ -873,7 +1102,7 @@ export class TableMinimap {
       this.canvasEl.addEventListener('mousemove', this.boundHandlers.onCanvasMouseMove);
       this.canvasEl.addEventListener('mouseleave', this.boundHandlers.onCanvasMouseLeave);
 
-      if (this.options.canvasClipboard) {
+      if (this.options.canvasClipboard || this.options.canvasColumnMarking) {
         this.canvasEl.addEventListener('contextmenu', this.boundHandlers.onCanvasContextMenu);
       }
     }
@@ -913,6 +1142,13 @@ export class TableMinimap {
    */
   private onMinimapClick(e: MouseEvent): void {
     if (!this.minimapEl || !this.scrollContainer) return;
+
+
+    if (performance.now() < this.suppressMinimapClickUntil) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
 
     if (this.isCompactMode && (this.isCompactCollapsed || this.isCompactExpanding)) {
       e.preventDefault();
@@ -981,7 +1217,8 @@ export class TableMinimap {
     // Ignore clicks during expansion transition, dragging, panning
     if (this.isCompactExpanding || this.isDragging || this.isPanning || this.wasPanning) return;
 
-    const { scrollWidth, clientWidth } = this.scrollContainer;
+    const { scrollWidth } = this.scrollContainer;
+    const clientWidth = this.scrollContainer.clientWidth;
     const maxScroll = scrollWidth - clientWidth;
 
     // Get click position relative to minimap
@@ -993,10 +1230,7 @@ export class TableMinimap {
       const clickedColumn = this.getColumnAtX(clickX);
 
       if (clickedColumn >= 0) {
-        const numCols = this.columns.length;
-        const colWidth = scrollWidth / numCols;
-        const colCenter = (clickedColumn + 0.5) * colWidth;
-        const targetScroll = colCenter - clientWidth / 2;
+        const targetScroll = this.getScrollLeftForColumnCenter(clickedColumn);
 
         this.scrollContainer.scrollTo({
           left: Math.max(0, Math.min(maxScroll, targetScroll)),
@@ -1006,9 +1240,12 @@ export class TableMinimap {
       return;
     }
 
-    // Columns mode: scroll to clicked position (percentage-based)
-    const clickRatio = clickX / rect.width;
-    const targetScroll = clickRatio * maxScroll;
+    // Columns mode: center clicked column and clamp naturally near left/right edges.
+    const clickedColumn = this.getOverviewColumnAtX(clickX, rect.width);
+    const targetScroll =
+      clickedColumn >= 0
+        ? this.getScrollLeftForColumnCenter(clickedColumn)
+        : (clickX / rect.width) * maxScroll;
 
     this.scrollContainer.scrollTo({
       left: Math.max(0, Math.min(maxScroll, targetScroll)),
@@ -1028,6 +1265,7 @@ export class TableMinimap {
     e.stopPropagation();
 
     this.isDragging = true;
+    this.viewportDragMoved = false;
     this.dragStartX = e.clientX;
     this.dragStartScrollLeft = this.scrollContainer.scrollLeft;
 
@@ -1067,10 +1305,24 @@ export class TableMinimap {
     const { scrollWidth, clientWidth } = this.scrollContainer;
     const minimapWidth = this.minimapEl.offsetWidth;
     const maxScroll = scrollWidth - clientWidth;
+    const viewportWidth = Math.max(minimapWidth * this.scrollState.viewportRatio, 20);
+    const maxViewportLeft = Math.max(minimapWidth - viewportWidth, 0);
+
+    if (maxViewportLeft <= 0 || maxScroll <= 0) {
+      this.scrollContainer.scrollLeft = 0;
+      this.updateScrollState();
+      this.updateViewport();
+      return;
+    }
 
     // Scroll based on drag delta
     const deltaX = e.clientX - this.dragStartX;
-    const scrollDelta = (deltaX / minimapWidth) * maxScroll;
+    if (Math.abs(deltaX) > 1) {
+      this.viewportDragMoved = true;
+    }
+
+    // Use the viewport travel range so the handle tracks the pointer at a 1:1 speed.
+    const scrollDelta = (deltaX / maxViewportLeft) * maxScroll;
     const newScrollLeft = this.dragStartScrollLeft + scrollDelta;
 
     this.scrollContainer.scrollLeft = Math.max(0, Math.min(maxScroll, newScrollLeft));
@@ -1191,6 +1443,11 @@ export class TableMinimap {
     if (this.isDragging) {
       this.isDragging = false;
 
+      if (this.viewportDragMoved) {
+        this.suppressMinimapClickUntil = performance.now() + DRAG_CLICK_SUPPRESS_MS;
+      }
+      this.viewportDragMoved = false;
+
       if (this.viewportEl) {
         this.viewportEl.classList.remove('tm-viewport--dragging');
         if (this.viewportEl.hasPointerCapture(e.pointerId)) {
@@ -1213,7 +1470,8 @@ export class TableMinimap {
    * @param e - Wheel event
    */
   private onWheel(e: WheelEvent): void {
-    if (!this.options.zoomable || this.options.mode !== 'canvas') return;
+    if (this.options.mode !== 'canvas') return;
+    if (!this.options.zoomable) return;
     if (!this.canvasEl || !this.scrollContainer || !this.minimapEl) return;
 
     e.preventDefault();
@@ -1312,6 +1570,7 @@ export class TableMinimap {
    * Handles mouse leave on canvas to clear hover state
    */
   private onCanvasMouseLeave(): void {
+
     if (this.hoveredColumn !== -1) {
       this.hoveredColumn = -1;
       if (this.canvasEl) {
@@ -1325,7 +1584,7 @@ export class TableMinimap {
    * Handles context menu opening on a canvas column.
    */
   private onCanvasContextMenu(e: MouseEvent): void {
-    if (!this.canvasEl || !this.options.canvasClipboard) return;
+    if (!this.canvasEl || (!this.options.canvasClipboard && !this.options.canvasColumnMarking)) return;
 
     e.preventDefault();
 
@@ -1348,35 +1607,79 @@ export class TableMinimap {
     menu.className = 'tm-canvas-context-menu';
     menu.style.display = 'none';
 
-    const copyAction = document.createElement('div');
-    copyAction.className = 'tm-canvas-context-menu__action';
-    copyAction.textContent = this.options.canvasClipboardLabel;
-    copyAction.setAttribute('role', 'button');
-    copyAction.setAttribute('tabindex', '0');
+    let markAction: HTMLDivElement | null = null;
+    if (this.options.canvasColumnMarking) {
+      markAction = document.createElement('div');
+      markAction.className = 'tm-canvas-context-menu__action';
+      markAction.setAttribute('role', 'button');
+      markAction.setAttribute('tabindex', '0');
+
+      markAction.addEventListener('click', () => {
+        if (this.canvasContextColumnIndex < 0) return;
+        this.toggleMarkedColumn(this.canvasContextColumnIndex);
+      });
+
+      markAction.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        if (this.canvasContextColumnIndex < 0) return;
+        this.toggleMarkedColumn(this.canvasContextColumnIndex);
+      });
+
+      menu.appendChild(markAction);
+    }
+
+    if (this.options.canvasColumnMarking && this.options.canvasClipboard) {
+      const separator = document.createElement('div');
+      separator.className = 'tm-canvas-context-menu__separator';
+      menu.appendChild(separator);
+    }
+
+    let copyAction: HTMLDivElement | null = null;
+    if (this.options.canvasClipboard) {
+      copyAction = document.createElement('div');
+      copyAction.className = 'tm-canvas-context-menu__action';
+      copyAction.textContent = this.options.canvasClipboardLabel;
+      copyAction.setAttribute('role', 'button');
+      copyAction.setAttribute('tabindex', '0');
+
+      copyAction.addEventListener('click', () => {
+        if (this.canvasContextColumnIndex < 0) return;
+        void this.copyColumnToClipboard(this.canvasContextColumnIndex);
+      });
+
+      copyAction.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        if (this.canvasContextColumnIndex < 0) return;
+        void this.copyColumnToClipboard(this.canvasContextColumnIndex);
+      });
+
+      menu.appendChild(copyAction);
+    }
 
     const status = document.createElement('div');
     status.className = 'tm-canvas-context-menu__status';
     status.setAttribute('aria-live', 'polite');
 
-    copyAction.addEventListener('click', () => {
-      if (this.canvasContextColumnIndex < 0) return;
-      void this.copyColumnToClipboard(this.canvasContextColumnIndex);
-    });
-
-    copyAction.addEventListener('keydown', (event: KeyboardEvent) => {
-      if (event.key !== 'Enter' && event.key !== ' ') return;
-      event.preventDefault();
-      if (this.canvasContextColumnIndex < 0) return;
-      void this.copyColumnToClipboard(this.canvasContextColumnIndex);
-    });
-
-    menu.appendChild(copyAction);
     menu.appendChild(status);
     document.body.appendChild(menu);
 
     this.canvasContextMenuEl = menu;
     this.canvasContextCopyActionEl = copyAction;
+    this.canvasContextMarkActionEl = markAction;
     this.canvasContextStatusEl = status;
+  }
+
+  /**
+   * Updates the mark/unmark context action label for the selected column.
+   */
+  private updateCanvasMarkActionLabel(columnIndex: number): void {
+    if (!this.canvasContextMarkActionEl) return;
+
+    this.canvasContextMarkActionEl.textContent = this.markedColumns.has(columnIndex)
+      ? this.options.canvasUnmarkColumnLabel
+      : this.options.canvasMarkColumnLabel;
   }
 
   /**
@@ -1387,6 +1690,7 @@ export class TableMinimap {
     if (!this.canvasContextMenuEl || !this.canvasContextStatusEl) return;
 
     this.canvasContextColumnIndex = columnIndex;
+    this.updateCanvasMarkActionLabel(columnIndex);
     const header = this.getColumnHeaderText(columnIndex);
     this.canvasContextStatusEl.textContent = `Column: ${header}`;
 
@@ -1403,7 +1707,8 @@ export class TableMinimap {
     this.canvasContextMenuEl.style.left = `${left}px`;
     this.canvasContextMenuEl.style.top = `${top}px`;
     this.canvasContextMenuEl.style.visibility = 'visible';
-    this.canvasContextCopyActionEl?.focus();
+    const firstAction = this.canvasContextMarkActionEl ?? this.canvasContextCopyActionEl;
+    firstAction?.focus();
   }
 
   /**
@@ -1415,6 +1720,25 @@ export class TableMinimap {
     this.canvasContextMenuEl.style.display = 'none';
     this.canvasContextMenuEl.style.visibility = 'hidden';
     this.canvasContextColumnIndex = -1;
+  }
+
+  /**
+   * Toggles a single marked column and notifies listeners.
+   */
+  private toggleMarkedColumn(columnIndex: number): void {
+    if (columnIndex < 0 || columnIndex >= this.columns.length) return;
+
+    const isMarked = !this.markedColumns.has(columnIndex);
+    if (isMarked) {
+      this.markedColumns.add(columnIndex);
+    } else {
+      this.markedColumns.delete(columnIndex);
+    }
+
+    this.options.markedColumns = this.getMarkedColumns();
+    this.updateCanvasMarkActionLabel(columnIndex);
+    this.render();
+    this.emitMarkedColumnsChange(columnIndex, isMarked);
   }
 
   /**
@@ -1549,6 +1873,7 @@ export class TableMinimap {
     this.minimapEl.style.setProperty('--tm-minimap-height', `${this.options.height}px`);
     this.minimapEl.setAttribute('aria-expanded', 'true');
   }
+
 
   /**
    * Clears a pending compact collapse timer.
@@ -1753,6 +2078,23 @@ export class TableMinimap {
   }
 
   /**
+   * Returns currently marked canvas column indices.
+   */
+  public getMarkedColumns(): number[] {
+    return Array.from(this.markedColumns).sort((a, b) => a - b);
+  }
+
+  /**
+   * Replaces marked canvas columns programmatically.
+   */
+  public setMarkedColumns(columnIndices: number[]): void {
+    this.markedColumns = new Set(this.normalizeMarkedColumns(columnIndices));
+    this.options.markedColumns = this.getMarkedColumns();
+    this.render();
+    this.emitMarkedColumnsChange(null, null);
+  }
+
+  /**
    * Scrolls to a specific column
    *
    * @param columnIndex - Zero-based column index
@@ -1924,6 +2266,7 @@ export class TableMinimap {
       this.canvasContextMenuEl.remove();
       this.canvasContextMenuEl = null;
       this.canvasContextCopyActionEl = null;
+      this.canvasContextMarkActionEl = null;
       this.canvasContextStatusEl = null;
       this.canvasContextColumnIndex = -1;
     }

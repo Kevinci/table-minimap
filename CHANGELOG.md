@@ -9,22 +9,38 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-06-17
+
+### Added
+
+- Added canvas column marking via context menu (`canvasColumnMarking`) with configurable labels for mark/unmark actions.
+- Added support for initial marked canvas columns (`markedColumns`) and change notifications via `onMarkedColumnsChange`.
+- Added new public API methods `getMarkedColumns()` and `setMarkedColumns()`.
+- Added bookmark-style visual indicators for marked columns in canvas headers.
+- Added demo persistence for marked canvas columns using `localStorage`.
+- Added desktop side navigation in the demo for quick section jumps.
+
 ### Improved
 
-- Updated the canvas demo notice to mention that mobile support is planned for Q3 2026.
+- Minimap click navigation now centers the clicked column more consistently in both columns and canvas mode.
+- Viewport dragging now uses the actual viewport travel range for smoother, more predictable horizontal movement.
+- Canvas interaction handling now better separates click, drag, and pan behavior.
+- Canvas context menu now supports combined mark/copy actions with improved keyboard accessibility.
+
+### Fixed
+
+- Prevented unintended minimap navigation clicks immediately after viewport drag operations.
+- Marked column indices are now normalized and clamped when table structure or column counts change.
+
+### Documentation
+
+- Updated README with the new canvas column marking options, callback payload, and usage examples.
 
 ## [1.2.1] - 2026-06-14
 
 ### Improved
 
-- Improved mobile/touch behavior in canvas mode with cleaner pointer cancel handling.
-- Added `touch-action: none` on key minimap elements to reduce gesture conflicts on touch devices.
-- Refreshed the demo page layout and presentation for a cleaner overview.
-- Demo now shows the current package version badge.
-
-### Fixed
-
-- Demo npm download widget now falls back gracefully to `n/a` when the API is unavailable.
+- Updated the canvas demo notice to mention that mobile support is planned for Q3 2026.
 
 ## [1.2.0] - 2026-06-13
 
@@ -105,7 +121,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Updated license author information.
 - Added homepage/demo metadata.
 
-[Unreleased]: https://github.com/Kevinci/table-minimap/compare/v1.2.1...HEAD
+[Unreleased]: https://github.com/Kevinci/table-minimap/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/Kevinci/table-minimap/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/Kevinci/table-minimap/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/Kevinci/table-minimap/compare/v1.1.3...v1.2.0
 [1.1.3]: https://github.com/Kevinci/table-minimap/compare/v1.1.2...v1.1.3

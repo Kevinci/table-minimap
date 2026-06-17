@@ -90,6 +90,8 @@ const minimap = new TableMinimap('#my-table', {
   showViewport: true, // Show viewport indicator
   canvasClipboard: true, // Right-click canvas column to copy
   canvasClipboardLabel: 'Spalte kopieren', // i18n label
+  canvasColumnMarking: true, // Right-click canvas column to mark/unmark
+  markedColumns: [2, 5], // Optional initial marks
 });
 ```
 
@@ -129,6 +131,7 @@ const minimap = new TableMinimap('#data-table', {
 - Empty cells appear lighter
 - Provides a visual "density map" of your data
 - Optional: right-click a column and use **Copy column to clipboard**
+- Optional: right-click a column and use **Mark/Unmark column** (bookmark icon in header)
 
 ### Canvas Mode with Zoom
 
@@ -256,6 +259,42 @@ interface TableMinimapOptions {
    * @default "Copy column to clipboard"
    */
   canvasClipboardLabel?: string;
+
+  /**
+   * Enable right-click context menu action to mark/unmark canvas columns
+   * @default false
+   */
+  canvasColumnMarking?: boolean;
+
+  /**
+   * Label text used for the mark action in the canvas context menu
+   * @default "Mark column"
+   */
+  canvasMarkColumnLabel?: string;
+
+  /**
+   * Label text used for the unmark action in the canvas context menu
+   * @default "Unmark column"
+   */
+  canvasUnmarkColumnLabel?: string;
+
+  /**
+   * Initially marked canvas column indices
+   * @default []
+   */
+  markedColumns?: number[];
+
+  /**
+   * Called whenever marked canvas columns change
+   */
+  onMarkedColumnsChange?: (details: {
+    markedColumns: number[];
+    changedColumnIndex: number | null;
+    isMarked: boolean | null;
+    headers: string[];
+    table: HTMLTableElement;
+  }) => void;
+
 }
 ```
 
@@ -273,6 +312,10 @@ interface TableMinimapOptions {
 | `zoomable`             | `false`                      |
 | `canvasClipboard`      | `false`                      |
 | `canvasClipboardLabel` | `'Copy column to clipboard'` |
+| `canvasColumnMarking`  | `false`                      |
+| `canvasMarkColumnLabel`| `'Mark column'`              |
+| `canvasUnmarkColumnLabel` | `'Unmark column'`         |
+| `markedColumns`        | `[]`                         |
 | `minZoom`              | `1`                          |
 | `maxZoom`              | `10`                         |
 | `zoomSpeed`            | `0.1`                        |
@@ -398,6 +441,38 @@ Zooms to show a specific column range (canvas mode only).
 ```typescript
 // Zoom to show columns 10-20
 minimap.zoomToColumns(10, 20);
+```
+
+#### `getMarkedColumns(): number[]`
+
+Returns currently marked canvas column indices.
+
+```typescript
+const marked = minimap.getMarkedColumns();
+console.log(marked); // e.g. [1, 4, 7]
+```
+
+#### `setMarkedColumns(columnIndices: number[]): void`
+
+Replaces marked canvas columns programmatically.
+
+```typescript
+minimap.setMarkedColumns([0, 3, 8]);
+```
+
+### Persisting Marked Columns
+
+```typescript
+const saved = JSON.parse(localStorage.getItem('table-marks') ?? '[]') as number[];
+
+const minimap = new TableMinimap('#data-table', {
+  mode: 'canvas',
+  canvasColumnMarking: true,
+  markedColumns: saved,
+  onMarkedColumnsChange: ({ markedColumns }) => {
+    localStorage.setItem('table-marks', JSON.stringify(markedColumns));
+  },
+});
 ```
 
 ## Styling

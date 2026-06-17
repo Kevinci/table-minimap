@@ -14,6 +14,7 @@ type FixedPosition = 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
 const MAX_DEMO_COLUMNS = 99;
 const COLUMN_LIMIT_MESSAGE =
   'If this is what your boss wants, call the men in white coats and quit as fast as you can.';
+const CANVAS_MARKS_STORAGE_KEY = 'table-minimap-demo-3-marked-columns';
 
 // State
 let cols1 = 20,
@@ -29,10 +30,39 @@ let colsCompact = 22,
 let cols3 = 20,
   rows3 = 50;
 let canvasClipboard3 = true;
+let markedColumns3: number[] = [];
 let minimap1: TableMinimap | null = null;
 let minimap2: TableMinimap | null = null;
 let minimapCompact: TableMinimap | null = null;
 let minimap3: TableMinimap | null = null;
+
+/**
+ * Reads persisted marked columns for Demo 3.
+ */
+function loadMarkedColumns3(): number[] {
+  try {
+    const raw = window.localStorage.getItem(CANVAS_MARKS_STORAGE_KEY);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    if (!Array.isArray(parsed)) return [];
+
+    return parsed
+      .filter((value): value is number => typeof value === 'number' && Number.isFinite(value))
+      .map((value) => Math.floor(value))
+      .filter((value) => value >= 0)
+      .sort((a, b) => a - b);
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Persists marked columns for Demo 3.
+ */
+function saveMarkedColumns3(columnIndices: number[]): void {
+  markedColumns3 = [...columnIndices].sort((a, b) => a - b);
+  window.localStorage.setItem(CANVAS_MARKS_STORAGE_KEY, JSON.stringify(markedColumns3));
+}
 
 /**
  * Formats code with syntax highlighting classes
@@ -103,6 +133,11 @@ const minimap = new TableMinimap('#my-table', {
   height: 100,
   position: 'bottom',
 ${clipboardLine}
+  canvasColumnMarking: true,
+  markedColumns: [1, 4],
+  onMarkedColumnsChange: ({ markedColumns }) => {
+    localStorage.setItem('my-table-marked-columns', JSON.stringify(markedColumns));
+  },
   zoomable: true,
   maxZoom: 12
 });`);
@@ -118,10 +153,12 @@ function updateCanvasSubtext(): void {
   const clipboardHint = canvasClipboard3
     ? ' Right-click a column to copy it to clipboard.'
     : ' Clipboard copy is currently disabled.';
+  const markHint = ' Use Mark column in the context menu to bookmark important columns.';
 
   subtext.innerHTML =
     'Renders <strong>actual table content</strong>! Scroll wheel to zoom. Click columns to jump. Mobile support is planned for Q3 2026.' +
-    clipboardHint;
+    clipboardHint +
+    markHint;
 }
 
 /**
@@ -356,6 +393,68 @@ function recreateDemoCompact(): void {
 }
 
 /**
+ * Enables the left navigation and smooth-scroll behavior for demo versions.
+ */
+function initVersionSideNav(): void {
+  const navButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>('[data-nav-target]'),
+  );
+  if (navButtons.length === 0) return;
+
+  const setActive = (activeTarget: string): void => {
+    navButtons.forEach((button) => {
+      const isActive = button.dataset.navTarget === activeTarget;
+      button.classList.toggle('bg-blue-100', isActive);
+      button.classList.toggle('text-blue-700', isActive);
+      button.classList.toggle('border-blue-200', isActive);
+      button.classList.toggle('text-gray-600', !isActive);
+    });
+  };
+
+  navButtons.forEach((button) => {
+    const targetId = button.dataset.navTarget;
+    if (!targetId) return;
+
+    button.addEventListener('click', () => {
+      const target = document.getElementById(targetId);
+      if (!target) return;
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActive(targetId);
+    });
+  });
+
+  if ('IntersectionObserver' in window) {
+    const sections = navButtons
+      .map((button) => button.dataset.navTarget)
+      .filter((value): value is string => Boolean(value))
+      .map((targetId) => document.getElementById(targetId))
+      .filter((element): element is HTMLElement => element !== null);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+        if (visible.length > 0) {
+          setActive(visible[0].target.id);
+        }
+      },
+      {
+        root: null,
+        rootMargin: '-20% 0px -60% 0px',
+        threshold: [0.2, 0.4, 0.6],
+      },
+    );
+
+    sections.forEach((section) => observer.observe(section));
+  }
+
+  const firstTarget = navButtons[0]?.dataset.navTarget;
+  if (firstTarget) setActive(firstTarget);
+}
+
+/**
  * Recreates Demo 3 - Canvas Mode
  */
 function recreateDemo3(): void {
@@ -366,9 +465,16 @@ function recreateDemo3(): void {
     height: 100,
     position: 'bottom',
     canvasClipboard: canvasClipboard3,
+    canvasColumnMarking: true,
+    markedColumns: markedColumns3,
+    onMarkedColumnsChange: ({ markedColumns }) => {
+      saveMarkedColumns3(markedColumns);
+    },
     zoomable: true,
     maxZoom: 12,
   });
+
+  saveMarkedColumns3(minimap3.getMarkedColumns());
 }
 
 /**
@@ -390,8 +496,11 @@ function updateDemoVersionBadge(): void {
  * Main initialization
  */
 function init(): void {
+  markedColumns3 = loadMarkedColumns3();
+
   const wrapper1 = document.getElementById('table-wrapper-1')!;
   const wrapper2 = document.getElementById('table-wrapper-2')!;
+  const wrapperCompact = document.getElementById('table-wrapper-compact')!;
   const wrapper3 = document.getElementById('table-wrapper-3')!;
   const zoomDisplay3 = document.getElementById('zoom-level-3')!;
 
@@ -404,6 +513,7 @@ function init(): void {
 
   void updateNpmWeeklyDownloads();
   updateDemoVersionBadge();
+  initVersionSideNav();
 
   // Initialize code blocks
   updateCodeBlocks();
@@ -494,7 +604,6 @@ function init(): void {
   });
 
   // === Demo 2b: Compact Fixed Position ===
-  const wrapperCompact = document.getElementById('table-wrapper-compact')!;
   wrapperCompact.addEventListener('scroll', () =>
     updateScrollInfo(wrapperCompact, 'scroll-pos-compact'),
   );

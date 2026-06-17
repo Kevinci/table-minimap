@@ -140,6 +140,7 @@
   transform: translate(0, 0);
 }
 
+
 .tm-minimap--compact-expanded::after {
   opacity: 0;
   transform: scale(0.7);
@@ -198,7 +199,7 @@
 }
 
 .tm-canvas-context-menu__action {
-  display: inline;
+  display: block;
   border: 0;
   background: transparent;
   color: var(--tm-context-menu-text);
@@ -210,6 +211,11 @@
   cursor: pointer;
   text-decoration: none;
   transition: color 0.15s ease-in-out;
+}
+
+.tm-canvas-context-menu__separator {
+  margin: 6px 0;
+  border-top: 1px solid var(--tm-context-menu-border);
 }
 
 .tm-canvas-context-menu__action:hover,

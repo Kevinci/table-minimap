@@ -92,6 +92,52 @@ export interface TableMinimapOptions {
    * @default "Copy column to clipboard"
    */
   canvasClipboardLabel?: string;
+
+  /**
+   * Enable right-click context menu action to mark/unmark canvas columns
+   * @default false
+   */
+  canvasColumnMarking?: boolean;
+
+  /**
+   * Label text used for the mark action in the canvas context menu
+   * @default "Mark column"
+   */
+  canvasMarkColumnLabel?: string;
+
+  /**
+   * Label text used for the unmark action in the canvas context menu
+   * @default "Unmark column"
+   */
+  canvasUnmarkColumnLabel?: string;
+
+  /**
+   * Initially marked canvas column indices
+   * @default []
+   */
+  markedColumns?: number[];
+
+  /**
+   * Called whenever marked canvas columns change
+   */
+  onMarkedColumnsChange?: (details: CanvasMarkedColumnsChangeDetails) => void;
+
+}
+
+/**
+ * Payload emitted when canvas column marks are changed.
+ */
+export interface CanvasMarkedColumnsChangeDetails {
+  /** Current list of marked column indices (sorted ascending) */
+  markedColumns: number[];
+  /** Column changed by the latest action, if available */
+  changedColumnIndex: number | null;
+  /** New marked state of changedColumnIndex, if available */
+  isMarked: boolean | null;
+  /** Header labels for marked columns (same order as markedColumns) */
+  headers: string[];
+  /** Source table element */
+  table: HTMLTableElement;
 }
 
 /**

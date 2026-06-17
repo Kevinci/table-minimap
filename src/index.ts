@@ -7,6 +7,7 @@
 export { TableMinimap } from './TableMinimap';
 export type {
   TableMinimapOptions,
+  CanvasMarkedColumnsChangeDetails,
   ColumnInfo,
   ScrollState,
   CellData,
