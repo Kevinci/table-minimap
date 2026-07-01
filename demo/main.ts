@@ -134,9 +134,14 @@ const minimap = new TableMinimap('#my-table', {
   position: 'bottom',
 ${clipboardLine}
   canvasColumnMarking: true,
+  canvasColumnHiding: true,
+  canvasColumnSelection: true, // Click: single, Shift+Click: range, Cmd/Ctrl+Click: toggle
   markedColumns: [1, 4],
   onMarkedColumnsChange: ({ markedColumns }) => {
     localStorage.setItem('my-table-marked-columns', JSON.stringify(markedColumns));
+  },
+  onSelectedColumnsChange: ({ selectedColumns }) => {
+    console.log('Selected:', selectedColumns);
   },
   zoomable: true,
   maxZoom: 12
@@ -154,11 +159,18 @@ function updateCanvasSubtext(): void {
     ? ' Right-click a column to copy it to clipboard.'
     : ' Clipboard copy is currently disabled.';
   const markHint = ' Use Mark column in the context menu to bookmark important columns.';
+  const collapseHint = ' Use Collapse column to hide columns in the table with a dark overlay.';
+  const selectionHint =
+    ' Click to select one column, Shift+Click to select a range, Cmd/Ctrl+Click to add or remove individual columns. Right-click a selected column to apply menu actions to the selection.';
+  const mobileHint = ' Full mobile support: pinch-to-zoom and double-tap for context menu.';
 
   subtext.innerHTML =
-    'Renders <strong>actual table content</strong>! Scroll wheel to zoom. Click columns to jump. Mobile support is planned for Q3 2026.' +
+    'Renders <strong>actual table content</strong>! Scroll wheel to zoom.' +
+    selectionHint +
     clipboardHint +
-    markHint;
+    markHint +
+    collapseHint +
+    mobileHint;
 }
 
 /**
@@ -396,9 +408,7 @@ function recreateDemoCompact(): void {
  * Enables the left navigation and smooth-scroll behavior for demo versions.
  */
 function initVersionSideNav(): void {
-  const navButtons = Array.from(
-    document.querySelectorAll<HTMLButtonElement>('[data-nav-target]'),
-  );
+  const navButtons = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-nav-target]'));
   if (navButtons.length === 0) return;
 
   const setActive = (activeTarget: string): void => {
@@ -466,12 +476,17 @@ function recreateDemo3(): void {
     position: 'bottom',
     canvasClipboard: canvasClipboard3,
     canvasColumnMarking: true,
+    canvasColumnHiding: true,
+    canvasColumnSelection: true,
     markedColumns: markedColumns3,
     onMarkedColumnsChange: ({ markedColumns }) => {
       saveMarkedColumns3(markedColumns);
     },
+    onSelectedColumnsChange: ({ selectedColumns }) => {
+      console.log('Selected columns:', selectedColumns);
+    },
     zoomable: true,
-    maxZoom: 12,
+    maxZoom: 5,
   });
 
   saveMarkedColumns3(minimap3.getMarkedColumns());

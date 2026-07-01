@@ -6,7 +6,7 @@ A framework-agnostic minimap component for navigating large HTML tables. Inspire
 [![bundle size](https://img.shields.io/bundlephobia/minzip/table-minimap)](https://bundlephobia.com/package/table-minimap)
 [![license](https://img.shields.io/npm/l/table-minimap)](https://github.com/Kevinci/table-minimap/blob/main/LICENSE)
 
-**[Live Demo](https://kevinci.github.io/table-minimap/)** · **[Changelog](CHANGELOG.md)**
+**[Changelog](CHANGELOG.md)**
 
 ## Features
 
@@ -14,7 +14,7 @@ A framework-agnostic minimap component for navigating large HTML tables. Inspire
 - **Zero Dependencies** - No external runtime dependencies
 - **Tree Shakable** - ESM + CommonJS outputs
 - **Two Render Modes** - Simple columns or VS Code-like canvas preview
-- **Touch Support** - Mouse, touch, and pointer events
+- **Touch Support** - Full mobile support with pinch-to-zoom and double-tap gestures
 - **Auto Updates** - Responds to resize, scroll, and DOM mutations
 - **Accessible** - ARIA attributes and keyboard navigation support
 - **Themeable** - CSS custom properties for easy customization
@@ -92,6 +92,8 @@ const minimap = new TableMinimap('#my-table', {
   canvasClipboardLabel: 'Spalte kopieren', // i18n label
   canvasColumnMarking: true, // Right-click canvas column to mark/unmark
   markedColumns: [2, 5], // Optional initial marks
+  canvasColumnHiding: true, // Right-click canvas column to collapse/expand
+  hiddenColumns: [1], // Optional initial collapsed columns
 });
 ```
 
@@ -132,6 +134,9 @@ const minimap = new TableMinimap('#data-table', {
 - Provides a visual "density map" of your data
 - Optional: right-click a column and use **Copy column to clipboard**
 - Optional: right-click a column and use **Mark/Unmark column** (bookmark icon in header)
+- Optional: right-click and use **Unmark all columns** to clear all bookmarks at once
+- Optional: right-click a column and use **Collapse/Expand column** (dims column with dark overlay and narrows table cell)
+- Optional: right-click and use **Expand all columns** to reveal all collapsed columns
 
 ### Canvas Mode with Zoom
 
@@ -159,6 +164,32 @@ minimap.resetZoom(); // Reset to full view
 - **Scroll wheel** on minimap to zoom in/out
 - **Drag** the canvas when zoomed to pan
 - A position indicator appears at the bottom when zoomed
+
+### Mobile Support (Canvas Mode)
+
+Canvas mode provides full mobile/touch support:
+
+```typescript
+const minimap = new TableMinimap('#my-table', {
+  mode: 'canvas',
+  zoomable: true, // Enable pinch-to-zoom
+  canvasColumnMarking: true, // Enable double-tap context menu
+  canvasColumnHiding: true,
+});
+```
+
+**Touch Gestures:**
+
+- **Pinch-to-zoom** - Two-finger zoom like Google Maps
+- **Double-tap** - Opens the context menu for marking/collapsing columns
+- **Single-tap** - Navigates to the tapped column
+- **Pan/drag** - When zoomed, drag to pan the view
+
+**Accessibility:**
+
+- Context menu actions have 48px minimum touch targets on touch devices
+- Compact desktop styling with standard sizing on mouse devices
+- Touch-friendly padding and spacing (via `@media (pointer: coarse)`)
 
 ### Position Options
 
@@ -279,6 +310,42 @@ interface TableMinimapOptions {
   canvasUnmarkColumnLabel?: string;
 
   /**
+   * Label text used for the unmark-all action in the canvas context menu
+   * @default "Unmark all columns"
+   */
+  canvasUnmarkAllColumnsLabel?: string;
+
+  /**
+   * Enable right-click context menu action to collapse/expand table columns
+   * @default false
+   */
+  canvasColumnHiding?: boolean;
+
+  /**
+   * Label text used for the collapse action in the canvas context menu
+   * @default "Collapse column"
+   */
+  canvasHideColumnLabel?: string;
+
+  /**
+   * Label text used for the expand action in the canvas context menu
+   * @default "Expand column"
+   */
+  canvasShowColumnLabel?: string;
+
+  /**
+   * Label text used for the expand-all action in the canvas context menu
+   * @default "Expand all columns"
+   */
+  canvasShowAllColumnsLabel?: string;
+
+  /**
+   * Width in pixels for collapsed table columns
+   * @default 10
+   */
+  collapsedColumnWidth?: number;
+
+  /**
    * Initially marked canvas column indices
    * @default []
    */
@@ -295,6 +362,22 @@ interface TableMinimapOptions {
     table: HTMLTableElement;
   }) => void;
 
+  /**
+   * Initially collapsed canvas column indices
+   * @default []
+   */
+  hiddenColumns?: number[];
+
+  /**
+   * Called whenever collapsed canvas columns change
+   */
+  onHiddenColumnsChange?: (details: {
+    hiddenColumns: number[];
+    changedColumnIndex: number | null;
+    isHidden: boolean | null;
+    headers: string[];
+    table: HTMLTableElement;
+  }) => void;
 }
 ```
 
@@ -315,7 +398,14 @@ interface TableMinimapOptions {
 | `canvasColumnMarking`  | `false`                      |
 | `canvasMarkColumnLabel`| `'Mark column'`              |
 | `canvasUnmarkColumnLabel` | `'Unmark column'`         |
+| `canvasUnmarkAllColumnsLabel` | `'Unmark all columns'` |
+| `canvasColumnHiding`  | `false`                      |
+| `canvasHideColumnLabel` | `'Collapse column'`        |
+| `canvasShowColumnLabel` | `'Expand column'`          |
+| `canvasShowAllColumnsLabel` | `'Expand all columns'`  |
+| `collapsedColumnWidth` | `10`                        |
 | `markedColumns`        | `[]`                         |
+| `hiddenColumns`        | `[]`                         |
 | `minZoom`              | `1`                          |
 | `maxZoom`              | `10`                         |
 | `zoomSpeed`            | `0.1`                        |
@@ -460,6 +550,40 @@ Replaces marked canvas columns programmatically.
 minimap.setMarkedColumns([0, 3, 8]);
 ```
 
+#### `clearMarkedColumns(): void`
+
+Clears all marked canvas columns programmatically.
+
+```typescript
+minimap.clearMarkedColumns();
+```
+
+#### `getHiddenColumns(): number[]`
+
+Returns currently collapsed canvas column indices.
+
+```typescript
+const hidden = minimap.getHiddenColumns();
+console.log(hidden); // e.g. [0, 3, 9]
+```
+
+#### `setHiddenColumns(columnIndices: number[]): void`
+
+Replaces collapsed canvas columns programmatically. Collapsed columns appear with a dark overlay in the canvas and are narrowed in the real table.
+
+```typescript
+minimap.setHiddenColumns([2, 4, 6]);
+```
+
+#### `clearHiddenColumns(): void`
+
+Expands all collapsed columns programmatically.
+
+```typescript
+minimap.clearHiddenColumns();
+```
+
+
 ### Persisting Marked Columns
 
 ```typescript
@@ -471,6 +595,21 @@ const minimap = new TableMinimap('#data-table', {
   markedColumns: saved,
   onMarkedColumnsChange: ({ markedColumns }) => {
     localStorage.setItem('table-marks', JSON.stringify(markedColumns));
+  },
+});
+```
+
+### Persisting Collapsed Columns
+
+```typescript
+const savedHidden = JSON.parse(localStorage.getItem('table-hidden') ?? '[]') as number[];
+
+const minimap = new TableMinimap('#data-table', {
+  mode: 'canvas',
+  canvasColumnHiding: true,
+  hiddenColumns: savedHidden,
+  onHiddenColumnsChange: ({ hiddenColumns }) => {
+    localStorage.setItem('table-hidden', JSON.stringify(hiddenColumns));
   },
 });
 ```
@@ -710,81 +849,6 @@ export class DataTableComponent implements AfterViewInit, OnDestroy {
 }
 ```
 
-## Development
-
-### Setup
-
-```bash
-git clone https://github.com/your-username/table-minimap.git
-cd table-minimap
-npm install
-```
-
-### Development Server
-
-```bash
-npm run dev
-```
-
-Opens the demo at `http://localhost:5173`
-
-### Build
-
-```bash
-npm run build
-```
-
-Outputs to `dist/`:
-
-- `table-minimap.js` (ESM)
-- `table-minimap.cjs` (CommonJS)
-- `style.css`
-- `index.d.ts` (TypeScript declarations)
-
-### Project Structure
-
-```
-table-minimap/
-├── src/
-│   ├── TableMinimap.ts    # Main component class
-│   ├── styles.css         # Default styles
-│   ├── types.ts           # TypeScript interfaces
-│   └── index.ts           # Public exports
-├── demo/
-│   ├── index.html         # Demo page
-│   └── main.ts            # Demo script
-├── dist/                  # Build output
-├── package.json
-├── tsconfig.json
-├── vite.config.ts
-└── README.md
-```
-
-## Publishing
-
-Automatic publish is configured in `.github/workflows/publish.yml`.
-
-On every push to `main`, GitHub Actions will:
-
-1. build and validate the package,
-2. bump the patch version in `package.json` + `package-lock.json`,
-3. publish the new version to npm,
-4. push the release commit and tag back to `main`,
-5. build the demo and deploy `demo-dist` to GitHub Pages.
-
-Required repository secret:
-
-- `NPM_TOKEN` (npm automation token with publish permission for `table-minimap`)
-
-Manual publishing (optional):
-
-```bash
-# Ensure build is up to date
-npm run build
-
-# Publish to npm
-npm publish
-```
 
 ## Browser Support
 

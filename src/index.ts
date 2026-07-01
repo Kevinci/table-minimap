@@ -8,9 +8,9 @@ export { TableMinimap } from './TableMinimap';
 export type {
   TableMinimapOptions,
   CanvasMarkedColumnsChangeDetails,
+  CanvasHiddenColumnsChangeDetails,
   ColumnInfo,
   ScrollState,
-  CellData,
   TableSelector,
   ZoomState,
 } from './types';

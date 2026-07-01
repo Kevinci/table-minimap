@@ -112,16 +112,81 @@ export interface TableMinimapOptions {
   canvasUnmarkColumnLabel?: string;
 
   /**
+   * Label text used for the unmark-all action in the canvas context menu
+   * @default "Unmark all columns"
+   */
+  canvasUnmarkAllColumnsLabel?: string;
+
+  /**
+   * Enable right-click context menu action to collapse/expand table columns
+   * @default false
+   */
+  canvasColumnHiding?: boolean;
+
+  /**
+   * Label text used for the hide action in the canvas context menu
+   * @default "Collapse column"
+   */
+  canvasHideColumnLabel?: string;
+
+  /**
+   * Label text used for the show action in the canvas context menu
+   * @default "Expand column"
+   */
+  canvasShowColumnLabel?: string;
+
+  /**
+   * Label text used for the show-all action in the canvas context menu
+   * @default "Expand all columns"
+   */
+  canvasShowAllColumnsLabel?: string;
+
+  /**
+   * Width in pixels for collapsed table columns
+   * @default 10
+   */
+  collapsedColumnWidth?: number;
+
+  /**
+   * Enable Finder-like selection of canvas columns
+   * Single click selects one column, shift-click selects a range,
+   * command/control-click toggles individual columns
+   * @default false
+   */
+  canvasColumnSelection?: boolean;
+
+  /**
    * Initially marked canvas column indices
    * @default []
    */
   markedColumns?: number[];
 
   /**
+   * Initially collapsed canvas column indices
+   * @default []
+   */
+  hiddenColumns?: number[];
+
+  /**
+   * Initially selected canvas column indices
+   * @default []
+   */
+  selectedColumns?: number[];
+
+  /**
    * Called whenever marked canvas columns change
    */
   onMarkedColumnsChange?: (details: CanvasMarkedColumnsChangeDetails) => void;
 
+  /**
+   * Called whenever collapsed canvas columns change
+   */
+  onHiddenColumnsChange?: (details: CanvasHiddenColumnsChangeDetails) => void;
+
+  /**
+   * Called whenever selected canvas columns change
+   */
+  onSelectedColumnsChange?: (details: CanvasSelectedColumnsChangeDetails) => void;
 }
 
 /**
@@ -135,6 +200,38 @@ export interface CanvasMarkedColumnsChangeDetails {
   /** New marked state of changedColumnIndex, if available */
   isMarked: boolean | null;
   /** Header labels for marked columns (same order as markedColumns) */
+  headers: string[];
+  /** Source table element */
+  table: HTMLTableElement;
+}
+
+/**
+ * Payload emitted when canvas column collapsed state changes.
+ */
+export interface CanvasHiddenColumnsChangeDetails {
+  /** Current list of collapsed column indices (sorted ascending) */
+  hiddenColumns: number[];
+  /** Column changed by the latest action, if available */
+  changedColumnIndex: number | null;
+  /** New collapsed state of changedColumnIndex, if available */
+  isHidden: boolean | null;
+  /** Header labels for collapsed columns (same order as hiddenColumns) */
+  headers: string[];
+  /** Source table element */
+  table: HTMLTableElement;
+}
+
+/**
+ * Payload emitted when canvas column selection changes.
+ */
+export interface CanvasSelectedColumnsChangeDetails {
+  /** Current list of selected column indices (sorted ascending) */
+  selectedColumns: number[];
+  /** Column changed by the latest action, if available */
+  changedColumnIndex: number | null;
+  /** New selected state of changedColumnIndex, if available */
+  isSelected: boolean | null;
+  /** Header labels for selected columns (same order as selectedColumns) */
   headers: string[];
   /** Source table element */
   table: HTMLTableElement;
@@ -182,19 +279,6 @@ export interface ScrollState {
   positionRatio: number;
 }
 
-/**
- * Cell data for canvas rendering
- */
-export interface CellData {
-  /** Row index */
-  row: number;
-  /** Column index */
-  col: number;
-  /** Whether the cell has content */
-  hasContent: boolean;
-  /** Content density (0-1) for color intensity */
-  density: number;
-}
 
 /**
  * Required default options

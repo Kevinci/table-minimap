@@ -2,65 +2,49 @@ import type {
   TableMinimapOptions,
   RequiredOptions,
   CanvasMarkedColumnsChangeDetails,
+  CanvasHiddenColumnsChangeDetails,
+  CanvasSelectedColumnsChangeDetails,
   ColumnInfo,
   ScrollState,
   TableSelector,
   ZoomState,
 } from './types';
 
-/**
- * Default configuration options
- */
-const DEFAULT_OPTIONS: RequiredOptions = {
-  mode: 'columns',
-  height: 40,
-  position: 'bottom',
-  fixedWidth: 300,
-  fixedPosition: 'bottom-right',
-  compact: false,
-  draggable: true,
-  showViewport: true,
-  zoomable: false,
-  minZoom: 1,
-  maxZoom: 10,
-  zoomSpeed: 0.1,
-  canvasClipboard: false,
-  canvasClipboardLabel: 'Copy column to clipboard',
-  canvasColumnMarking: false,
-  canvasMarkColumnLabel: 'Mark column',
-  canvasUnmarkColumnLabel: 'Unmark column',
-  markedColumns: [],
-  onMarkedColumnsChange: () => {},
-};
+import {
+  DEFAULT_OPTIONS,
+  COLLAPSED_TABLE_CELL_CLASS,
+  COMPACT_HANDLE_SIZE,
+  COMPACT_DOT_SIZE,
+  COMPACT_COLLAPSE_DELAY,
+  DOUBLE_CLICK_DELAY,
+  DRAG_CLICK_SUPPRESS_MS,
+  FIXED_POSITIONS,
+  CANVAS_PAN_THRESHOLD,
+  CANVAS_PAN_SENSITIVITY,
+  DOUBLE_TAP_THRESHOLD,
+  DOUBLE_TAP_DISTANCE,
+  SINGLE_TAP_DELAY,
+  LONG_PRESS_THRESHOLD,
+  LONG_PRESS_MOVE_TOLERANCE,
+} from './constants';
 
-/** Compact floating minimap handle size in pixels */
-const COMPACT_HANDLE_SIZE = 24;
+import {
+  renderTableDirect,
+  type CanvasMetrics,
+} from './canvas/renderer';
 
-/** Visible dot size inside the compact handle in pixels */
-const COMPACT_DOT_SIZE = 5;
+import {
+  getTouchDistance,
+  getTouchCenter,
+} from './handlers/touch';
 
-/** Delay before compact mode collapses after pointer leave */
-const COMPACT_COLLAPSE_DELAY = 180;
-
-/** Delay used to distinguish single click navigation from double-click repositioning */
-const DOUBLE_CLICK_DELAY = 180;
-
-/** Suppression window to ignore synthetic click after a viewport drag ends */
-const DRAG_CLICK_SUPPRESS_MS = 220;
-
-/** Fixed corner positions used when cycling the minimap by double-click */
-const FIXED_POSITIONS: RequiredOptions['fixedPosition'][] = [
-  'bottom-right',
-  'bottom-left',
-  'top-left',
-  'top-right',
-];
-
-/** Pixels before a canvas pointer interaction is treated as panning instead of click */
-const CANVAS_PAN_THRESHOLD = 3;
-
-/** Multiplier for canvas drag-to-scroll movement; lower values feel smoother */
-const CANVAS_PAN_SENSITIVITY = 0.85;
+import {
+  getColumnHeaderText,
+  getCellsForColumnIndex,
+  getColumnClipboardText,
+  writeClipboardText,
+  normalizeColumnIndices,
+} from './utils/columns';
 
 /**
  * TableMinimap - A framework-agnostic minimap component for large HTML tables
@@ -129,6 +113,15 @@ export class TableMinimap {
   /** Mark/Unmark action text inside the canvas context menu */
   private canvasContextMarkActionEl: HTMLDivElement | null = null;
 
+  /** Unmark-all action text inside the canvas context menu */
+  private canvasContextUnmarkAllActionEl: HTMLDivElement | null = null;
+
+  /** Collapse/Expand action text inside the canvas context menu */
+  private canvasContextHideActionEl: HTMLDivElement | null = null;
+
+  /** Expand-all action text inside the canvas context menu */
+  private canvasContextShowAllActionEl: HTMLDivElement | null = null;
+
   /** Status line inside the canvas context menu */
   private canvasContextStatusEl: HTMLDivElement | null = null;
 
@@ -137,6 +130,15 @@ export class TableMinimap {
 
   /** Marked column indices used by canvas mode */
   private markedColumns = new Set<number>();
+
+  /** Collapsed column indices used by canvas mode and real table styling */
+  private hiddenColumns = new Set<number>();
+
+  /** Selected column indices used by canvas mode (click / shift-click / command-click selection) */
+  private selectedColumns = new Set<number>();
+
+  /** Anchor column used for Finder-like shift-click range selection */
+  private selectionAnchorColumn = -1;
 
   /** Viewport indicator element */
   private viewportEl: HTMLDivElement | null = null;
@@ -191,6 +193,41 @@ export class TableMinimap {
   /** Timestamp until minimap clicks are ignored (prevents post-drag jump) */
   private suppressMinimapClickUntil = 0;
 
+  /** Timestamp until context menu close is suppressed (prevents synthetic click from closing) */
+  private suppressContextMenuCloseUntil = 0;
+
+  /** Active touch pointers for pinch-to-zoom gesture */
+  private activeTouches: Map<number, { x: number; y: number }> = new Map();
+
+  /** Initial distance between two fingers when pinch started */
+  private pinchStartDistance = 0;
+
+  /** Zoom level when pinch started */
+  private pinchStartZoom = 1;
+
+  /** Whether a pinch gesture is currently active */
+  private isPinching = false;
+
+  /** Timestamp of the last tap for double-tap detection */
+  private lastTapTime = 0;
+
+  /** Position of the last tap for double-tap detection */
+  private lastTapX = 0;
+  private lastTapY = 0;
+
+  /** Timer for single-tap delay (to distinguish from double-tap) */
+  private tapTimer: number | null = null;
+
+  /** Timer for long-press context menu on mobile */
+  private longPressTimer: number | null = null;
+
+  /** Position where long-press started */
+  private longPressX = 0;
+  private longPressY = 0;
+
+  /** Whether a long-press context menu is currently open */
+  private isLongPressMenuOpen = false;
+
   /** ResizeObserver instance */
   private resizeObserver: ResizeObserver | null = null;
 
@@ -211,6 +248,9 @@ export class TableMinimap {
     onCanvasContextMenu: (e: MouseEvent) => void;
     onCanvasMouseMove: (e: MouseEvent) => void;
     onCanvasMouseLeave: () => void;
+    onCanvasTouchStart: (e: TouchEvent) => void;
+    onCanvasTouchMove: (e: TouchEvent) => void;
+    onCanvasTouchEnd: (e: TouchEvent) => void;
     onCompactFocusIn: () => void;
     onCompactFocusOut: () => void;
     onCompactKeyDown: (e: KeyboardEvent) => void;
@@ -238,7 +278,9 @@ export class TableMinimap {
     this.table = this.resolveTable(selector);
     this.options = { ...DEFAULT_OPTIONS, ...options };
     this.isCompactMode = this.options.compact && this.options.position === 'fixed';
-    this.markedColumns = new Set(this.normalizeMarkedColumns(this.options.markedColumns));
+    this.markedColumns = new Set(this.normalizeColumnIndices(this.options.markedColumns));
+    this.hiddenColumns = new Set(this.normalizeColumnIndices(this.options.hiddenColumns));
+    this.selectedColumns = new Set(this.normalizeColumnIndices(this.options.selectedColumns));
 
     // Bind event handlers
     this.boundHandlers = {
@@ -254,6 +296,9 @@ export class TableMinimap {
       onCanvasContextMenu: this.onCanvasContextMenu.bind(this),
       onCanvasMouseMove: this.onCanvasMouseMove.bind(this),
       onCanvasMouseLeave: this.onCanvasMouseLeave.bind(this),
+      onCanvasTouchStart: this.onCanvasTouchStart.bind(this),
+      onCanvasTouchMove: this.onCanvasTouchMove.bind(this),
+      onCanvasTouchEnd: this.onCanvasTouchEnd.bind(this),
       onCompactFocusIn: this.onCompactFocusIn.bind(this),
       onCompactFocusOut: this.onCompactFocusOut.bind(this),
       onCompactKeyDown: this.onCompactKeyDown.bind(this),
@@ -393,23 +438,16 @@ export class TableMinimap {
     }
 
     this.clampMarkedColumns(false);
+    this.clampHiddenColumns(false);
+    this.clampSelectedColumns(false);
+    this.applyHiddenColumnsToTable();
   }
 
   /**
-   * Normalizes marked column indices to distinct, sorted, in-range values.
+   * Normalizes column indices to distinct, sorted, in-range values.
    */
-  private normalizeMarkedColumns(input: number[]): number[] {
-    const max = this.columns.length;
-    const unique = new Set<number>();
-
-    input.forEach((value) => {
-      const index = Math.floor(value);
-      if (!Number.isFinite(index)) return;
-      if (index < 0 || index >= max) return;
-      unique.add(index);
-    });
-
-    return Array.from(unique).sort((a, b) => a - b);
+  private normalizeColumnIndices(input: number[]): number[] {
+    return normalizeColumnIndices(input, this.columns.length);
   }
 
   /**
@@ -417,9 +455,12 @@ export class TableMinimap {
    */
   private clampMarkedColumns(emit: boolean): void {
     const current = Array.from(this.markedColumns);
-    const normalized = this.normalizeMarkedColumns(current);
+    const normalized = this.normalizeColumnIndices(current);
 
-    if (normalized.length === current.length && normalized.every((value, i) => value === current[i])) {
+    if (
+      normalized.length === current.length &&
+      normalized.every((value, i) => value === current[i])
+    ) {
       return;
     }
 
@@ -428,6 +469,29 @@ export class TableMinimap {
 
     if (emit) {
       this.emitMarkedColumnsChange(null, null);
+    }
+  }
+
+  /**
+   * Ensures the internal collapsed columns remain valid for the current column count.
+   */
+  private clampHiddenColumns(emit: boolean): void {
+    const current = Array.from(this.hiddenColumns);
+    const normalized = this.normalizeColumnIndices(current);
+
+    if (
+      normalized.length === current.length &&
+      normalized.every((value, i) => value === current[i])
+    ) {
+      return;
+    }
+
+    this.hiddenColumns = new Set(normalized);
+    this.options.hiddenColumns = normalized;
+    this.applyHiddenColumnsToTable();
+
+    if (emit) {
+      this.emitHiddenColumnsChange(null, null);
     }
   }
 
@@ -448,6 +512,67 @@ export class TableMinimap {
     };
 
     this.options.onMarkedColumnsChange(details);
+  }
+
+  /**
+   * Emits the hidden-columns change callback.
+   */
+  private emitHiddenColumnsChange(
+    changedColumnIndex: number | null,
+    isHidden: boolean | null,
+  ): void {
+    const hiddenColumns = this.getHiddenColumns();
+    const details: CanvasHiddenColumnsChangeDetails = {
+      hiddenColumns,
+      changedColumnIndex,
+      isHidden,
+      headers: hiddenColumns.map((index) => this.getColumnHeaderText(index)),
+      table: this.table,
+    };
+
+    this.options.onHiddenColumnsChange(details);
+  }
+
+
+  /**
+   * Ensures the internal selected columns remain valid for the current column count.
+   */
+  private clampSelectedColumns(emit: boolean): void {
+    const current = Array.from(this.selectedColumns);
+    const normalized = this.normalizeColumnIndices(current);
+
+    if (
+      normalized.length === current.length &&
+      normalized.every((value, i) => value === current[i])
+    ) {
+      return;
+    }
+
+    this.selectedColumns = new Set(normalized);
+    this.options.selectedColumns = normalized;
+
+    if (emit) {
+      this.emitSelectedColumnsChange(null, null);
+    }
+  }
+
+  /**
+   * Emits the selected-columns change callback.
+   */
+  private emitSelectedColumnsChange(
+    changedColumnIndex: number | null,
+    isSelected: boolean | null,
+  ): void {
+    const selectedColumns = this.getSelectedColumns();
+    const details: CanvasSelectedColumnsChangeDetails = {
+      selectedColumns,
+      changedColumnIndex,
+      isSelected,
+      headers: selectedColumns.map((index) => this.getColumnHeaderText(index)),
+      table: this.table,
+    };
+
+    this.options.onSelectedColumnsChange(details);
   }
 
   /**
@@ -829,221 +954,15 @@ export class TableMinimap {
     // Scale for HiDPI
     this.canvasCtx.scale(dpr, dpr);
 
-    // Render table
-    this.renderTableDirect(metrics, height);
-  }
-
-
-  /**
-   * Renders the visible portion of the table directly onto the canvas
-   */
-  private renderTableDirect(
-    metrics: ReturnType<typeof this.getCanvasMetrics>,
-    height: number,
-  ): void {
-    if (!this.canvasCtx) return;
-
-    const ctx = this.canvasCtx;
-    const { width, numCols, cellWidth, startCol, endCol, xOffset } = metrics;
-    const rows = Array.from(this.table.querySelectorAll('tr'));
-    const numRows = rows.length;
-
-    if (numRows === 0 || numCols === 0) return;
-
-    // Calculate dimensions
-    const headerHeight = Math.min(height * 0.15, 30);
-    const cellHeight = (height - headerHeight) / numRows;
-    const fontSize = Math.min(cellHeight * 0.6, cellWidth * 0.15, 14);
-    const headerFontSize = Math.min(headerHeight * 0.6, cellWidth * 0.15, 14);
-
-    // Colors
-    const colors = {
-      bg: '#ffffff',
-      headerBg: '#f1f5f9',
-      border: '#e2e8f0',
-      text: '#334155',
-      headerText: '#1e293b',
-      altRow: '#f8fafc',
-      hoverFill: 'rgba(59, 130, 246, 0.08)',
-      hoverStroke: 'rgba(59, 130, 246, 0.3)',
-      bookmarkFill: '#f59e0b',
-      bookmarkStroke: '#b45309',
-    };
-
-    // Clear background
-    ctx.fillStyle = colors.bg;
-    ctx.fillRect(0, 0, width, height);
-
-    // Draw header
-    ctx.fillStyle = colors.headerBg;
-    ctx.fillRect(0, 0, width, headerHeight);
-
-    const headerRow = this.table.querySelector('thead tr') || rows[0];
-    const headerCells = headerRow ? Array.from(headerRow.querySelectorAll('th, td')) : [];
-
-    ctx.font = `bold ${headerFontSize}px system-ui, sans-serif`;
-    ctx.textBaseline = 'middle';
-
-    for (let col = startCol; col < endCol; col++) {
-      const x = xOffset + (col - startCol) * cellWidth;
-      if (x + cellWidth < 0 || x > width) continue;
-      const isMarked = this.markedColumns.has(col);
-
-      ctx.strokeStyle = colors.border;
-      ctx.lineWidth = 1;
-      ctx.strokeRect(x, 0, cellWidth, headerHeight);
-
-      const text = headerCells[col]?.textContent?.trim() || `Col ${col + 1}`;
-      ctx.fillStyle = colors.headerText;
-      ctx.save();
-      ctx.beginPath();
-      const iconPadding = isMarked ? 16 : 0;
-      ctx.rect(x + 2, 0, Math.max(cellWidth - 6 - iconPadding, 0), headerHeight);
-      ctx.clip();
-      ctx.fillText(text, x + 4, headerHeight / 2);
-      ctx.restore();
-
-      if (isMarked) {
-        this.drawColumnBookmark(x, cellWidth, headerHeight, colors.bookmarkFill, colors.bookmarkStroke);
-      }
-    }
-
-    // Draw data rows
-    ctx.font = `${fontSize}px system-ui, sans-serif`;
-
-    for (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {
-      const row = rows[rowIndex];
-      if (row.closest('thead')) continue;
-
-      const y = headerHeight + rowIndex * cellHeight;
-      if (y + cellHeight < 0 || y > height) continue;
-
-      // Alternate row background
-      if (rowIndex % 2 === 1) {
-        ctx.fillStyle = colors.altRow;
-        ctx.fillRect(0, y, width, cellHeight);
-      }
-
-      const cells = Array.from(row.querySelectorAll('th, td'));
-
-      for (let col = startCol; col < endCol; col++) {
-        const x = xOffset + (col - startCol) * cellWidth;
-        if (x + cellWidth < 0 || x > width) continue;
-
-        ctx.strokeStyle = colors.border;
-        ctx.lineWidth = 0.5;
-        ctx.strokeRect(x, y, cellWidth, cellHeight);
-
-        const content = cells[col]?.textContent?.trim();
-        if (content) {
-          ctx.fillStyle = colors.text;
-          ctx.save();
-          ctx.beginPath();
-          ctx.rect(x + 2, y, cellWidth - 4, cellHeight);
-          ctx.clip();
-          ctx.fillText(content, x + 4, y + cellHeight / 2);
-          ctx.restore();
-        }
-      }
-    }
-
-    // Draw hover highlight
-    if (this.hoveredColumn >= startCol && this.hoveredColumn < endCol) {
-      const hoverX = xOffset + (this.hoveredColumn - startCol) * cellWidth;
-      ctx.fillStyle = colors.hoverFill;
-      ctx.fillRect(hoverX, 0, cellWidth, height);
-      ctx.strokeStyle = colors.hoverStroke;
-      ctx.lineWidth = 1;
-      ctx.strokeRect(hoverX, 0, cellWidth, height);
-
-      if (this.markedColumns.has(this.hoveredColumn)) {
-        this.drawColumnBookmark(
-          hoverX,
-          cellWidth,
-          headerHeight,
-          colors.bookmarkFill,
-          colors.bookmarkStroke,
-        );
-      }
-    }
-  }
-
-  /**
-   * Draws a modern bookmark badge in the header area for marked columns.
-   */
-  private drawColumnBookmark(
-    x: number,
-    cellWidth: number,
-    headerHeight: number,
-    fill: string,
-    stroke: string,
-  ): void {
-    if (!this.canvasCtx) return;
-
-    const ctx = this.canvasCtx;
-    const badgeSize = Math.min(12, Math.max(9, Math.min(cellWidth * 0.24, headerHeight * 0.78)));
-    const badgeX = x + cellWidth - badgeSize - 3;
-    const badgeY = Math.max(1.5, (headerHeight - badgeSize) / 2 - 0.5);
-    const radius = Math.min(3.5, badgeSize * 0.32);
-
-    if (badgeX <= x + 2) return;
-
-    // Outer badge container for a cleaner, more modern indicator.
-    ctx.save();
-    this.drawRoundedRectPath(ctx, badgeX, badgeY, badgeSize, badgeSize, radius);
-    ctx.shadowColor = 'rgba(15, 23, 42, 0.24)';
-    ctx.shadowBlur = 3;
-    ctx.shadowOffsetY = 1;
-    ctx.fillStyle = fill;
-    ctx.fill();
-    ctx.shadowColor = 'transparent';
-    ctx.strokeStyle = stroke;
-    ctx.lineWidth = 0.7;
-    ctx.stroke();
-
-    // Simple ribbon glyph inside the badge.
-    const iconPadding = Math.max(2, badgeSize * 0.2);
-    const iconX = badgeX + iconPadding;
-    const iconY = badgeY + iconPadding - 0.2;
-    const iconWidth = badgeSize - iconPadding * 2;
-    const iconHeight = badgeSize - iconPadding * 1.8;
-    const notchY = iconY + iconHeight - Math.max(1.2, iconHeight * 0.2);
-
-    ctx.beginPath();
-    ctx.moveTo(iconX, iconY);
-    ctx.lineTo(iconX + iconWidth, iconY);
-    ctx.lineTo(iconX + iconWidth, notchY);
-    ctx.lineTo(iconX + iconWidth / 2, iconY + iconHeight);
-    ctx.lineTo(iconX, notchY);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.fill();
-    ctx.restore();
-  }
-
-  /**
-   * Builds a rounded-rectangle path for small canvas UI elements.
-   */
-  private drawRoundedRectPath(
-    ctx: CanvasRenderingContext2D,
-    x: number,
-    y: number,
-    width: number,
-    height: number,
-    radius: number,
-  ): void {
-    const r = Math.max(0, Math.min(radius, width / 2, height / 2));
-    ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + width - r, y);
-    ctx.quadraticCurveTo(x + width, y, x + width, y + r);
-    ctx.lineTo(x + width, y + height - r);
-    ctx.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
-    ctx.lineTo(x + r, y + height);
-    ctx.quadraticCurveTo(x, y + height, x, y + height - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
+    // Render table using extracted function
+    renderTableDirect(this.canvasCtx, metrics as CanvasMetrics, {
+      table: this.table,
+      height,
+      markedColumns: this.markedColumns,
+      hiddenColumns: this.hiddenColumns,
+      selectedColumns: this.selectedColumns,
+      hoveredColumn: this.hoveredColumn,
+    });
   }
 
   /**
@@ -1083,11 +1002,7 @@ export class TableMinimap {
     }
 
     // Zoom events on canvas (wheel) - also listen on viewport so zoom works when hovering over it
-    if (
-      this.options.mode === 'canvas' &&
-      this.canvasEl &&
-      this.options.zoomable
-    ) {
+    if (this.options.mode === 'canvas' && this.canvasEl && this.options.zoomable) {
       this.canvasEl.addEventListener('wheel', this.boundHandlers.onWheel, { passive: false });
       this.canvasEl.style.cursor = this.zoomState.level > 1 ? 'grab' : 'pointer';
 
@@ -1102,7 +1017,22 @@ export class TableMinimap {
       this.canvasEl.addEventListener('mousemove', this.boundHandlers.onCanvasMouseMove);
       this.canvasEl.addEventListener('mouseleave', this.boundHandlers.onCanvasMouseLeave);
 
-      if (this.options.canvasClipboard || this.options.canvasColumnMarking) {
+      // Touch events for mobile support (pinch-to-zoom, double-tap)
+      this.canvasEl.addEventListener('touchstart', this.boundHandlers.onCanvasTouchStart, {
+        passive: false,
+      });
+      this.canvasEl.addEventListener('touchmove', this.boundHandlers.onCanvasTouchMove, {
+        passive: false,
+      });
+      this.canvasEl.addEventListener('touchend', this.boundHandlers.onCanvasTouchEnd, {
+        passive: false,
+      });
+
+      if (
+        this.options.canvasClipboard ||
+        this.options.canvasColumnMarking ||
+        this.options.canvasColumnHiding
+      ) {
         this.canvasEl.addEventListener('contextmenu', this.boundHandlers.onCanvasContextMenu);
       }
     }
@@ -1135,6 +1065,12 @@ export class TableMinimap {
     });
   }
 
+  /** Stored additive selection state from the last click for delayed click handling */
+  private lastClickAdditiveSelection = false;
+
+  /** Stored range selection state from the last click for delayed click handling */
+  private lastClickRangeSelection = false;
+
   /**
    * Handles click on the minimap to jump to position
    *
@@ -1142,7 +1078,6 @@ export class TableMinimap {
    */
   private onMinimapClick(e: MouseEvent): void {
     if (!this.minimapEl || !this.scrollContainer) return;
-
 
     if (performance.now() < this.suppressMinimapClickUntil) {
       e.preventDefault();
@@ -1164,15 +1099,21 @@ export class TableMinimap {
       if (e.detail > 1) return;
 
       const clientX = e.clientX;
+      this.lastClickAdditiveSelection = e.metaKey || e.ctrlKey;
+      this.lastClickRangeSelection = e.shiftKey;
       this.clearMinimapClickTimer();
       this.minimapClickTimer = window.setTimeout(() => {
         this.minimapClickTimer = null;
-        this.handleMinimapClick(clientX);
+        this.handleMinimapClick(
+          clientX,
+          this.lastClickAdditiveSelection,
+          this.lastClickRangeSelection,
+        );
       }, DOUBLE_CLICK_DELAY);
       return;
     }
 
-    this.handleMinimapClick(e.clientX);
+    this.handleMinimapClick(e.clientX, e.metaKey || e.ctrlKey, e.shiftKey);
   }
 
   /**
@@ -1203,8 +1144,14 @@ export class TableMinimap {
    * Handles single-click minimap navigation.
    *
    * @param clientX - Click position in viewport coordinates
+   * @param additiveSelection - Whether command/control was pressed during click
+   * @param rangeSelection - Whether shift was pressed during click
    */
-  private handleMinimapClick(clientX: number): void {
+  private handleMinimapClick(
+    clientX: number,
+    additiveSelection = false,
+    rangeSelection = false,
+  ): void {
     if (!this.minimapEl || !this.scrollContainer) return;
 
     this.closeCanvasContextMenu();
@@ -1225,11 +1172,18 @@ export class TableMinimap {
     const rect = this.minimapEl.getBoundingClientRect();
     const clickX = clientX - rect.left;
 
-    // Canvas mode: scroll to center the clicked column
+    // Canvas mode: handle column selection if enabled, otherwise scroll
     if (this.options.mode === 'canvas') {
       const clickedColumn = this.getColumnAtX(clickX);
 
       if (clickedColumn >= 0) {
+        // Handle column selection if enabled
+        if (this.options.canvasColumnSelection) {
+          this.handleCanvasColumnSelection(clickedColumn, additiveSelection, rangeSelection);
+          return;
+        }
+
+        // Default: scroll to center the clicked column
         const targetScroll = this.getScrollLeftForColumnCenter(clickedColumn);
 
         this.scrollContainer.scrollTo({
@@ -1251,6 +1205,66 @@ export class TableMinimap {
       left: Math.max(0, Math.min(maxScroll, targetScroll)),
       behavior: 'smooth',
     });
+  }
+
+  /**
+   * Handles canvas column selection with Finder-like modifiers.
+   *
+   * @param columnIndex - The clicked column index
+   * @param additiveSelection - Whether command/control key was pressed
+   * @param rangeSelection - Whether shift key was pressed
+   */
+  private handleCanvasColumnSelection(
+    columnIndex: number,
+    additiveSelection: boolean,
+    rangeSelection: boolean,
+  ): void {
+    if (columnIndex < 0 || columnIndex >= this.columns.length) return;
+
+    let isSelected: boolean;
+
+    if (rangeSelection && this.selectionAnchorColumn >= 0) {
+      const start = Math.min(this.selectionAnchorColumn, columnIndex);
+      const end = Math.max(this.selectionAnchorColumn, columnIndex);
+
+      if (!additiveSelection) {
+        this.selectedColumns.clear();
+      }
+
+      for (let index = start; index <= end; index++) {
+        this.selectedColumns.add(index);
+      }
+
+      isSelected = true;
+    } else if (additiveSelection) {
+      isSelected = !this.selectedColumns.has(columnIndex);
+      if (isSelected) {
+        this.selectedColumns.add(columnIndex);
+      } else {
+        this.selectedColumns.delete(columnIndex);
+      }
+      this.selectionAnchorColumn = columnIndex;
+    } else {
+      this.selectedColumns.clear();
+      this.selectedColumns.add(columnIndex);
+      this.selectionAnchorColumn = columnIndex;
+      isSelected = true;
+    }
+
+    this.options.selectedColumns = this.getSelectedColumns();
+    this.render();
+    this.emitSelectedColumnsChange(columnIndex, isSelected);
+
+    // Scroll to the clicked column in the table
+    if (this.scrollContainer) {
+      const targetScroll = this.getScrollLeftForColumnCenter(columnIndex);
+      const { scrollWidth, clientWidth } = this.scrollContainer;
+      const maxScroll = Math.max(scrollWidth - clientWidth, 0);
+      this.scrollContainer.scrollTo({
+        left: Math.max(0, Math.min(maxScroll, targetScroll)),
+        behavior: 'smooth',
+      });
+    }
   }
 
   /**
@@ -1407,13 +1421,9 @@ export class TableMinimap {
         this.canvasEl.releasePointerCapture(e.pointerId);
       }
 
-      // Simulate a click on the minimap at this position
-      const clickEvent = new MouseEvent('click', {
-        clientX: e.clientX,
-        clientY: e.clientY,
-        bubbles: true,
-      });
-      this.minimapEl.dispatchEvent(clickEvent);
+      // Handle the canvas click directly so modifier keys survive Finder-like selection.
+      this.handleMinimapClick(e.clientX, e.metaKey || e.ctrlKey, e.shiftKey);
+      this.suppressMinimapClickUntil = performance.now() + DRAG_CLICK_SUPPRESS_MS;
       return;
     }
 
@@ -1510,7 +1520,6 @@ export class TableMinimap {
     if (newZoom > 1) {
       // newPanX + relativeX * newVisibleRatio = tableX
       // newPanX = tableX - relativeX * newVisibleRatio
-      // newScrollRatio * (1 - newVisibleRatio) = newPanX
       // newScrollRatio = newPanX / (1 - newVisibleRatio)
       const newPanX = tableX - relativeX * newVisibleRatio;
       const newScrollRatio = newPanX / (1 - newVisibleRatio);
@@ -1570,7 +1579,6 @@ export class TableMinimap {
    * Handles mouse leave on canvas to clear hover state
    */
   private onCanvasMouseLeave(): void {
-
     if (this.hoveredColumn !== -1) {
       this.hoveredColumn = -1;
       if (this.canvasEl) {
@@ -1580,17 +1588,317 @@ export class TableMinimap {
     }
   }
 
+
+  /**
+   * Handles touch start on canvas for pinch-to-zoom and long-press context menu.
+   */
+  private onCanvasTouchStart(e: TouchEvent): void {
+    if (!this.canvasEl || !this.scrollContainer) return;
+
+    const touches = e.touches;
+
+    // Store active touches
+    for (let i = 0; i < touches.length; i++) {
+      const touch = touches[i];
+      this.activeTouches.set(touch.identifier, { x: touch.clientX, y: touch.clientY });
+    }
+
+    // Two-finger pinch start
+    if (touches.length === 2 && this.options.zoomable) {
+      e.preventDefault();
+      this.isPinching = true;
+      this.pinchStartDistance = getTouchDistance(touches);
+      this.pinchStartZoom = this.zoomState.level;
+      this.clearTapTimer();
+      this.clearLongPressTimer();
+      return;
+    }
+
+    // Single touch - potential tap, pan, or long-press
+    if (touches.length === 1) {
+      const touch = touches[0];
+      const now = performance.now();
+      const rect = this.canvasEl.getBoundingClientRect();
+      const touchX = touch.clientX;
+      const touchY = touch.clientY;
+
+      // Check for double-tap (for zoom or other actions, but NOT context menu)
+      const timeSinceLastTap = now - this.lastTapTime;
+      const distanceFromLastTap = Math.sqrt(
+        Math.pow(touchX - this.lastTapX, 2) + Math.pow(touchY - this.lastTapY, 2),
+      );
+
+      if (
+        timeSinceLastTap < DOUBLE_TAP_THRESHOLD &&
+        distanceFromLastTap < DOUBLE_TAP_DISTANCE
+      ) {
+        // Double-tap detected - could be used for zoom toggle in the future
+        e.preventDefault();
+        this.clearTapTimer();
+        this.clearLongPressTimer();
+        this.lastTapTime = 0;
+        return;
+      }
+
+      // Store tap info for potential double-tap detection
+      this.lastTapTime = now;
+      this.lastTapX = touchX;
+      this.lastTapY = touchY;
+
+      // Start long-press timer for context menu
+      this.longPressX = touchX;
+      this.longPressY = touchY;
+      this.clearLongPressTimer();
+      
+      const columnIndex = this.getColumnAtX(touchX - rect.left);
+      if (
+        columnIndex >= 0 &&
+        (this.options.canvasClipboard ||
+          this.options.canvasColumnMarking ||
+          this.options.canvasColumnHiding)
+      ) {
+        this.longPressTimer = window.setTimeout(() => {
+          this.longPressTimer = null;
+          // Prevent default touch behavior and open context menu
+          this.isLongPressMenuOpen = true;
+          this.hoveredColumn = columnIndex;
+          this.render();
+          this.openCanvasContextMenu(this.longPressX, this.longPressY, columnIndex);
+          // Suppress synthetic click event from closing the menu
+          this.suppressContextMenuCloseUntil = performance.now() + 400;
+        }, LONG_PRESS_THRESHOLD);
+      }
+
+      // Set up single-tap with delay
+      this.panStartX = touchX;
+      this.dragStartScrollLeft = this.scrollContainer.scrollLeft;
+      this.isPotentialPan = true;
+    }
+  }
+
+  /**
+   * Handles touch move on canvas for pinch-to-zoom.
+   */
+  private onCanvasTouchMove(e: TouchEvent): void {
+    if (!this.canvasEl || !this.minimapEl || !this.scrollContainer) return;
+
+    const touches = e.touches;
+
+    // Update active touch positions
+    for (let i = 0; i < touches.length; i++) {
+      const touch = touches[i];
+      this.activeTouches.set(touch.identifier, { x: touch.clientX, y: touch.clientY });
+    }
+
+    // Cancel long-press if finger moved too far
+    if (this.longPressTimer !== null && touches.length === 1) {
+      const touch = touches[0];
+      const distance = Math.sqrt(
+        Math.pow(touch.clientX - this.longPressX, 2) + Math.pow(touch.clientY - this.longPressY, 2),
+      );
+      if (distance > LONG_PRESS_MOVE_TOLERANCE) {
+        this.clearLongPressTimer();
+      }
+    }
+
+    // Handle pinch-to-zoom
+    if (this.isPinching && touches.length === 2 && this.options.zoomable) {
+      e.preventDefault();
+
+      const currentDistance = getTouchDistance(touches);
+      if (this.pinchStartDistance === 0) return;
+
+      const scale = currentDistance / this.pinchStartDistance;
+      const newZoom = Math.max(
+        this.options.minZoom,
+        Math.min(this.options.maxZoom, this.pinchStartZoom * scale),
+      );
+
+      if (newZoom !== this.zoomState.level) {
+        // Calculate relative position for zoom anchor
+        const rect = this.canvasEl.getBoundingClientRect();
+        const center = getTouchCenter(touches);
+        const relativeX = (center.x - rect.left) / this.minimapEl.offsetWidth;
+
+        // Calculate the table position under the pinch center BEFORE zoom
+        const oldZoom = this.zoomState.level;
+        const oldVisibleRatio = 1 / oldZoom;
+        const { scrollLeft, scrollWidth, clientWidth } = this.scrollContainer;
+        const maxScroll = Math.max(scrollWidth - clientWidth, 1);
+        const oldScrollRatio = scrollLeft / maxScroll;
+        const oldPanX = oldZoom > 1 ? oldScrollRatio * (1 - oldVisibleRatio) : 0;
+        const tableX = oldPanX + relativeX * oldVisibleRatio;
+
+        // Update zoom state
+        this.zoomState = {
+          level: newZoom,
+          panX: 0,
+          isMinZoom: newZoom <= this.options.minZoom,
+          isMaxZoom: newZoom >= this.options.maxZoom,
+        };
+
+        // Calculate new scroll position to keep tableX under the pinch center
+        const newVisibleRatio = 1 / newZoom;
+        if (newZoom > 1) {
+          const newPanX = tableX - relativeX * newVisibleRatio;
+          const newScrollRatio = newPanX / (1 - newVisibleRatio);
+          const newScrollLeft = Math.max(0, Math.min(maxScroll, newScrollRatio * maxScroll));
+          this.scrollContainer.scrollLeft = newScrollLeft;
+        }
+
+        this.updateScrollState();
+        this.render();
+      }
+      return;
+    }
+
+    // Handle single-finger pan when zoomed
+    if (touches.length === 1 && this.isPotentialPan && this.zoomState.level > 1) {
+      const touch = touches[0];
+      const deltaX = this.panStartX - touch.clientX;
+
+      // Check if we've moved enough to start panning
+      if (Math.abs(deltaX) > 5) {
+        e.preventDefault();
+        this.clearTapTimer();
+        this.isPanning = true;
+
+        const { scrollWidth, clientWidth } = this.scrollContainer;
+        const maxScroll = Math.max(scrollWidth - clientWidth, 0);
+        const visibleRatio = 1 / Math.max(this.zoomState.level, 1);
+        const minimapWidth = Math.max(this.minimapEl.offsetWidth, 1);
+
+        const scrollDelta =
+          (deltaX / minimapWidth) * maxScroll * visibleRatio * CANVAS_PAN_SENSITIVITY;
+        this.scrollContainer.scrollLeft = Math.max(
+          0,
+          Math.min(maxScroll, this.dragStartScrollLeft + scrollDelta),
+        );
+
+        this.updateScrollState();
+        this.render();
+      }
+    }
+  }
+
+  /**
+   * Handles touch end on canvas.
+   */
+  private onCanvasTouchEnd(e: TouchEvent): void {
+    if (!this.canvasEl || !this.scrollContainer) return;
+
+    // Remove ended touches from tracking
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      this.activeTouches.delete(e.changedTouches[i].identifier);
+    }
+
+    // Clear long-press timer when touch ends
+    this.clearLongPressTimer();
+
+    // If long-press menu was just opened, don't process this touch end as a tap
+    if (this.isLongPressMenuOpen) {
+      this.isLongPressMenuOpen = false;
+      this.isPotentialPan = false;
+      return;
+    }
+
+    // End pinching if we go below 2 fingers
+    if (this.isPinching && e.touches.length < 2) {
+      this.isPinching = false;
+      this.pinchStartDistance = 0;
+    }
+
+    // End panning
+    if (this.isPanning) {
+      this.isPanning = false;
+      this.wasPanning = true;
+      setTimeout(() => {
+        this.wasPanning = false;
+      }, 100);
+    }
+
+    // Handle single-tap navigation (with delay to allow double-tap detection)
+    if (e.touches.length === 0 && !this.isPinching && !this.wasPanning && this.isPotentialPan) {
+      const rect = this.canvasEl.getBoundingClientRect();
+      const tapX = this.lastTapX;
+
+      // Set up delayed tap for navigation (allows double-tap to cancel it)
+      this.clearTapTimer();
+      this.tapTimer = window.setTimeout(() => {
+        this.tapTimer = null;
+
+        // Only navigate if not a double-tap situation
+        if (performance.now() - this.lastTapTime > DOUBLE_TAP_THRESHOLD) {
+          const columnIndex = this.getColumnAtX(tapX - rect.left);
+          if (columnIndex >= 0) {
+            // Handle column selection if enabled
+            if (this.options.canvasColumnSelection) {
+              this.handleCanvasColumnSelection(columnIndex, false, false);
+              return;
+            }
+
+            // Default: scroll to the column
+            const targetScroll = this.getScrollLeftForColumnCenter(columnIndex);
+            const { scrollWidth, clientWidth } = this.scrollContainer!;
+            const maxScroll = scrollWidth - clientWidth;
+            this.scrollContainer!.scrollTo({
+              left: Math.max(0, Math.min(maxScroll, targetScroll)),
+              behavior: 'smooth',
+            });
+          }
+        }
+      }, SINGLE_TAP_DELAY);
+    }
+
+    this.isPotentialPan = false;
+  }
+
+  /**
+   * Clears the pending tap timer.
+   */
+  private clearTapTimer(): void {
+    if (this.tapTimer !== null) {
+      clearTimeout(this.tapTimer);
+      this.tapTimer = null;
+    }
+  }
+
+  /**
+   * Clears the pending long-press timer.
+   */
+  private clearLongPressTimer(): void {
+    if (this.longPressTimer !== null) {
+      clearTimeout(this.longPressTimer);
+      this.longPressTimer = null;
+    }
+  }
+
   /**
    * Handles context menu opening on a canvas column.
    */
   private onCanvasContextMenu(e: MouseEvent): void {
-    if (!this.canvasEl || (!this.options.canvasClipboard && !this.options.canvasColumnMarking)) return;
+    if (
+      !this.canvasEl ||
+      (!this.options.canvasClipboard &&
+        !this.options.canvasColumnMarking &&
+        !this.options.canvasColumnHiding)
+    ) {
+      return;
+    }
 
     e.preventDefault();
 
     const rect = this.canvasEl.getBoundingClientRect();
     const columnIndex = this.getColumnAtX(e.clientX - rect.left);
     if (columnIndex < 0) return;
+
+    if (this.options.canvasColumnSelection && !this.selectedColumns.has(columnIndex)) {
+      this.selectedColumns.clear();
+      this.selectedColumns.add(columnIndex);
+      this.selectionAnchorColumn = columnIndex;
+      this.options.selectedColumns = this.getSelectedColumns();
+      this.emitSelectedColumnsChange(columnIndex, true);
+    }
 
     this.hoveredColumn = columnIndex;
     this.render();
@@ -1608,6 +1916,10 @@ export class TableMinimap {
     menu.style.display = 'none';
 
     let markAction: HTMLDivElement | null = null;
+    let unmarkAllAction: HTMLDivElement | null = null;
+    let hideAction: HTMLDivElement | null = null;
+    let showAllAction: HTMLDivElement | null = null;
+
     if (this.options.canvasColumnMarking) {
       markAction = document.createElement('div');
       markAction.className = 'tm-canvas-context-menu__action';
@@ -1616,20 +1928,80 @@ export class TableMinimap {
 
       markAction.addEventListener('click', () => {
         if (this.canvasContextColumnIndex < 0) return;
-        this.toggleMarkedColumn(this.canvasContextColumnIndex);
+        this.toggleMarkedColumnsForContext();
       });
 
       markAction.addEventListener('keydown', (event: KeyboardEvent) => {
         if (event.key !== 'Enter' && event.key !== ' ') return;
         event.preventDefault();
         if (this.canvasContextColumnIndex < 0) return;
-        this.toggleMarkedColumn(this.canvasContextColumnIndex);
+        this.toggleMarkedColumnsForContext();
       });
 
       menu.appendChild(markAction);
+
+      unmarkAllAction = document.createElement('div');
+      unmarkAllAction.className = 'tm-canvas-context-menu__action';
+      unmarkAllAction.textContent = this.options.canvasUnmarkAllColumnsLabel;
+      unmarkAllAction.setAttribute('role', 'button');
+      unmarkAllAction.setAttribute('tabindex', '0');
+
+      unmarkAllAction.addEventListener('click', () => {
+        this.clearMarkedColumnsFromMenu();
+      });
+
+      unmarkAllAction.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        this.clearMarkedColumnsFromMenu();
+      });
+
+      menu.appendChild(unmarkAllAction);
     }
 
-    if (this.options.canvasColumnMarking && this.options.canvasClipboard) {
+    if (this.options.canvasColumnHiding) {
+      hideAction = document.createElement('div');
+      hideAction.className = 'tm-canvas-context-menu__action';
+      hideAction.setAttribute('role', 'button');
+      hideAction.setAttribute('tabindex', '0');
+
+      hideAction.addEventListener('click', () => {
+        if (this.canvasContextColumnIndex < 0) return;
+        this.toggleHiddenColumnsForContext();
+      });
+
+      hideAction.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        if (this.canvasContextColumnIndex < 0) return;
+        this.toggleHiddenColumnsForContext();
+      });
+
+      menu.appendChild(hideAction);
+
+      showAllAction = document.createElement('div');
+      showAllAction.className = 'tm-canvas-context-menu__action';
+      showAllAction.textContent = this.options.canvasShowAllColumnsLabel;
+      showAllAction.setAttribute('role', 'button');
+      showAllAction.setAttribute('tabindex', '0');
+
+      showAllAction.addEventListener('click', () => {
+        this.clearHiddenColumnsFromMenu();
+      });
+
+      showAllAction.addEventListener('keydown', (event: KeyboardEvent) => {
+        if (event.key !== 'Enter' && event.key !== ' ') return;
+        event.preventDefault();
+        this.clearHiddenColumnsFromMenu();
+      });
+
+      menu.appendChild(showAllAction);
+    }
+
+    if (
+      (this.options.canvasColumnMarking || this.options.canvasColumnHiding) &&
+      this.options.canvasClipboard
+    ) {
       const separator = document.createElement('div');
       separator.className = 'tm-canvas-context-menu__separator';
       menu.appendChild(separator);
@@ -1668,7 +2040,29 @@ export class TableMinimap {
     this.canvasContextMenuEl = menu;
     this.canvasContextCopyActionEl = copyAction;
     this.canvasContextMarkActionEl = markAction;
+    this.canvasContextUnmarkAllActionEl = unmarkAllAction;
+    this.canvasContextHideActionEl = hideAction;
+    this.canvasContextShowAllActionEl = showAllAction;
     this.canvasContextStatusEl = status;
+  }
+
+  /**
+   * Returns the columns affected by the current canvas context menu action.
+   */
+  private getCanvasContextTargetColumns(
+    fallbackColumnIndex = this.canvasContextColumnIndex,
+  ): number[] {
+    if (fallbackColumnIndex < 0 || fallbackColumnIndex >= this.columns.length) return [];
+
+    if (!this.options.canvasColumnSelection || !this.selectedColumns.has(fallbackColumnIndex)) {
+      return [fallbackColumnIndex];
+    }
+
+    const selectedColumns = this.getSelectedColumns().filter(
+      (index) => index >= 0 && index < this.columns.length,
+    );
+
+    return selectedColumns.length > 0 ? selectedColumns : [fallbackColumnIndex];
   }
 
   /**
@@ -1677,9 +2071,63 @@ export class TableMinimap {
   private updateCanvasMarkActionLabel(columnIndex: number): void {
     if (!this.canvasContextMarkActionEl) return;
 
-    this.canvasContextMarkActionEl.textContent = this.markedColumns.has(columnIndex)
+    const targetColumns = this.getCanvasContextTargetColumns(columnIndex);
+    const shouldUnmark =
+      targetColumns.length > 0 && targetColumns.every((index) => this.markedColumns.has(index));
+    const label = shouldUnmark
       ? this.options.canvasUnmarkColumnLabel
       : this.options.canvasMarkColumnLabel;
+
+    this.canvasContextMarkActionEl.textContent =
+      targetColumns.length > 1 ? `${label} (${targetColumns.length})` : label;
+  }
+
+  /**
+   * Updates enabled/disabled state for the unmark-all action.
+   */
+  private updateCanvasUnmarkAllActionState(): void {
+    if (!this.canvasContextUnmarkAllActionEl) return;
+
+    const canUnmarkAll = this.markedColumns.size > 0;
+    this.canvasContextUnmarkAllActionEl.classList.toggle(
+      'tm-canvas-context-menu__action--disabled',
+      !canUnmarkAll,
+    );
+    this.canvasContextUnmarkAllActionEl.setAttribute(
+      'aria-disabled',
+      canUnmarkAll ? 'false' : 'true',
+    );
+  }
+
+  /**
+   * Updates the collapse/expand context action label for the selected column.
+   */
+  private updateCanvasHideActionLabel(columnIndex: number): void {
+    if (!this.canvasContextHideActionEl) return;
+
+    const targetColumns = this.getCanvasContextTargetColumns(columnIndex);
+    const shouldShow =
+      targetColumns.length > 0 && targetColumns.every((index) => this.hiddenColumns.has(index));
+    const label = shouldShow
+      ? this.options.canvasShowColumnLabel
+      : this.options.canvasHideColumnLabel;
+
+    this.canvasContextHideActionEl.textContent =
+      targetColumns.length > 1 ? `${label} (${targetColumns.length})` : label;
+  }
+
+  /**
+   * Updates enabled/disabled state for the expand-all action.
+   */
+  private updateCanvasShowAllActionState(): void {
+    if (!this.canvasContextShowAllActionEl) return;
+
+    const canShowAll = this.hiddenColumns.size > 0;
+    this.canvasContextShowAllActionEl.classList.toggle(
+      'tm-canvas-context-menu__action--disabled',
+      !canShowAll,
+    );
+    this.canvasContextShowAllActionEl.setAttribute('aria-disabled', canShowAll ? 'false' : 'true');
   }
 
   /**
@@ -1691,8 +2139,13 @@ export class TableMinimap {
 
     this.canvasContextColumnIndex = columnIndex;
     this.updateCanvasMarkActionLabel(columnIndex);
+    this.updateCanvasUnmarkAllActionState();
+    this.updateCanvasHideActionLabel(columnIndex);
+    this.updateCanvasShowAllActionState();
     const header = this.getColumnHeaderText(columnIndex);
-    this.canvasContextStatusEl.textContent = `Column: ${header}`;
+    const targetColumns = this.getCanvasContextTargetColumns(columnIndex);
+    this.canvasContextStatusEl.textContent =
+      targetColumns.length > 1 ? `${targetColumns.length} columns selected.` : `Column: ${header}`;
 
     this.canvasContextMenuEl.style.display = 'block';
     this.canvasContextMenuEl.style.visibility = 'hidden';
@@ -1707,7 +2160,10 @@ export class TableMinimap {
     this.canvasContextMenuEl.style.left = `${left}px`;
     this.canvasContextMenuEl.style.top = `${top}px`;
     this.canvasContextMenuEl.style.visibility = 'visible';
-    const firstAction = this.canvasContextMarkActionEl ?? this.canvasContextCopyActionEl;
+    const firstAction =
+      this.canvasContextMarkActionEl ??
+      this.canvasContextHideActionEl ??
+      this.canvasContextCopyActionEl;
     firstAction?.focus();
   }
 
@@ -1723,78 +2179,170 @@ export class TableMinimap {
   }
 
   /**
-   * Toggles a single marked column and notifies listeners.
+   * Toggles all columns targeted by the currently open context menu.
    */
-  private toggleMarkedColumn(columnIndex: number): void {
-    if (columnIndex < 0 || columnIndex >= this.columns.length) return;
+  private toggleMarkedColumnsForContext(): void {
+    const targetColumns = this.getCanvasContextTargetColumns();
+    if (targetColumns.length === 0) return;
 
-    const isMarked = !this.markedColumns.has(columnIndex);
+    const isMarked = !targetColumns.every((index) => this.markedColumns.has(index));
+    this.setMarkedStateForColumns(targetColumns, isMarked);
+
+    if (this.canvasContextStatusEl) {
+      this.canvasContextStatusEl.textContent = `${targetColumns.length} column${targetColumns.length === 1 ? '' : 's'} ${isMarked ? 'marked' : 'unmarked'}.`;
+    }
+  }
+
+  /**
+   * Applies the same marked state to multiple columns and notifies listeners once.
+   */
+  private setMarkedStateForColumns(columnIndices: number[], isMarked: boolean): void {
+    const targetColumns = this.normalizeColumnIndices(columnIndices);
+    if (targetColumns.length === 0) return;
+
     if (isMarked) {
-      this.markedColumns.add(columnIndex);
+      targetColumns.forEach((index) => this.markedColumns.add(index));
     } else {
-      this.markedColumns.delete(columnIndex);
+      targetColumns.forEach((index) => this.markedColumns.delete(index));
     }
 
     this.options.markedColumns = this.getMarkedColumns();
-    this.updateCanvasMarkActionLabel(columnIndex);
+    this.updateCanvasMarkActionLabel(
+      this.canvasContextColumnIndex >= 0 ? this.canvasContextColumnIndex : targetColumns[0],
+    );
+    this.updateCanvasUnmarkAllActionState();
     this.render();
-    this.emitMarkedColumnsChange(columnIndex, isMarked);
+    this.emitMarkedColumnsChange(targetColumns.length === 1 ? targetColumns[0] : null, isMarked);
+  }
+
+  /**
+   * Toggles all columns targeted by the currently open context menu.
+   */
+  private toggleHiddenColumnsForContext(): void {
+    const targetColumns = this.getCanvasContextTargetColumns();
+    if (targetColumns.length === 0) return;
+
+    const isHidden = !targetColumns.every((index) => this.hiddenColumns.has(index));
+    this.setHiddenStateForColumns(targetColumns, isHidden);
+
+    if (this.canvasContextStatusEl) {
+      this.canvasContextStatusEl.textContent = `${targetColumns.length} column${targetColumns.length === 1 ? '' : 's'} ${isHidden ? 'collapsed' : 'expanded'}.`;
+    }
+  }
+
+  /**
+   * Applies the same collapsed state to multiple columns and notifies listeners once.
+   */
+  private setHiddenStateForColumns(columnIndices: number[], isHidden: boolean): void {
+    const targetColumns = this.normalizeColumnIndices(columnIndices);
+    if (targetColumns.length === 0) return;
+
+    if (isHidden) {
+      targetColumns.forEach((index) => this.hiddenColumns.add(index));
+    } else {
+      targetColumns.forEach((index) => this.hiddenColumns.delete(index));
+    }
+
+    this.options.hiddenColumns = this.getHiddenColumns();
+    this.updateCanvasHideActionLabel(
+      this.canvasContextColumnIndex >= 0 ? this.canvasContextColumnIndex : targetColumns[0],
+    );
+    this.updateCanvasShowAllActionState();
+    this.applyHiddenColumnsToTable();
+    this.render();
+    this.emitHiddenColumnsChange(targetColumns.length === 1 ? targetColumns[0] : null, isHidden);
+  }
+
+  /**
+   * Clears all marks from the context menu and updates the status text.
+   */
+  private clearMarkedColumnsFromMenu(): void {
+    if (this.markedColumns.size === 0) {
+      if (this.canvasContextStatusEl) {
+        this.canvasContextStatusEl.textContent = 'No marked columns.';
+      }
+      return;
+    }
+
+    this.clearMarkedColumns();
+
+    if (this.canvasContextStatusEl) {
+      this.canvasContextStatusEl.textContent = 'All marked columns cleared.';
+    }
+  }
+
+  /**
+   * Expands all collapsed columns from the context menu and updates the status text.
+   */
+  private clearHiddenColumnsFromMenu(): void {
+    if (this.hiddenColumns.size === 0) {
+      if (this.canvasContextStatusEl) {
+        this.canvasContextStatusEl.textContent = 'No collapsed columns.';
+      }
+      return;
+    }
+
+    this.clearHiddenColumns();
+
+    if (this.canvasContextStatusEl) {
+      this.canvasContextStatusEl.textContent = 'All collapsed columns expanded.';
+    }
   }
 
   /**
    * Gets display text for a column header.
    */
   private getColumnHeaderText(columnIndex: number): string {
-    const headerRow = this.table.querySelector('thead tr') || this.table.querySelector('tr');
-    if (!headerRow) {
-      return `Column ${columnIndex + 1}`;
-    }
+    return getColumnHeaderText(this.table, columnIndex);
+  }
 
-    const headerCells = Array.from(headerRow.querySelectorAll('th, td'));
-    const headerText = headerCells[columnIndex]?.textContent?.trim();
-    return headerText || `Column ${columnIndex + 1}`;
+  /**
+   * Resolves all table cells that visually belong to a logical column index.
+   */
+  private getCellsForColumnIndex(columnIndex: number): HTMLTableCellElement[] {
+    return getCellsForColumnIndex(this.table, columnIndex);
+  }
+
+  /**
+   * Applies collapsed-column styling classes to matching table cells.
+   */
+  private applyHiddenColumnsToTable(): void {
+    const safeWidth = Math.max(4, Math.floor(this.options.collapsedColumnWidth));
+    this.table.style.setProperty('--tm-collapsed-column-width', `${safeWidth}px`);
+
+    const existing = this.table.querySelectorAll<HTMLTableCellElement>(
+      `.${COLLAPSED_TABLE_CELL_CLASS}`,
+    );
+    existing.forEach((cell) => {
+      cell.classList.remove(COLLAPSED_TABLE_CELL_CLASS);
+    });
+
+    this.hiddenColumns.forEach((columnIndex) => {
+      const columnCells = this.getCellsForColumnIndex(columnIndex);
+      columnCells.forEach((cell) => {
+        cell.classList.add(COLLAPSED_TABLE_CELL_CLASS);
+      });
+    });
+  }
+
+  /**
+   * Clears collapsed-column styling from the underlying table.
+   */
+  private clearHiddenColumnStylesFromTable(): void {
+    this.table.style.removeProperty('--tm-collapsed-column-width');
+    const existing = this.table.querySelectorAll<HTMLTableCellElement>(
+      `.${COLLAPSED_TABLE_CELL_CLASS}`,
+    );
+    existing.forEach((cell) => {
+      cell.classList.remove(COLLAPSED_TABLE_CELL_CLASS);
+    });
   }
 
   /**
    * Builds clipboard text for a single column (header + non-empty rows).
    */
   private getColumnClipboardText(columnIndex: number): string {
-    const header = this.getColumnHeaderText(columnIndex);
-    const bodyRows = Array.from(this.table.querySelectorAll('tbody tr'));
-    const rows =
-      bodyRows.length > 0
-        ? bodyRows
-        : Array.from(this.table.querySelectorAll('tr')).filter((row) => !row.closest('thead'));
-
-    const values = rows
-      .map((row) => {
-        const cells = Array.from(row.querySelectorAll('th, td'));
-        return cells[columnIndex]?.textContent?.trim() ?? '';
-      })
-      .filter((value) => value.length > 0);
-
-    return [header, ...values].join('\n');
-  }
-
-  /**
-   * Writes text to clipboard with a fallback for browsers without navigator.clipboard.
-   */
-  private async writeClipboardText(text: string): Promise<boolean> {
-    if (navigator.clipboard?.writeText) {
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-
-    const textarea = document.createElement('textarea');
-    textarea.value = text;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    textarea.style.pointerEvents = 'none';
-    document.body.appendChild(textarea);
-    textarea.select();
-    const copied = document.execCommand('copy');
-    textarea.remove();
-    return copied;
+    return getColumnClipboardText(this.table, columnIndex);
   }
 
   /**
@@ -1806,7 +2354,7 @@ export class TableMinimap {
     const text = this.getColumnClipboardText(columnIndex);
 
     try {
-      const copied = await this.writeClipboardText(text);
+      const copied = await writeClipboardText(text);
       this.canvasContextStatusEl.textContent = copied
         ? 'Column copied to clipboard.'
         : 'Copy failed in this browser.';
@@ -1874,7 +2422,6 @@ export class TableMinimap {
     this.minimapEl.setAttribute('aria-expanded', 'true');
   }
 
-
   /**
    * Clears a pending compact collapse timer.
    */
@@ -1904,12 +2451,17 @@ export class TableMinimap {
   private onDocumentClick(e: MouseEvent): void {
     const target = e.target as Node | null;
 
+    // Close context menu on outside click, but ignore synthetic clicks after touch-open
     if (
       this.canvasContextMenuEl &&
       this.canvasContextMenuEl.style.display !== 'none' &&
       target &&
       !this.canvasContextMenuEl.contains(target)
     ) {
+      // Suppress synthetic click events from mobile browsers after touch-open
+      if (performance.now() < this.suppressContextMenuCloseUntil) {
+        return;
+      }
       this.closeCanvasContextMenu();
     }
 
@@ -2085,13 +2637,88 @@ export class TableMinimap {
   }
 
   /**
+   * Returns currently collapsed canvas column indices.
+   */
+  public getHiddenColumns(): number[] {
+    return Array.from(this.hiddenColumns).sort((a, b) => a - b);
+  }
+
+  /**
    * Replaces marked canvas columns programmatically.
    */
   public setMarkedColumns(columnIndices: number[]): void {
-    this.markedColumns = new Set(this.normalizeMarkedColumns(columnIndices));
+    this.markedColumns = new Set(this.normalizeColumnIndices(columnIndices));
     this.options.markedColumns = this.getMarkedColumns();
+    this.updateCanvasUnmarkAllActionState();
     this.render();
     this.emitMarkedColumnsChange(null, null);
+  }
+
+  /**
+   * Replaces collapsed canvas columns programmatically.
+   */
+  public setHiddenColumns(columnIndices: number[]): void {
+    this.hiddenColumns = new Set(this.normalizeColumnIndices(columnIndices));
+    this.options.hiddenColumns = this.getHiddenColumns();
+    this.updateCanvasShowAllActionState();
+    this.applyHiddenColumnsToTable();
+    this.render();
+    this.emitHiddenColumnsChange(null, null);
+  }
+
+  /**
+   * Clears all marked canvas columns programmatically.
+   */
+  public clearMarkedColumns(): void {
+    this.markedColumns.clear();
+    this.options.markedColumns = [];
+    this.updateCanvasUnmarkAllActionState();
+    this.render();
+    this.emitMarkedColumnsChange(null, null);
+  }
+
+  /**
+   * Expands all collapsed columns programmatically.
+   */
+  public clearHiddenColumns(): void {
+    this.hiddenColumns.clear();
+    this.options.hiddenColumns = [];
+    this.updateCanvasShowAllActionState();
+    this.applyHiddenColumnsToTable();
+    this.render();
+    this.emitHiddenColumnsChange(null, null);
+  }
+
+  /**
+   * Returns currently selected canvas column indices.
+   */
+  public getSelectedColumns(): number[] {
+    return Array.from(this.selectedColumns).sort((a, b) => a - b);
+  }
+
+  /**
+   * Replaces selected canvas columns programmatically.
+   */
+  public setSelectedColumns(columnIndices: number[]): void {
+    this.selectedColumns = new Set(this.normalizeColumnIndices(columnIndices));
+    this.options.selectedColumns = this.getSelectedColumns();
+    this.selectionAnchorColumn =
+      this.options.selectedColumns.length > 0
+        ? this.options.selectedColumns[this.options.selectedColumns.length - 1]
+        : -1;
+    this.render();
+    this.emitSelectedColumnsChange(null, null);
+  }
+
+  /**
+   * Clears all selected canvas columns programmatically.
+   */
+  public clearSelectedColumns(): void {
+    this.selectedColumns.clear();
+    this.options.selectedColumns = [];
+    this.selectionAnchorColumn = -1;
+    this.render();
+    this.emitSelectedColumnsChange(null, null);
   }
 
   /**
@@ -2260,16 +2887,30 @@ export class TableMinimap {
       this.canvasEl.removeEventListener('mousemove', this.boundHandlers.onCanvasMouseMove);
       this.canvasEl.removeEventListener('mouseleave', this.boundHandlers.onCanvasMouseLeave);
       this.canvasEl.removeEventListener('contextmenu', this.boundHandlers.onCanvasContextMenu);
+      this.canvasEl.removeEventListener('touchstart', this.boundHandlers.onCanvasTouchStart);
+      this.canvasEl.removeEventListener('touchmove', this.boundHandlers.onCanvasTouchMove);
+      this.canvasEl.removeEventListener('touchend', this.boundHandlers.onCanvasTouchEnd);
     }
+
+    // Clear tap timer
+    this.clearTapTimer();
+    this.clearLongPressTimer();
+    this.activeTouches.clear();
 
     if (this.canvasContextMenuEl) {
       this.canvasContextMenuEl.remove();
       this.canvasContextMenuEl = null;
       this.canvasContextCopyActionEl = null;
       this.canvasContextMarkActionEl = null;
+      this.canvasContextUnmarkAllActionEl = null;
+      this.canvasContextHideActionEl = null;
+      this.canvasContextShowAllActionEl = null;
       this.canvasContextStatusEl = null;
       this.canvasContextColumnIndex = -1;
     }
+
+    // Clear collapsed column styles from the real table
+    this.clearHiddenColumnStylesFromTable();
 
     document.removeEventListener('pointermove', this.boundHandlers.onPointerMove);
     document.removeEventListener('pointerup', this.boundHandlers.onPointerUp);
