@@ -58,8 +58,8 @@
         color: #4ec9b0;
       }
     </style>
-    <script type="module" crossorigin src="/table-minimap/assets/index-CCrj4qnS.js"></script>
-    <link rel="stylesheet" crossorigin href="/table-minimap/assets/index-Bxl-B5TY.css">
+    <script type="module" crossorigin src="/table-minimap/assets/index-BA5P9q9f.js"></script>
+    <link rel="stylesheet" crossorigin href="/table-minimap/assets/index-DT6-arTx.css">
   </head>
   <body class="bg-gray-50 min-h-screen">
     <div class="max-w-[1400px] mx-auto px-4 py-10 lg:flex lg:gap-8">
@@ -68,7 +68,9 @@
           aria-label="Demo versions"
           class="sticky top-6 rounded-xl border border-gray-200 bg-white p-4 shadow-sm"
         >
-          <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">Table Minimap</p>
+          <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-3">
+            Table Minimap
+          </p>
           <div class="space-y-2">
             <button
               data-nav-target="version-columns"
@@ -99,595 +101,616 @@
       </aside>
 
       <main class="min-w-0 flex-1">
-      <header
-        class="relative mb-12 overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-6 py-8 shadow-sm md:px-10"
-      >
-        <div class="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-blue-200/40 blur-2xl"></div>
-        <div class="pointer-events-none absolute -left-20 -bottom-24 h-56 w-56 rounded-full bg-indigo-200/30 blur-3xl"></div>
+        <header
+          class="relative mb-12 overflow-hidden rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50 via-white to-indigo-50 px-6 py-8 shadow-sm md:px-10"
+        >
+          <div
+            class="pointer-events-none absolute -right-16 -top-20 h-48 w-48 rounded-full bg-blue-200/40 blur-2xl"
+          ></div>
+          <div
+            class="pointer-events-none absolute -left-20 -bottom-24 h-56 w-56 rounded-full bg-indigo-200/30 blur-3xl"
+          ></div>
 
-        <div class="relative z-10">
-          <div class="mb-3 flex flex-wrap items-center gap-3">
-            <h1 class="text-4xl font-extrabold tracking-tight text-gray-600 md:text-5xl">
-              Table Minimap
-            </h1>
-            <span
-              id="demo-version-badge"
-              class="inline-flex items-center rounded-full border border-blue-100 bg-white px-3 py-1 text-sm font-semibold text-blue-700 shadow-sm"
-              >v...</span
+          <div class="relative z-10">
+            <div class="mb-3 flex flex-wrap items-center gap-3">
+              <h1 class="text-4xl font-extrabold tracking-tight text-gray-600 md:text-5xl">
+                Table Minimap
+              </h1>
+              <span
+                id="demo-version-badge"
+                class="inline-flex items-center rounded-full border border-blue-100 bg-white px-3 py-1 text-sm font-semibold text-blue-700 shadow-sm"
+                >v...</span
+              >
+            </div>
+
+            <p class="text-gray-500 text-lg leading-relaxed max-w-4xl">
+              Tired of explaining to your boss why having too many columns in a table isn't a good
+              idea? Give him Table-Minimap so he'll leave you alone. A framework-agnostic minimap
+              for navigating large HTML tables.
+              <span class="text-gray-500">Like VS Code's minimap - but for tables.</span>
+            </p>
+            <div class="mt-4 flex flex-wrap gap-3 text-sm">
+              <a
+                href="https://github.com/Kevinci"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-700 hover:bg-gray-100 transition"
+              >
+                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                  <path
+                    d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.23c-3.34.73-4.04-1.41-4.04-1.41-.55-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.11-.78.42-1.3.76-1.6-2.66-.3-5.46-1.33-5.46-5.92 0-1.31.47-2.38 1.23-3.22-.12-.31-.53-1.56.12-3.24 0 0 1-.32 3.3 1.23a11.35 11.35 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.65 1.68.24 2.93.12 3.24.77.84 1.23 1.91 1.23 3.22 0 4.6-2.81 5.61-5.49 5.91.43.37.81 1.1.81 2.21v3.28c0 .32.19.69.8.57A12.01 12.01 0 0 0 24 12c0-6.63-5.37-12-12-12Z"
+                  ></path>
+                </svg>
+                GitHub: @Kevinci
+              </a>
+              <a
+                href="https://www.npmjs.com/package/table-minimap"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-700 hover:bg-gray-100 transition"
+              >
+                <img
+                  src="https://upload.wikimedia.org/wikipedia/commons/d/db/Npm-logo.svg"
+                  alt=""
+                  class="h-5 w-auto"
+                  loading="lazy"
+                  decoding="async"
+                />
+                npm: table-minimap
+              </a>
+            </div>
+            <p class="mt-3 text-sm text-gray-600">
+              Weekly npm downloads:
+              <span id="npm-weekly-downloads" class="font-semibold text-gray-900">Loading...</span>
+            </p>
+          </div>
+        </header>
+
+        <!-- Demo 1: Columns Mode with Position Toggle -->
+        <section
+          id="version-columns"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8"
+        >
+          <div class="flex items-center gap-3 mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">Columns Mode</h2>
+            <span class="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full"
+              >Top / Bottom Position</span
             >
           </div>
-
-          <p class="text-gray-500 text-lg leading-relaxed max-w-4xl">
-            Tired of explaining to your boss why having too many columns in a table isn't a good
-            idea? Give him Table-Minimap so he'll leave you alone. A framework-agnostic minimap for
-            navigating large HTML tables.
-            <span class="text-gray-500">Like VS Code's minimap - but for tables.</span>
+          <p class="text-gray-600 mb-6">
+            Simple column-based visualization. Toggle between <strong>top</strong> and
+            <strong>bottom</strong> position.
           </p>
-          <div class="mt-4 flex flex-wrap gap-3 text-sm">
-            <a
-              href="https://github.com/Kevinci"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-700 hover:bg-gray-100 transition"
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button
+              id="scroll-start-1"
+              class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
             >
-              <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              Scroll to Start
+            </button>
+            <button
+              id="scroll-middle-1"
+              class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
+            >
+              Scroll to Middle
+            </button>
+            <button
+              id="scroll-end-1"
+              class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
+            >
+              Scroll to End
+            </button>
+          </div>
+          <div id="demo-container-1" class="border border-gray-200 rounded-lg mb-4">
+            <div id="table-wrapper-1" class="overflow-auto max-h-80">
+              <table id="demo-table-1" class="demo-table">
+                <thead>
+                  <tr id="header-row-1"></tr>
+                </thead>
+                <tbody id="table-body-1"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="cols-1"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Columns</label
+              >
+              <input
+                type="number"
+                id="cols-1"
+                value="20"
+                min="5"
+                max="99"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="rows-1"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Rows</label
+              >
+              <input
+                type="number"
+                id="rows-1"
+                value="50"
+                min="5"
+                max="500"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="position-1"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Position</label
+              >
+              <select
+                id="position-1"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="bottom">Bottom</option>
+                <option value="top">Top</option>
+              </select>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                Scroll Position
+              </p>
+              <p id="scroll-pos-1" class="text-2xl font-semibold text-gray-900">0%</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Mode</p>
+              <p class="text-2xl font-semibold text-gray-900">Columns</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <button
+              id="show-code-1"
+              class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
-                  d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.23c-3.34.73-4.04-1.41-4.04-1.41-.55-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.11-.78.42-1.3.76-1.6-2.66-.3-5.46-1.33-5.46-5.92 0-1.31.47-2.38 1.23-3.22-.12-.31-.53-1.56.12-3.24 0 0 1-.32 3.3 1.23a11.35 11.35 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.65 1.68.24 2.93.12 3.24.77.84 1.23 1.91 1.23 3.22 0 4.6-2.81 5.61-5.49 5.91.43.37.81 1.1.81 2.21v3.28c0 .32.19.69.8.57A12.01 12.01 0 0 0 24 12c0-6.63-5.37-12-12-12Z"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
                 ></path>
               </svg>
-              GitHub: @Kevinci
-            </a>
-            <a
-              href="https://www.npmjs.com/package/table-minimap"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-3 py-2 text-gray-700 hover:bg-gray-100 transition"
+              Show Code
+            </button>
+            <div
+              id="code-block-1"
+              class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block"
             >
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/d/db/Npm-logo.svg"
-                alt=""
-                class="h-5 w-auto"
-                loading="lazy"
-                decoding="async"
-              />
-              npm: table-minimap
-            </a>
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code id="code-content-1"></code></pre>
+            </div>
           </div>
-          <p class="mt-3 text-sm text-gray-600">
-            Weekly npm downloads:
-            <span id="npm-weekly-downloads" class="font-semibold text-gray-900">Loading...</span>
+        </section>
+
+        <!-- Demo 2: Fixed Position -->
+        <section
+          id="version-fixed"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8"
+        >
+          <div class="flex items-center gap-3 mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">Fixed Position</h2>
+            <span class="text-xs font-medium bg-purple-100 text-purple-700 px-3 py-1 rounded-full"
+              >Floating Overlay</span
+            >
+          </div>
+          <p class="text-gray-600 mb-6">
+            Minimap floats in a configurable corner over the table. Double-click the minimap to move
+            it to the next corner.
           </p>
-        </div>
-      </header>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button
+              id="scroll-start-2"
+              class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+            >
+              Scroll to Start
+            </button>
+            <button
+              id="scroll-middle-2"
+              class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
+            >
+              Scroll to Middle
+            </button>
+            <button
+              id="scroll-end-2"
+              class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
+            >
+              Scroll to End
+            </button>
+          </div>
+          <div id="demo-container-2" class="relative border border-gray-200 rounded-lg mb-4">
+            <div id="table-wrapper-2" class="overflow-auto max-h-80">
+              <table id="demo-table-2" class="demo-table">
+                <thead>
+                  <tr id="header-row-2"></tr>
+                </thead>
+                <tbody id="table-body-2"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="cols-2"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Columns</label
+              >
+              <input
+                type="number"
+                id="cols-2"
+                value="20"
+                min="5"
+                max="99"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="rows-2"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Rows</label
+              >
+              <input
+                type="number"
+                id="rows-2"
+                value="50"
+                min="5"
+                max="500"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="width-2"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Map Width</label
+              >
+              <input
+                type="number"
+                id="width-2"
+                value="250"
+                min="150"
+                max="500"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="fixed-position-2"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Fixed Position</label
+              >
+              <select
+                id="fixed-position-2"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="bottom-right">Bottom Right</option>
+                <option value="bottom-left">Bottom Left</option>
+                <option value="top-right">Top Right</option>
+                <option value="top-left">Top Left</option>
+              </select>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                Scroll Position
+              </p>
+              <p id="scroll-pos-2" class="text-2xl font-semibold text-gray-900">0%</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <button
+              id="show-code-2"
+              class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                ></path>
+              </svg>
+              Show Code
+            </button>
+            <div
+              id="code-block-2"
+              class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block"
+            >
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code id="code-content-2"></code></pre>
+            </div>
+          </div>
+        </section>
 
-      <!-- Demo 1: Columns Mode with Position Toggle -->
-      <section id="version-columns" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <div class="flex items-center gap-3 mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Columns Mode</h2>
-          <span class="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full"
-            >Top / Bottom Position</span
-          >
-        </div>
-        <p class="text-gray-600 mb-6">
-          Simple column-based visualization. Toggle between <strong>top</strong> and
-          <strong>bottom</strong> position.
-        </p>
-        <div class="flex flex-wrap gap-2 mb-4">
-          <button
-            id="scroll-start-1"
-            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
-          >
-            Scroll to Start
-          </button>
-          <button
-            id="scroll-middle-1"
-            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
-          >
-            Scroll to Middle
-          </button>
-          <button
-            id="scroll-end-1"
-            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
-          >
-            Scroll to End
-          </button>
-        </div>
-        <div id="demo-container-1" class="border border-gray-200 rounded-lg mb-4">
-          <div id="table-wrapper-1" class="overflow-auto max-h-80">
-            <table id="demo-table-1" class="demo-table">
-              <thead>
-                <tr id="header-row-1"></tr>
-              </thead>
-              <tbody id="table-body-1"></tbody>
-            </table>
+        <!-- Demo 2b: Compact Fixed Position -->
+        <section
+          id="version-compact"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8"
+        >
+          <div class="flex items-center gap-3 mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">Compact Fixed Position</h2>
+            <span class="text-xs font-medium bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full"
+              >Hideable Dot</span
+            >
           </div>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div class="bg-gray-50 rounded-lg p-4">
+          <p class="text-gray-600 mb-6">
+            A smaller floating minimap that collapses into a translucent dot in a configurable
+            corner. Click it to expand, or double-click it to move it to the next corner.
+          </p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button
+              id="scroll-start-compact"
+              class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+            >
+              Scroll to Start
+            </button>
+            <button
+              id="scroll-middle-compact"
+              class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
+            >
+              Scroll to Middle
+            </button>
+            <button
+              id="scroll-end-compact"
+              class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
+            >
+              Scroll to End
+            </button>
+          </div>
+          <div id="demo-container-compact" class="relative border border-gray-200 rounded-lg mb-4">
+            <div id="table-wrapper-compact" class="overflow-auto max-h-80">
+              <table id="demo-table-compact" class="demo-table">
+                <thead>
+                  <tr id="header-row-compact"></tr>
+                </thead>
+                <tbody id="table-body-compact"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="cols-compact"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Columns</label
+              >
+              <input
+                type="number"
+                id="cols-compact"
+                value="22"
+                min="5"
+                max="99"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="rows-compact"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Rows</label
+              >
+              <input
+                type="number"
+                id="rows-compact"
+                value="48"
+                min="5"
+                max="500"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="fixed-position-compact"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Fixed Position</label
+              >
+              <select
+                id="fixed-position-compact"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              >
+                <option value="bottom-right">Bottom Right</option>
+                <option value="bottom-left">Bottom Left</option>
+                <option value="top-right">Top Right</option>
+                <option value="top-left">Top Left</option>
+              </select>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                Scroll Position
+              </p>
+              <p id="scroll-pos-compact" class="text-2xl font-semibold text-gray-900">0%</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Mode</p>
+              <p class="text-2xl font-semibold text-gray-900">Compact</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <button
+              id="show-code-compact"
+              class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                ></path>
+              </svg>
+              Show Code
+            </button>
+            <div
+              id="code-block-compact"
+              class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block"
+            >
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code id="code-content-compact"></code></pre>
+            </div>
+          </div>
+        </section>
+
+        <!-- Demo 3: Canvas Mode -->
+        <section
+          id="version-canvas"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8"
+        >
+          <div class="flex items-center gap-3 mb-4">
+            <h2 class="text-xl font-semibold text-gray-900">Canvas Mode</h2>
+            <span class="text-xs font-medium bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full"
+              >Real Text + Zoom</span
+            >
+            <span class="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full"
+              >Mobile Support</span
+            >
+          </div>
+          <p id="canvas-subtext-3" class="text-gray-600 mb-6">
+            Renders <strong>actual table content</strong>! Scroll wheel to zoom. Click to select one
+            column, Shift+Click to select a range, Cmd/Ctrl+Click to add or remove individual
+            columns. Right-click a selected column to apply menu actions to the selection. Full
+            mobile support: pinch-to-zoom and double-tap for context menu.
+          </p>
+          <div class="flex flex-wrap gap-2 mb-4">
+            <button
+              id="scroll-start-3"
+              class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
+            >
+              Scroll to Start
+            </button>
+            <button
+              id="scroll-middle-3"
+              class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
+            >
+              Scroll to Middle
+            </button>
+            <button
+              id="scroll-end-3"
+              class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
+            >
+              Scroll to End
+            </button>
+            <button
+              id="reset-zoom-3"
+              class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
+            >
+              Reset Zoom
+            </button>
+          </div>
+          <div id="demo-container-3" class="border border-gray-200 rounded-lg mb-4">
+            <div id="table-wrapper-3" class="overflow-auto max-h-80">
+              <table id="demo-table-3" class="demo-table">
+                <thead>
+                  <tr id="header-row-3"></tr>
+                </thead>
+                <tbody id="table-body-3"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="mb-4">
             <label
-              for="cols-1"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Columns</label
+              for="clipboard-toggle-3"
+              class="inline-flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 cursor-pointer select-none"
             >
-            <input
-              type="number"
-              id="cols-1"
-              value="20"
-              min="5"
-              max="99"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
+              <input
+                type="checkbox"
+                id="clipboard-toggle-3"
+                checked
+                class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              />
+              <span class="text-sm font-medium text-gray-800"
+                >Copy to clipboard in canvas mode</span
+              >
+            </label>
           </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <label
-              for="rows-1"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Rows</label
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="cols-3"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Columns</label
+              >
+              <input
+                type="number"
+                id="cols-3"
+                value="20"
+                min="5"
+                max="99"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <label
+                for="rows-3"
+                class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
+                >Rows</label
+              >
+              <input
+                type="number"
+                id="rows-3"
+                value="50"
+                min="5"
+                max="500"
+                class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                Scroll Position
+              </p>
+              <p id="scroll-pos-3" class="text-2xl font-semibold text-gray-900">0%</p>
+            </div>
+            <div class="bg-gray-50 rounded-lg p-4">
+              <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+                Zoom Level
+              </p>
+              <p id="zoom-level-3" class="text-2xl font-semibold text-gray-900">1.0x</p>
+            </div>
+          </div>
+          <div class="mt-4">
+            <button
+              id="show-code-3"
+              class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2"
             >
-            <input
-              type="number"
-              id="rows-1"
-              value="50"
-              min="5"
-              max="500"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <label
-              for="position-1"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Position</label
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
+                ></path>
+              </svg>
+              Show Code
+            </button>
+            <div
+              id="code-block-3"
+              class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block"
             >
-            <select
-              id="position-1"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="bottom">Bottom</option>
-              <option value="top">Top</option>
-            </select>
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code id="code-content-3"></code></pre>
+            </div>
           </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-              Scroll Position
-            </p>
-            <p id="scroll-pos-1" class="text-2xl font-semibold text-gray-900">0%</p>
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Mode</p>
-            <p class="text-2xl font-semibold text-gray-900">Columns</p>
-          </div>
-        </div>
-        <div class="mt-4">
-          <button
-            id="show-code-1"
-            class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-              ></path>
-            </svg>
-            Show Code
-          </button>
-          <div
-            id="code-block-1"
-            class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block"
-          >
+        </section>
+
+        <!-- Installation -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Installation</h2>
+          <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
             <pre
               class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code id="code-content-1"></code></pre>
-          </div>
-        </div>
-      </section>
-
-      <!-- Demo 2: Fixed Position -->
-      <section id="version-fixed" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <div class="flex items-center gap-3 mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Fixed Position</h2>
-          <span class="text-xs font-medium bg-purple-100 text-purple-700 px-3 py-1 rounded-full"
-            >Floating Overlay</span
-          >
-        </div>
-        <p class="text-gray-600 mb-6">
-          Minimap floats in a configurable corner over the table. Double-click the minimap to move
-          it to the next corner.
-        </p>
-        <div class="flex flex-wrap gap-2 mb-4">
-          <button
-            id="scroll-start-2"
-            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
-          >
-            Scroll to Start
-          </button>
-          <button
-            id="scroll-middle-2"
-            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
-          >
-            Scroll to Middle
-          </button>
-          <button
-            id="scroll-end-2"
-            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
-          >
-            Scroll to End
-          </button>
-        </div>
-        <div id="demo-container-2" class="relative border border-gray-200 rounded-lg mb-4">
-          <div id="table-wrapper-2" class="overflow-auto max-h-80">
-            <table id="demo-table-2" class="demo-table">
-              <thead>
-                <tr id="header-row-2"></tr>
-              </thead>
-              <tbody id="table-body-2"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div class="bg-gray-50 rounded-lg p-4">
-            <label
-              for="cols-2"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Columns</label
-            >
-            <input
-              type="number"
-              id="cols-2"
-              value="20"
-              min="5"
-              max="99"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <label
-              for="rows-2"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Rows</label
-            >
-            <input
-              type="number"
-              id="rows-2"
-              value="50"
-              min="5"
-              max="500"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <label
-              for="width-2"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Map Width</label
-            >
-            <input
-              type="number"
-              id="width-2"
-              value="250"
-              min="150"
-              max="500"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <label
-              for="fixed-position-2"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Fixed Position</label
-            >
-            <select
-              id="fixed-position-2"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="bottom-right">Bottom Right</option>
-              <option value="bottom-left">Bottom Left</option>
-              <option value="top-right">Top Right</option>
-              <option value="top-left">Top Left</option>
-            </select>
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-              Scroll Position
-            </p>
-            <p id="scroll-pos-2" class="text-2xl font-semibold text-gray-900">0%</p>
-          </div>
-        </div>
-        <div class="mt-4">
-          <button
-            id="show-code-2"
-            class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-              ></path>
-            </svg>
-            Show Code
-          </button>
-          <div
-            id="code-block-2"
-            class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block"
-          >
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code id="code-content-2"></code></pre>
-          </div>
-        </div>
-      </section>
-
-      <!-- Demo 2b: Compact Fixed Position -->
-      <section id="version-compact" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <div class="flex items-center gap-3 mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Compact Fixed Position</h2>
-          <span class="text-xs font-medium bg-indigo-100 text-indigo-700 px-3 py-1 rounded-full"
-            >Hideable Dot</span
-          >
-        </div>
-        <p class="text-gray-600 mb-6">
-          A smaller floating minimap that collapses into a translucent dot in a configurable corner.
-          Click it to expand, or double-click it to move it to the next corner.
-        </p>
-        <div class="flex flex-wrap gap-2 mb-4">
-          <button
-            id="scroll-start-compact"
-            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
-          >
-            Scroll to Start
-          </button>
-          <button
-            id="scroll-middle-compact"
-            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
-          >
-            Scroll to Middle
-          </button>
-          <button
-            id="scroll-end-compact"
-            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
-          >
-            Scroll to End
-          </button>
-        </div>
-        <div id="demo-container-compact" class="relative border border-gray-200 rounded-lg mb-4">
-          <div id="table-wrapper-compact" class="overflow-auto max-h-80">
-            <table id="demo-table-compact" class="demo-table">
-              <thead>
-                <tr id="header-row-compact"></tr>
-              </thead>
-              <tbody id="table-body-compact"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-          <div class="bg-gray-50 rounded-lg p-4">
-            <label
-              for="cols-compact"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Columns</label
-            >
-            <input
-              type="number"
-              id="cols-compact"
-              value="22"
-              min="5"
-              max="99"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <label
-              for="rows-compact"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Rows</label
-            >
-            <input
-              type="number"
-              id="rows-compact"
-              value="48"
-              min="5"
-              max="500"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <label
-              for="fixed-position-compact"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Fixed Position</label
-            >
-            <select
-              id="fixed-position-compact"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="bottom-right">Bottom Right</option>
-              <option value="bottom-left">Bottom Left</option>
-              <option value="top-right">Top Right</option>
-              <option value="top-left">Top Left</option>
-            </select>
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-              Scroll Position
-            </p>
-            <p id="scroll-pos-compact" class="text-2xl font-semibold text-gray-900">0%</p>
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Mode</p>
-            <p class="text-2xl font-semibold text-gray-900">Compact</p>
-          </div>
-        </div>
-        <div class="mt-4">
-          <button
-            id="show-code-compact"
-            class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-              ></path>
-            </svg>
-            Show Code
-          </button>
-          <div
-            id="code-block-compact"
-            class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block"
-          >
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code id="code-content-compact"></code></pre>
-          </div>
-        </div>
-      </section>
-
-      <!-- Demo 3: Canvas Mode -->
-      <section id="version-canvas" class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <div class="flex items-center gap-3 mb-4">
-          <h2 class="text-xl font-semibold text-gray-900">Canvas Mode</h2>
-          <span class="text-xs font-medium bg-emerald-100 text-emerald-700 px-3 py-1 rounded-full"
-            >Real Text + Zoom</span
-          >
-          <span class="text-xs font-medium bg-amber-100 text-amber-800 px-3 py-1 rounded-full"
-            >No mobile support yet - coming in Q3 2026</span
-          >
-        </div>
-        <p id="canvas-subtext-3" class="text-gray-600 mb-6">
-          Renders <strong>actual table content</strong>! Scroll wheel to zoom. Click columns to
-          jump. Right-click a column to copy it to clipboard. Mobile support is planned for Q3
-          2026.
-        </p>
-        <div class="flex flex-wrap gap-2 mb-4">
-          <button
-            id="scroll-start-3"
-            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 transition"
-          >
-            Scroll to Start
-          </button>
-          <button
-            id="scroll-middle-3"
-            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
-          >
-            Scroll to Middle
-          </button>
-          <button
-            id="scroll-end-3"
-            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
-          >
-            Scroll to End
-          </button>
-          <button
-            id="reset-zoom-3"
-            class="px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-lg hover:bg-gray-200 transition"
-          >
-            Reset Zoom
-          </button>
-        </div>
-        <div id="demo-container-3" class="border border-gray-200 rounded-lg mb-4">
-          <div id="table-wrapper-3" class="overflow-auto max-h-80">
-            <table id="demo-table-3" class="demo-table">
-              <thead>
-                <tr id="header-row-3"></tr>
-              </thead>
-              <tbody id="table-body-3"></tbody>
-            </table>
-          </div>
-        </div>
-        <div class="mb-4">
-          <label
-            for="clipboard-toggle-3"
-            class="inline-flex items-center gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3 cursor-pointer select-none"
-          >
-            <input
-              type="checkbox"
-              id="clipboard-toggle-3"
-              checked
-              class="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-            />
-            <span class="text-sm font-medium text-gray-800">Copy to clipboard in canvas mode</span>
-          </label>
-        </div>
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div class="bg-gray-50 rounded-lg p-4">
-            <label
-              for="cols-3"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Columns</label
-            >
-            <input
-              type="number"
-              id="cols-3"
-              value="20"
-              min="5"
-              max="99"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <label
-              for="rows-3"
-              class="block text-xs font-medium text-gray-500 uppercase tracking-wide mb-2"
-              >Rows</label
-            >
-            <input
-              type="number"
-              id="rows-3"
-              value="50"
-              min="5"
-              max="500"
-              class="w-full px-3 py-2 text-lg font-semibold text-gray-900 bg-white border border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-              Scroll Position
-            </p>
-            <p id="scroll-pos-3" class="text-2xl font-semibold text-gray-900">0%</p>
-          </div>
-          <div class="bg-gray-50 rounded-lg p-4">
-            <p class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">Zoom Level</p>
-            <p id="zoom-level-3" class="text-2xl font-semibold text-gray-900">1.0x</p>
-          </div>
-        </div>
-        <div class="mt-4">
-          <button
-            id="show-code-3"
-            class="px-4 py-2 bg-gray-800 text-white text-sm font-medium rounded-lg hover:bg-gray-900 transition flex items-center gap-2"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
-              ></path>
-            </svg>
-            Show Code
-          </button>
-          <div
-            id="code-block-3"
-            class="hidden mt-4 bg-gray-900 rounded-lg p-5 overflow-x-auto code-block"
-          >
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code id="code-content-3"></code></pre>
-          </div>
-        </div>
-      </section>
-
-      <!-- Installation -->
-      <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Installation</h2>
-        <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
-          <pre
-            class="text-sm font-mono leading-relaxed text-gray-300"
-          ><code><span class="comment"># npm</span>
+            ><code><span class="comment"># npm</span>
 npm install table-minimap
 
 <span class="comment"># yarn</span>
@@ -695,43 +718,43 @@ yarn add table-minimap
 
 <span class="comment"># pnpm</span>
 pnpm add table-minimap</code></pre>
-        </div>
-      </section>
-
-      <!-- Vanilla JS Usage -->
-      <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <button id="toggle-vanilla" class="w-full flex items-center justify-between text-left">
-          <div class="flex items-center gap-3">
-            <h2 class="text-xl font-semibold text-gray-900">Vanilla JavaScript</h2>
-            <span class="text-xs font-medium bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full"
-              >No Framework</span
-            >
           </div>
-          <svg
-            id="icon-vanilla"
-            class="w-5 h-5 text-gray-500 transition-transform"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            ></path>
-          </svg>
-        </button>
-        <div id="content-vanilla" class="hidden mt-4">
-          <p class="text-gray-600 mb-4">Works with any HTML table – no framework required.</p>
+        </section>
 
-          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Basic Usage
-          </h3>
-          <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code><span class="keyword">import</span> { TableMinimap } <span class="keyword">from</span> <span class="string">'table-minimap'</span>;
+        <!-- Vanilla JS Usage -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <button id="toggle-vanilla" class="w-full flex items-center justify-between text-left">
+            <div class="flex items-center gap-3">
+              <h2 class="text-xl font-semibold text-gray-900">Vanilla JavaScript</h2>
+              <span class="text-xs font-medium bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full"
+                >No Framework</span
+              >
+            </div>
+            <svg
+              id="icon-vanilla"
+              class="w-5 h-5 text-gray-500 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              ></path>
+            </svg>
+          </button>
+          <div id="content-vanilla" class="hidden mt-4">
+            <p class="text-gray-600 mb-4">Works with any HTML table – no framework required.</p>
+
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              Basic Usage
+            </h3>
+            <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code><span class="keyword">import</span> { TableMinimap } <span class="keyword">from</span> <span class="string">'table-minimap'</span>;
 <span class="keyword">import</span> <span class="string">'table-minimap/style.css'</span>;
 
 <span class="comment">// Initialize with selector</span>
@@ -749,15 +772,15 @@ pnpm add table-minimap</code></pre>
   zoomable: <span class="keyword">true</span>,
   maxZoom: 12
 });</code></pre>
-          </div>
+            </div>
 
-          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Dynamic Tables
-          </h3>
-          <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code><span class="keyword">let</span> minimap = <span class="keyword">null</span>;
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              Dynamic Tables
+            </h3>
+            <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code><span class="keyword">let</span> minimap = <span class="keyword">null</span>;
 
 <span class="comment">// Initialize after table is loaded</span>
 <span class="keyword">function</span> <span class="function">initTable</span>(data) {
@@ -780,15 +803,15 @@ pnpm add table-minimap</code></pre>
   <span class="comment">// Update cell...</span>
   minimap?.<span class="function">refresh</span>();
 }</code></pre>
-          </div>
+            </div>
 
-          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Complete HTML Example
-          </h3>
-          <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code><span class="comment">&lt;!-- HTML --&gt;</span>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              Complete HTML Example
+            </h3>
+            <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code><span class="comment">&lt;!-- HTML --&gt;</span>
 &lt;<span class="keyword">div</span> <span class="type">id</span>=<span class="string">"table-container"</span>&gt;
   &lt;<span class="keyword">div</span> <span class="type">class</span>=<span class="string">"table-wrapper"</span> <span class="type">style</span>=<span class="string">"overflow-x: auto;"</span>&gt;
     &lt;<span class="keyword">table</span> <span class="type">id</span>=<span class="string">"my-table"</span>&gt;
@@ -817,46 +840,46 @@ pnpm add table-minimap</code></pre>
     zoomable: <span class="keyword">true</span>
   });
 &lt;/<span class="keyword">script</span>&gt;</code></pre>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- React Usage -->
-      <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <button id="toggle-react" class="w-full flex items-center justify-between text-left">
-          <div class="flex items-center gap-3">
-            <h2 class="text-xl font-semibold text-gray-900">React</h2>
-            <span class="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full"
-              >Hook Pattern</span
+        <!-- React Usage -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <button id="toggle-react" class="w-full flex items-center justify-between text-left">
+            <div class="flex items-center gap-3">
+              <h2 class="text-xl font-semibold text-gray-900">React</h2>
+              <span class="text-xs font-medium bg-blue-100 text-blue-700 px-3 py-1 rounded-full"
+                >Hook Pattern</span
+              >
+            </div>
+            <svg
+              id="icon-react"
+              class="w-5 h-5 text-gray-500 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-          </div>
-          <svg
-            id="icon-react"
-            class="w-5 h-5 text-gray-500 transition-transform"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            ></path>
-          </svg>
-        </button>
-        <div id="content-react" class="hidden mt-4">
-          <p class="text-gray-600 mb-4">
-            Use a custom hook for clean integration with React's lifecycle.
-          </p>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              ></path>
+            </svg>
+          </button>
+          <div id="content-react" class="hidden mt-4">
+            <p class="text-gray-600 mb-4">
+              Use a custom hook for clean integration with React's lifecycle.
+            </p>
 
-          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            useTableMinimap Hook
-          </h3>
-          <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code><span class="comment">// hooks/useTableMinimap.ts</span>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              useTableMinimap Hook
+            </h3>
+            <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code><span class="comment">// hooks/useTableMinimap.ts</span>
 <span class="keyword">import</span> { useEffect, useRef, RefObject } <span class="keyword">from</span> <span class="string">'react'</span>;
 <span class="keyword">import</span> { TableMinimap, TableMinimapOptions } <span class="keyword">from</span> <span class="string">'table-minimap'</span>;
 <span class="keyword">import</span> <span class="string">'table-minimap/style.css'</span>;
@@ -888,15 +911,15 @@ pnpm add table-minimap</code></pre>
 
   <span class="keyword">return</span> { tableRef, minimapRef, refresh, resetZoom };
 }</code></pre>
-          </div>
+            </div>
 
-          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Usage in Component
-          </h3>
-          <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code><span class="comment">// components/DataTable.tsx</span>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              Usage in Component
+            </h3>
+            <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code><span class="comment">// components/DataTable.tsx</span>
 <span class="keyword">import</span> { useTableMinimap } <span class="keyword">from</span> <span class="string">'../hooks/useTableMinimap'</span>;
 
 <span class="keyword">interface</span> <span class="type">DataTableProps</span> {
@@ -942,15 +965,15 @@ pnpm add table-minimap</code></pre>
     &lt;/<span class="keyword">div</span>&gt;
   );
 }</code></pre>
-          </div>
+            </div>
 
-          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            With Dynamic Data
-          </h3>
-          <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code><span class="comment">// When data changes, refresh the minimap</span>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              With Dynamic Data
+            </h3>
+            <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code><span class="comment">// When data changes, refresh the minimap</span>
 <span class="keyword">import</span> { useEffect } <span class="keyword">from</span> <span class="string">'react'</span>;
 <span class="keyword">import</span> { useTableMinimap } <span class="keyword">from</span> <span class="string">'../hooks/useTableMinimap'</span>;
 
@@ -971,46 +994,46 @@ pnpm add table-minimap</code></pre>
     &lt;/<span class="keyword">div</span>&gt;
   );
 }</code></pre>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Vue 3 Usage -->
-      <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <button id="toggle-vue" class="w-full flex items-center justify-between text-left">
-          <div class="flex items-center gap-3">
-            <h2 class="text-xl font-semibold text-gray-900">Vue 3</h2>
-            <span class="text-xs font-medium bg-green-100 text-green-700 px-3 py-1 rounded-full"
-              >Composition API</span
+        <!-- Vue 3 Usage -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <button id="toggle-vue" class="w-full flex items-center justify-between text-left">
+            <div class="flex items-center gap-3">
+              <h2 class="text-xl font-semibold text-gray-900">Vue 3</h2>
+              <span class="text-xs font-medium bg-green-100 text-green-700 px-3 py-1 rounded-full"
+                >Composition API</span
+              >
+            </div>
+            <svg
+              id="icon-vue"
+              class="w-5 h-5 text-gray-500 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-          </div>
-          <svg
-            id="icon-vue"
-            class="w-5 h-5 text-gray-500 transition-transform"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M19 9l-7 7-7-7"
-            ></path>
-          </svg>
-        </button>
-        <div id="content-vue" class="hidden mt-4">
-          <p class="text-gray-600 mb-4">
-            Clean integration using Vue 3's Composition API with composables.
-          </p>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              ></path>
+            </svg>
+          </button>
+          <div id="content-vue" class="hidden mt-4">
+            <p class="text-gray-600 mb-4">
+              Clean integration using Vue 3's Composition API with composables.
+            </p>
 
-          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            useTableMinimap Composable
-          </h3>
-          <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code><span class="comment">// composables/useTableMinimap.ts</span>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              useTableMinimap Composable
+            </h3>
+            <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code><span class="comment">// composables/useTableMinimap.ts</span>
 <span class="keyword">import</span> { ref, onMounted, onBeforeUnmount, <span class="type">Ref</span> } <span class="keyword">from</span> <span class="string">'vue'</span>;
 <span class="keyword">import</span> { TableMinimap, <span class="type">TableMinimapOptions</span> } <span class="keyword">from</span> <span class="string">'table-minimap'</span>;
 <span class="keyword">import</span> <span class="string">'table-minimap/style.css'</span>;
@@ -1041,15 +1064,15 @@ pnpm add table-minimap</code></pre>
     getZoomState
   };
 }</code></pre>
-          </div>
+            </div>
 
-          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Usage in Component
-          </h3>
-          <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code><span class="comment">&lt;!-- components/DataTable.vue --&gt;</span>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              Usage in Component
+            </h3>
+            <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block mb-6">
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code><span class="comment">&lt;!-- components/DataTable.vue --&gt;</span>
 &lt;<span class="keyword">script</span> <span class="type">setup</span> <span class="type">lang</span>=<span class="string">"ts"</span>&gt;
 <span class="keyword">import</span> { watch } <span class="keyword">from</span> <span class="string">'vue'</span>;
 <span class="keyword">import</span> { useTableMinimap } <span class="keyword">from</span> <span class="string">'@/composables/useTableMinimap'</span>;
@@ -1095,15 +1118,15 @@ pnpm add table-minimap</code></pre>
     &lt;/<span class="keyword">div</span>&gt;
   &lt;/<span class="keyword">div</span>&gt;
 &lt;/<span class="keyword">template</span>&gt;</code></pre>
-          </div>
+            </div>
 
-          <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
-            Options API Alternative
-          </h3>
-          <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
-            <pre
-              class="text-sm font-mono leading-relaxed text-gray-300"
-            ><code><span class="comment">&lt;!-- For Vue Options API users --&gt;</span>
+            <h3 class="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-3">
+              Options API Alternative
+            </h3>
+            <div class="bg-gray-900 rounded-lg p-5 overflow-x-auto code-block">
+              <pre
+                class="text-sm font-mono leading-relaxed text-gray-300"
+              ><code><span class="comment">&lt;!-- For Vue Options API users --&gt;</span>
 &lt;<span class="keyword">script</span>&gt;
 <span class="keyword">import</span> { TableMinimap } <span class="keyword">from</span> <span class="string">'table-minimap'</span>;
 <span class="keyword">import</span> <span class="string">'table-minimap/style.css'</span>;
@@ -1137,187 +1160,619 @@ pnpm add table-minimap</code></pre>
     &lt;<span class="keyword">table</span>&gt;<span class="comment">&lt;!-- ... --&gt;</span>&lt;/<span class="keyword">table</span>&gt;
   &lt;/<span class="keyword">div</span>&gt;
 &lt;/<span class="keyword">template</span>&gt;</code></pre>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      <!-- Options -->
-      <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">Options</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b border-gray-200">
-                <th class="text-left py-3 px-4 font-semibold text-gray-700">Option</th>
-                <th class="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
-                <th class="text-left py-3 px-4 font-semibold text-gray-700">Default</th>
-                <th class="text-left py-3 px-4 font-semibold text-gray-700">Description</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">mode</code>
-                </td>
-                <td class="py-3 px-4 text-gray-600">'columns' | 'canvas'</td>
-                <td class="py-3 px-4 text-gray-500">'columns'</td>
-                <td class="py-3 px-4 text-gray-600">Rendering mode</td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">height</code>
-                </td>
-                <td class="py-3 px-4 text-gray-600">number</td>
-                <td class="py-3 px-4 text-gray-500">40</td>
-                <td class="py-3 px-4 text-gray-600">Height in pixels</td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">position</code>
-                </td>
-                <td class="py-3 px-4 text-gray-600">'top' | 'bottom' | 'fixed'</td>
-                <td class="py-3 px-4 text-gray-500">'bottom'</td>
-                <td class="py-3 px-4 text-gray-600">
-                  Position: top/bottom of table, or fixed overlay
-                </td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
-                    >fixedWidth</code
+        <!-- Options -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">Options</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-gray-200">
+                  <th class="text-left py-3 px-4 font-semibold text-gray-700">Option</th>
+                  <th class="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
+                  <th class="text-left py-3 px-4 font-semibold text-gray-700">Default</th>
+                  <th class="text-left py-3 px-4 font-semibold text-gray-700">Description</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <!-- Core Options -->
+                <tr class="bg-gray-50">
+                  <td
+                    colspan="4"
+                    class="py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide"
                   >
-                </td>
-                <td class="py-3 px-4 text-gray-600">number</td>
-                <td class="py-3 px-4 text-gray-500">300</td>
-                <td class="py-3 px-4 text-gray-600">Width when position is 'fixed'</td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
-                    >fixedPosition</code
-                  >
-                </td>
-                <td class="py-3 px-4 text-gray-600">
-                  'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
-                </td>
-                <td class="py-3 px-4 text-gray-500">'bottom-right'</td>
-                <td class="py-3 px-4 text-gray-600">
-                  Corner when position is 'fixed'; double-click to cycle corners
-                </td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">zoomable</code>
-                </td>
-                <td class="py-3 px-4 text-gray-600">boolean</td>
-                <td class="py-3 px-4 text-gray-500">false</td>
-                <td class="py-3 px-4 text-gray-600">Enable zoom (canvas mode)</td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
-                    >maxZoom</code
-                  >
-                </td>
-                <td class="py-3 px-4 text-gray-600">number</td>
-                <td class="py-3 px-4 text-gray-500">10</td>
-                <td class="py-3 px-4 text-gray-600">Maximum zoom level</td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
-                    >draggable</code
-                  >
-                </td>
-                <td class="py-3 px-4 text-gray-600">boolean</td>
-                <td class="py-3 px-4 text-gray-500">true</td>
-                <td class="py-3 px-4 text-gray-600">Enable drag navigation</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+                    Core Options
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">mode</code>
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">'columns' | 'canvas'</td>
+                  <td class="py-3 px-4 text-gray-500">'columns'</td>
+                  <td class="py-3 px-4 text-gray-600">Rendering mode</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs">height</code>
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">number</td>
+                  <td class="py-3 px-4 text-gray-500">40</td>
+                  <td class="py-3 px-4 text-gray-600">Height in pixels</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >position</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">'top' | 'bottom' | 'fixed'</td>
+                  <td class="py-3 px-4 text-gray-500">'bottom'</td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Position: top/bottom of table, or fixed overlay
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >draggable</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">boolean</td>
+                  <td class="py-3 px-4 text-gray-500">true</td>
+                  <td class="py-3 px-4 text-gray-600">Enable drag navigation on viewport</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >showViewport</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">boolean</td>
+                  <td class="py-3 px-4 text-gray-500">true</td>
+                  <td class="py-3 px-4 text-gray-600">Show the viewport indicator</td>
+                </tr>
 
-      <!-- API -->
-      <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
-        <h2 class="text-xl font-semibold text-gray-900 mb-4">API Methods</h2>
-        <div class="overflow-x-auto">
-          <table class="w-full text-sm">
-            <thead>
-              <tr class="border-b border-gray-200">
-                <th class="text-left py-3 px-4 font-semibold text-gray-700">Method</th>
-                <th class="text-left py-3 px-4 font-semibold text-gray-700">Description</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
-                    >destroy()</code
+                <!-- Fixed Position Options -->
+                <tr class="bg-gray-50">
+                  <td
+                    colspan="4"
+                    class="py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide"
                   >
-                </td>
-                <td class="py-3 px-4 text-gray-600">Remove minimap and cleanup</td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
-                    >refresh()</code
-                  >
-                </td>
-                <td class="py-3 px-4 text-gray-600">Force refresh after table changes</td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
-                    >getZoomState()</code
-                  >
-                </td>
-                <td class="py-3 px-4 text-gray-600">Get current zoom level</td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
-                    >resetZoom()</code
-                  >
-                </td>
-                <td class="py-3 px-4 text-gray-600">Reset to full view</td>
-              </tr>
-              <tr class="hover:bg-gray-50">
-                <td class="py-3 px-4">
-                  <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
-                    >scrollToColumn(index)</code
-                  >
-                </td>
-                <td class="py-3 px-4 text-gray-600">Scroll to specific column</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </section>
+                    Fixed Position Options
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >fixedWidth</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">number</td>
+                  <td class="py-3 px-4 text-gray-500">300</td>
+                  <td class="py-3 px-4 text-gray-600">Width when position is 'fixed'</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >fixedPosition</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">
+                    'top-left' | 'top-right' | 'bottom-left' | 'bottom-right'
+                  </td>
+                  <td class="py-3 px-4 text-gray-500">'bottom-right'</td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Corner when position is 'fixed'; double-click to cycle
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >compact</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">boolean</td>
+                  <td class="py-3 px-4 text-gray-500">false</td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Collapse into dot handle, expand on hover/click
+                  </td>
+                </tr>
 
-      <footer
-        class="py-8 text-sm text-gray-500 inline-flex w-full items-center justify-center gap-2 text-center flex-wrap"
-      >
-        <span>MIT License</span>
-        <span>·</span>
-        <span>Zero Dependencies</span>
-        <span>·</span>
-        <span>TypeScript</span>
-        <span>·</span>
-        <a
-          href="https://github.com/Kevinci"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="inline-flex items-center gap-1 rounded-full border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 transition hover:-translate-y-0.5 hover:bg-gray-100"
-          ><svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <path
-              d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.23c-3.34.73-4.04-1.41-4.04-1.41-.55-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.11-.78.42-1.3.76-1.6-2.66-.3-5.46-1.33-5.46-5.92 0-1.31.47-2.38 1.23-3.22-.12-.31-.53-1.56.12-3.24 0 0 1-.32 3.3 1.23a11.35 11.35 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.65 1.68.24 2.93.12 3.24.77.84 1.23 1.91 1.23 3.22 0 4.6-2.81 5.61-5.49 5.91.43.37.81 1.1.81 2.21v3.28c0 .32.19.69.8.57A12.01 12.01 0 0 0 24 12c0-6.63-5.37-12-12-12Z"
-            ></path></svg
-          >GitHub @Kevinci</a
+                <!-- Zoom Options -->
+                <tr class="bg-gray-50">
+                  <td
+                    colspan="4"
+                    class="py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                  >
+                    Zoom Options (Canvas Mode)
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >zoomable</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">boolean</td>
+                  <td class="py-3 px-4 text-gray-500">false</td>
+                  <td class="py-3 px-4 text-gray-600">Enable scroll wheel / pinch-to-zoom</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >minZoom</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">number</td>
+                  <td class="py-3 px-4 text-gray-500">1</td>
+                  <td class="py-3 px-4 text-gray-600">Minimum zoom level (1 = full overview)</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >maxZoom</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">number</td>
+                  <td class="py-3 px-4 text-gray-500">10</td>
+                  <td class="py-3 px-4 text-gray-600">Maximum zoom level</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >zoomSpeed</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">number</td>
+                  <td class="py-3 px-4 text-gray-500">0.1</td>
+                  <td class="py-3 px-4 text-gray-600">Zoom speed multiplier</td>
+                </tr>
+
+                <!-- Canvas Context Menu Options -->
+                <tr class="bg-gray-50">
+                  <td
+                    colspan="4"
+                    class="py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                  >
+                    Canvas Context Menu
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >canvasClipboard</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">boolean</td>
+                  <td class="py-3 px-4 text-gray-500">false</td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Enable "Copy column to clipboard" context menu
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >canvasClipboardLabel</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">string</td>
+                  <td class="py-3 px-4 text-gray-500">'Copy column to clipboard'</td>
+                  <td class="py-3 px-4 text-gray-600">i18n label for clipboard action</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >canvasColumnMarking</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">boolean</td>
+                  <td class="py-3 px-4 text-gray-500">false</td>
+                  <td class="py-3 px-4 text-gray-600">Enable mark/unmark column in context menu</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >canvasMarkColumnLabel</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">string</td>
+                  <td class="py-3 px-4 text-gray-500">'Mark column'</td>
+                  <td class="py-3 px-4 text-gray-600">i18n label for mark action</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >canvasUnmarkColumnLabel</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">string</td>
+                  <td class="py-3 px-4 text-gray-500">'Unmark column'</td>
+                  <td class="py-3 px-4 text-gray-600">i18n label for unmark action</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >canvasUnmarkAllColumnsLabel</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">string</td>
+                  <td class="py-3 px-4 text-gray-500">'Unmark all columns'</td>
+                  <td class="py-3 px-4 text-gray-600">i18n label for unmark-all action</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >canvasColumnHiding</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">boolean</td>
+                  <td class="py-3 px-4 text-gray-500">false</td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Enable collapse/expand column in context menu
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >canvasColumnSelection</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">boolean</td>
+                  <td class="py-3 px-4 text-gray-500">false</td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Enable click, Shift+Click and Cmd/Ctrl+Click column selection
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >canvasHideColumnLabel</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">string</td>
+                  <td class="py-3 px-4 text-gray-500">'Collapse column'</td>
+                  <td class="py-3 px-4 text-gray-600">i18n label for collapse action</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >canvasShowColumnLabel</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">string</td>
+                  <td class="py-3 px-4 text-gray-500">'Expand column'</td>
+                  <td class="py-3 px-4 text-gray-600">i18n label for expand action</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >canvasShowAllColumnsLabel</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">string</td>
+                  <td class="py-3 px-4 text-gray-500">'Expand all columns'</td>
+                  <td class="py-3 px-4 text-gray-600">i18n label for expand-all action</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >collapsedColumnWidth</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">number</td>
+                  <td class="py-3 px-4 text-gray-500">10</td>
+                  <td class="py-3 px-4 text-gray-600">Width in pixels for collapsed columns</td>
+                </tr>
+
+                <!-- State & Callbacks -->
+                <tr class="bg-gray-50">
+                  <td
+                    colspan="4"
+                    class="py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                  >
+                    State & Callbacks
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >markedColumns</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">number[]</td>
+                  <td class="py-3 px-4 text-gray-500">[]</td>
+                  <td class="py-3 px-4 text-gray-600">Initially marked column indices</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >hiddenColumns</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">number[]</td>
+                  <td class="py-3 px-4 text-gray-500">[]</td>
+                  <td class="py-3 px-4 text-gray-600">Initially collapsed column indices</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >onMarkedColumnsChange</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">(details) => void</td>
+                  <td class="py-3 px-4 text-gray-500">-</td>
+                  <td class="py-3 px-4 text-gray-600">Callback when marked columns change</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >onHiddenColumnsChange</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">(details) => void</td>
+                  <td class="py-3 px-4 text-gray-500">-</td>
+                  <td class="py-3 px-4 text-gray-600">Callback when collapsed columns change</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >selectedColumns</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">number[]</td>
+                  <td class="py-3 px-4 text-gray-500">[]</td>
+                  <td class="py-3 px-4 text-gray-600">Initially selected column indices</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >onSelectedColumnsChange</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">(details) => void</td>
+                  <td class="py-3 px-4 text-gray-500">-</td>
+                  <td class="py-3 px-4 text-gray-600">Callback when selected columns change</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- API -->
+        <section class="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-8">
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">API Methods</h2>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-gray-200">
+                  <th class="text-left py-3 px-4 font-semibold text-gray-700">Method</th>
+                  <th class="text-left py-3 px-4 font-semibold text-gray-700">Description</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                <!-- Core Methods -->
+                <tr class="bg-gray-50">
+                  <td
+                    colspan="2"
+                    class="py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                  >
+                    Core Methods
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >destroy()</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Remove minimap and cleanup all event listeners
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >refresh()</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Force re-render after table content changes
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >scrollToColumn(index)</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Scroll table to bring specific column into view
+                  </td>
+                </tr>
+
+                <!-- Zoom Methods -->
+                <tr class="bg-gray-50">
+                  <td
+                    colspan="2"
+                    class="py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                  >
+                    Zoom Methods (Canvas Mode)
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >getZoomState()</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">Get current zoom level and state info</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >setZoom(level, panX?)</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Set zoom level programmatically with optional pan position
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >resetZoom()</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">Reset to full table overview (zoom 1x)</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >zoomToColumns(start, end)</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">Zoom to show a specific column range</td>
+                </tr>
+
+                <!-- Column Marking Methods -->
+                <tr class="bg-gray-50">
+                  <td
+                    colspan="2"
+                    class="py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                  >
+                    Column Marking Methods
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >getMarkedColumns()</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">Get array of marked column indices</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >setMarkedColumns(indices)</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Replace all marked columns programmatically
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >clearMarkedColumns()</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">Clear all marked columns</td>
+                </tr>
+
+                <!-- Column Collapsing Methods -->
+                <tr class="bg-gray-50">
+                  <td
+                    colspan="2"
+                    class="py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                  >
+                    Column Collapsing Methods
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >getHiddenColumns()</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">Get array of collapsed column indices</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >setHiddenColumns(indices)</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Replace all collapsed columns with dark overlay
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >clearHiddenColumns()</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">Expand all collapsed columns</td>
+                </tr>
+
+                <!-- Column Selection Methods -->
+                <tr class="bg-gray-50">
+                  <td
+                    colspan="2"
+                    class="py-2 px-4 text-xs font-semibold text-gray-500 uppercase tracking-wide"
+                  >
+                    Column Selection Methods
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >getSelectedColumns()</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">Get array of selected column indices</td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >setSelectedColumns(indices)</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">
+                    Replace all selected columns programmatically
+                  </td>
+                </tr>
+                <tr class="hover:bg-gray-50">
+                  <td class="py-3 px-4">
+                    <code class="text-pink-600 bg-pink-50 px-2 py-0.5 rounded text-xs"
+                      >clearSelectedColumns()</code
+                    >
+                  </td>
+                  <td class="py-3 px-4 text-gray-600">Clear all selected columns</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <footer
+          class="py-8 text-sm text-gray-500 inline-flex w-full items-center justify-center gap-2 text-center flex-wrap"
         >
-        <span>·</span>
-        <span>2026</span>
-      </footer>
+          <span>MIT License</span>
+          <span>·</span>
+          <span>Zero Dependencies</span>
+          <span>·</span>
+          <span>TypeScript</span>
+          <span>·</span>
+          <a
+            href="https://github.com/Kevinci"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1 rounded-full border border-gray-300 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 transition hover:-translate-y-0.5 hover:bg-gray-100"
+            ><svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+              <path
+                d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.23c-3.34.73-4.04-1.41-4.04-1.41-.55-1.38-1.33-1.75-1.33-1.75-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49.99.11-.78.42-1.3.76-1.6-2.66-.3-5.46-1.33-5.46-5.92 0-1.31.47-2.38 1.23-3.22-.12-.31-.53-1.56.12-3.24 0 0 1-.32 3.3 1.23a11.35 11.35 0 0 1 6 0c2.3-1.55 3.3-1.23 3.3-1.23.65 1.68.24 2.93.12 3.24.77.84 1.23 1.91 1.23 3.22 0 4.6-2.81 5.61-5.49 5.91.43.37.81 1.1.81 2.21v3.28c0 .32.19.69.8.57A12.01 12.01 0 0 0 24 12c0-6.63-5.37-12-12-12Z"
+              ></path></svg
+            >GitHub @Kevinci</a
+          >
+          <span>·</span>
+          <span>2026</span>
+        </footer>
       </main>
     </div>
     <div
