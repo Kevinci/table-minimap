@@ -9,6 +9,48 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 
 ## [Unreleased]
 
+## [2.0.0] - 2026-07-01
+
+### Added
+
+- **Canvas Column Selection** - Finder-like multi-selection (single-click, Shift+click, Cmd/Ctrl+click) with `canvasColumnSelection` option
+- **Canvas Column Visibility Control** - Collapse/expand columns via context menu with `canvasColumnHiding`, `canvasHideColumnLabel`, `canvasShowColumnLabel` options
+- **Enhanced Canvas Zoom System** - Interactive scroll-wheel zoom with readable text scaling at high zoom levels, configurable min/max zoom and speed
+- **Touch Support** - Long-press context menu (600ms), pinch-to-zoom, double-tap zoom, and smooth touch pan gestures
+- **Canvas Touch Handlers Module** - New `handlers/touch.ts` with `getTouchDistance()` and `getTouchCenter()` utilities
+- **Canvas Rendering Module** - New `canvas/renderer.ts` with separated rendering logic and metrics calculation
+- **Modularized Column Utilities** - New `utils/columns.ts` with column header extraction, cell selection, and clipboard operations
+- **API Methods** - `getSelectedColumns()`, `setSelectedColumns()`, `getHiddenColumns()`, `setHiddenColumns()`, `getZoomState()`
+- **Callback Events** - `onHiddenColumnsChange`, `onSelectedColumnsChange` with detailed change payloads
+- **State Options** - `hiddenColumns` and `selectedColumns` for initial state configuration
+- **Collapsed Column Width Configuration** - `collapsedColumnWidth` option (default: 10px)
+
+### Changed
+
+- **BREAKING**: Canvas rendering pipeline refactored for better modularity
+- **BREAKING**: Context menu event delegation simplified
+- **BREAKING**: Column data extraction requires explicit cell type handling
+- Canvas mode no longer shows viewport indicator in fixed overlays
+- Improved type system with detailed callback payload interfaces
+- Enhanced touch event handling with configurable gesture thresholds
+
+### Fixed
+
+- Fixed canvas navigation clicks after viewport drag operations
+- Improved canvas zoom rendering at high magnification levels
+- Fixed row height interpolation based on zoom level
+- Enhanced touch gesture recognition to prevent accidental triggers
+- Improved column index normalization when table structure changes
+
+### Improved
+
+- Modularized code architecture (~14% reduction through dead code removal)
+- Better tree-shaking opportunities with separate modules
+- Enhanced error messages for easier debugging
+- Touch event handling optimized for mobile devices
+- Canvas rendering performance improved with metrics caching
+- Documentation expanded with detailed feature examples and migration guide
+
 ## [1.3.0] - 2026-06-17
 
 ### Added
@@ -121,7 +163,8 @@ and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.ht
 - Updated license author information.
 - Added homepage/demo metadata.
 
-[Unreleased]: https://github.com/Kevinci/table-minimap/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/Kevinci/table-minimap/compare/v2.0.0...HEAD
+[2.0.0]: https://github.com/Kevinci/table-minimap/compare/v1.3.0...v2.0.0
 [1.3.0]: https://github.com/Kevinci/table-minimap/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/Kevinci/table-minimap/compare/v1.2.0...v1.2.1
 [1.2.0]: https://github.com/Kevinci/table-minimap/compare/v1.1.3...v1.2.0
